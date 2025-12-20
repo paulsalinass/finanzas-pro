@@ -9,6 +9,14 @@ __turbopack_context__.s([
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$day$2d$picker$2f$dist$2f$esm$2f$DayPicker$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-day-picker/dist/esm/DayPicker.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/date-fns/format.js [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/startOfDay.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/endOfDay.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$subDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/subDays.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/startOfMonth.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/endOfMonth.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$subMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/subMonths.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/addMonths.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$locale$2f$es$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/locale/es.js [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
@@ -17,12 +25,103 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+;
+const quickRanges = [
+    {
+        label: 'Hoy',
+        getRange: ()=>{
+            const today = new Date();
+            return {
+                from: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfDay"])(today),
+                to: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endOfDay"])(today)
+            };
+        }
+    },
+    {
+        label: 'Ayer',
+        getRange: ()=>{
+            const yesterday = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$subDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["subDays"])(new Date(), 1);
+            return {
+                from: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfDay"])(yesterday),
+                to: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endOfDay"])(yesterday)
+            };
+        }
+    },
+    {
+        label: 'Últimos 7 días',
+        getRange: ()=>({
+                from: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfDay"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$subDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["subDays"])(new Date(), 6)),
+                to: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endOfDay"])(new Date())
+            })
+    },
+    {
+        label: 'Últimos 30 días',
+        getRange: ()=>({
+                from: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfDay"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$subDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["subDays"])(new Date(), 29)),
+                to: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endOfDay"])(new Date())
+            })
+    },
+    {
+        label: 'Este mes',
+        getRange: ()=>({
+                from: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])(new Date()),
+                to: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endOfDay"])(new Date())
+            })
+    },
+    {
+        label: 'Mes pasado',
+        getRange: ()=>{
+            const reference = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$subMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["subMonths"])(new Date(), 1);
+            return {
+                from: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])(reference),
+                to: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endOfMonth"])(reference)
+            };
+        }
+    },
+    {
+        label: 'Últimos 3 meses',
+        getRange: ()=>({
+                from: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$subMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["subMonths"])(new Date(), 2)),
+                to: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endOfDay"])(new Date())
+            })
+    }
+];
+const monthNames = [
+    'enero',
+    'febrero',
+    'marzo',
+    'abril',
+    'mayo',
+    'junio',
+    'julio',
+    'agosto',
+    'septiembre',
+    'octubre',
+    'noviembre',
+    'diciembre'
+];
 const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEndDate })=>{
     _s();
     const [range, setRange] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
         from: initialStartDate || undefined,
         to: initialEndDate || undefined
     });
+    const [activePreset, setActivePreset] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [leftMonth, setLeftMonth] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
+        "DateRangeModal.useState": ()=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])(initialStartDate || new Date())
+    }["DateRangeModal.useState"]);
+    const [rightMonth, setRightMonth] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
+        "DateRangeModal.useState": ()=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addMonths"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])(initialStartDate || new Date()), 1)
+    }["DateRangeModal.useState"]);
+    const syncCalendarMonths = (fromDate, toDate)=>{
+        const baseLeft = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])(fromDate || new Date());
+        let baseRight = toDate ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])(toDate) : (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addMonths"])(baseLeft, 1);
+        if (baseRight <= baseLeft) {
+            baseRight = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addMonths"])(baseLeft, 1);
+        }
+        setLeftMonth(baseLeft);
+        setRightMonth(baseRight);
+    };
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "DateRangeModal.useEffect": ()=>{
             if (isOpen) {
@@ -30,6 +129,8 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                     from: initialStartDate || undefined,
                     to: initialEndDate || undefined
                 });
+                setActivePreset(null);
+                syncCalendarMonths(initialStartDate || undefined, initialEndDate || undefined);
             }
         }
     }["DateRangeModal.useEffect"], [
@@ -37,172 +138,555 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
         initialStartDate,
         initialEndDate
     ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "DateRangeModal.useEffect": ()=>{
+            if (!isOpen) return;
+            const handleKeyDown = {
+                "DateRangeModal.useEffect.handleKeyDown": (event)=>{
+                    if (event.key === 'Escape') {
+                        onClose();
+                    }
+                }
+            }["DateRangeModal.useEffect.handleKeyDown"];
+            window.addEventListener('keydown', handleKeyDown);
+            return ({
+                "DateRangeModal.useEffect": ()=>window.removeEventListener('keydown', handleKeyDown)
+            })["DateRangeModal.useEffect"];
+        }
+    }["DateRangeModal.useEffect"], [
+        isOpen,
+        onClose
+    ]);
+    const years = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "DateRangeModal.useMemo[years]": ()=>{
+            const current = new Date().getFullYear();
+            return Array.from({
+                length: 11
+            }, {
+                "DateRangeModal.useMemo[years]": (_, idx)=>current - 5 + idx
+            }["DateRangeModal.useMemo[years]"]);
+        }
+    }["DateRangeModal.useMemo[years]"], []);
+    const handleRangeSelect = (selected)=>{
+        if (!selected?.from) {
+            setRange(undefined);
+            return;
+        }
+        if (!selected.to) {
+            setRange({
+                from: selected.from,
+                to: undefined
+            });
+            syncCalendarMonths(selected.from, undefined);
+            setActivePreset(null);
+            return;
+        }
+        const start = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfDay"])(selected.from);
+        const end = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endOfDay"])(selected.to);
+        if (end < start) {
+            setRange({
+                from: end,
+                to: undefined
+            });
+            syncCalendarMonths(end, undefined);
+            setActivePreset(null);
+            return;
+        }
+        setRange({
+            from: start,
+            to: end
+        });
+        syncCalendarMonths(start, end);
+        setActivePreset(null);
+    };
+    const handlePresetClick = (preset)=>{
+        const presetRange = preset.getRange();
+        setRange(presetRange);
+        setActivePreset(preset.label);
+        syncCalendarMonths(presetRange.from, presetRange.to);
+    };
     const handleApply = ()=>{
         if (range?.from && range?.to) {
             onApply(range.from, range.to);
             onClose();
         }
     };
-    if (!isOpen) return null;
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4",
-        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "glass-card bg-[#111821] border border-white/10 rounded-2xl shadow-2xl w-full max-w-3xl p-6 relative",
-            onClick: (e)=>e.stopPropagation(),
+    const formattedRange = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "DateRangeModal.useMemo[formattedRange]": ()=>{
+            if (!range?.from || !range?.to) return 'Selecciona un rango';
+            return `${(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["format"])(range.from, "d MMM, yyyy", {
+                locale: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$locale$2f$es$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["es"]
+            })} - ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["format"])(range.to, "d MMM, yyyy", {
+                locale: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$locale$2f$es$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["es"]
+            })}`;
+        }
+    }["DateRangeModal.useMemo[formattedRange]"], [
+        range
+    ]);
+    const handleLeftMonthChange = (next)=>{
+        const normalized = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])(next);
+        setLeftMonth(normalized);
+        if (rightMonth <= normalized) {
+            setRightMonth((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addMonths"])(normalized, 1));
+        }
+    };
+    const handleRightMonthChange = (next)=>{
+        const normalized = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])(next);
+        if (normalized <= leftMonth) {
+            setRightMonth((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addMonths"])(leftMonth, 1));
+            return;
+        }
+        setRightMonth(normalized);
+    };
+    const MonthControls = ({ month, onChange, disablePrev, disableNext })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex items-center justify-between mb-3",
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "flex justify-between items-center mb-6",
+                    className: "flex items-center gap-2",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                            value: month.getMonth(),
+                            onChange: (event)=>{
+                                const updated = new Date(month);
+                                updated.setMonth(Number(event.target.value));
+                                updated.setDate(1);
+                                onChange(updated);
+                            },
+                            className: "px-2 py-1 text-xs font-semibold rounded-lg border border-slate-200 bg-white focus:border-primary focus:outline-none dark:bg-transparent dark:border-white/20 dark:text-white",
+                            children: monthNames.map((name, idx)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                    value: idx,
+                                    children: name.charAt(0).toUpperCase() + name.slice(1)
+                                }, name, false, {
+                                    fileName: "[project]/components/DateRangeModal.tsx",
+                                    lineNumber: 214,
+                                    columnNumber: 25
+                                }, ("TURBOPACK compile-time value", void 0)))
+                        }, void 0, false, {
+                            fileName: "[project]/components/DateRangeModal.tsx",
+                            lineNumber: 203,
+                            columnNumber: 17
+                        }, ("TURBOPACK compile-time value", void 0)),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                            value: month.getFullYear(),
+                            onChange: (event)=>{
+                                const updated = new Date(month);
+                                updated.setFullYear(Number(event.target.value));
+                                updated.setDate(1);
+                                onChange(updated);
+                            },
+                            className: "px-2 py-1 text-xs font-semibold rounded-lg border border-slate-200 bg-white focus:border-primary focus:outline-none dark:bg-transparent dark:border-white/20 dark:text-white",
+                            children: years.map((year)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                    value: year,
+                                    children: year
+                                }, year, false, {
+                                    fileName: "[project]/components/DateRangeModal.tsx",
+                                    lineNumber: 230,
+                                    columnNumber: 25
+                                }, ("TURBOPACK compile-time value", void 0)))
+                        }, void 0, false, {
+                            fileName: "[project]/components/DateRangeModal.tsx",
+                            lineNumber: 219,
+                            columnNumber: 17
+                        }, ("TURBOPACK compile-time value", void 0))
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/components/DateRangeModal.tsx",
+                    lineNumber: 202,
+                    columnNumber: 13
+                }, ("TURBOPACK compile-time value", void 0)),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "flex items-center gap-1 text-primary",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                            type: "button",
+                            onClick: ()=>onChange((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addMonths"])(month, -1)),
+                            disabled: disablePrev,
+                            className: "size-7 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-40",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "material-symbols-outlined text-sm",
+                                children: "chevron_left"
+                            }, void 0, false, {
+                                fileName: "[project]/components/DateRangeModal.tsx",
+                                lineNumber: 243,
+                                columnNumber: 21
+                            }, ("TURBOPACK compile-time value", void 0))
+                        }, void 0, false, {
+                            fileName: "[project]/components/DateRangeModal.tsx",
+                            lineNumber: 237,
+                            columnNumber: 17
+                        }, ("TURBOPACK compile-time value", void 0)),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                            type: "button",
+                            onClick: ()=>onChange((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addMonths"])(month, 1)),
+                            disabled: disableNext,
+                            className: "size-7 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-40",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "material-symbols-outlined text-sm",
+                                children: "chevron_right"
+                            }, void 0, false, {
+                                fileName: "[project]/components/DateRangeModal.tsx",
+                                lineNumber: 251,
+                                columnNumber: 21
+                            }, ("TURBOPACK compile-time value", void 0))
+                        }, void 0, false, {
+                            fileName: "[project]/components/DateRangeModal.tsx",
+                            lineNumber: 245,
+                            columnNumber: 17
+                        }, ("TURBOPACK compile-time value", void 0))
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/components/DateRangeModal.tsx",
+                    lineNumber: 236,
+                    columnNumber: 13
+                }, ("TURBOPACK compile-time value", void 0))
+            ]
+        }, void 0, true, {
+            fileName: "[project]/components/DateRangeModal.tsx",
+            lineNumber: 201,
+            columnNumber: 9
+        }, ("TURBOPACK compile-time value", void 0));
+    if (!isOpen) return null;
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "fixed inset-0 z-[120] flex",
+        onClick: onClose,
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "hidden lg:block w-[240px]"
+            }, void 0, false, {
+                fileName: "[project]/components/DateRangeModal.tsx",
+                lineNumber: 261,
+                columnNumber: 13
+            }, ("TURBOPACK compile-time value", void 0)),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "flex-1 relative bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-3 sm:p-4",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "date-range-modal w-full max-w-5xl bg-white dark:bg-[#101828] rounded-[28px] shadow-2xl border border-slate-200/80 dark:border-white/10 p-4 sm:p-5",
+                    onClick: (e)=>e.stopPropagation(),
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex items-start justify-between gap-3 mb-4",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                    className: "text-xl font-bold text-white",
+                                    className: "text-base font-black text-slate-900 dark:text-white",
                                     children: "Seleccionar Rango"
                                 }, void 0, false, {
                                     fileName: "[project]/components/DateRangeModal.tsx",
-                                    lineNumber: 45,
+                                    lineNumber: 268,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                    className: "text-sm text-gray-400",
-                                    children: [
-                                        range?.from ? range.from.toLocaleDateString('es-ES', {
-                                            day: 'numeric',
-                                            month: 'short'
-                                        }) : '...',
-                                        ' - ',
-                                        range?.to ? range.to.toLocaleDateString('es-ES', {
-                                            day: 'numeric',
-                                            month: 'short',
-                                            year: 'numeric'
-                                        }) : '...'
-                                    ]
-                                }, void 0, true, {
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    onClick: onClose,
+                                    className: "size-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-primary hover:bg-primary/10 transition-colors dark:bg-white/10 dark:text-white",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "material-symbols-outlined text-lg",
+                                        children: "close"
+                                    }, void 0, false, {
+                                        fileName: "[project]/components/DateRangeModal.tsx",
+                                        lineNumber: 273,
+                                        columnNumber: 29
+                                    }, ("TURBOPACK compile-time value", void 0))
+                                }, void 0, false, {
                                     fileName: "[project]/components/DateRangeModal.tsx",
-                                    lineNumber: 46,
+                                    lineNumber: 269,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/DateRangeModal.tsx",
-                            lineNumber: 44,
+                            lineNumber: 267,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0)),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                            onClick: onClose,
-                            className: "p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white",
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "material-symbols-outlined",
-                                children: "close"
-                            }, void 0, false, {
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex flex-col lg:flex-row gap-4",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("aside", {
+                                    className: "flex flex-col gap-2 w-full lg:w-56",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            className: "text-[9px] font-semibold text-slate-500 uppercase tracking-wide",
+                                            children: "Rangos rápidos"
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/DateRangeModal.tsx",
+                                            lineNumber: 279,
+                                            columnNumber: 29
+                                        }, ("TURBOPACK compile-time value", void 0)),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "grid grid-cols-2 lg:grid-cols-1 gap-2",
+                                            children: quickRanges.map((preset)=>{
+                                                const isActive = activePreset === preset.label;
+                                                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                    onClick: ()=>handlePresetClick(preset),
+                                                    className: `text-left px-3 py-1.5 rounded-2xl border text-[11px] font-semibold transition-all ${isActive ? 'bg-primary/10 border-primary/40 text-primary' : 'border-slate-200 text-slate-600 hover:border-primary/30 hover:text-primary'}`,
+                                                    children: preset.label
+                                                }, preset.label, false, {
+                                                    fileName: "[project]/components/DateRangeModal.tsx",
+                                                    lineNumber: 284,
+                                                    columnNumber: 41
+                                                }, ("TURBOPACK compile-time value", void 0));
+                                            })
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/DateRangeModal.tsx",
+                                            lineNumber: 280,
+                                            columnNumber: 29
+                                        }, ("TURBOPACK compile-time value", void 0))
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/components/DateRangeModal.tsx",
+                                    lineNumber: 278,
+                                    columnNumber: 25
+                                }, ("TURBOPACK compile-time value", void 0)),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "flex-1 overflow-hidden px-2 md:px-4",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("style", {
+                                            children: `
+                                .date-range-modal .rdp {
+                                    --rdp-cell-size: 30px;
+                                    --rdp-accent-color: #2563eb;
+                                    --rdp-background-color: rgba(37, 99, 235, 0.12);
+                                    --rdp-range_border-radius: 999px;
+                                    margin: 0;
+                                    color: #0f172a;
+                                }
+                                .dark .date-range-modal .rdp {
+                                    color: #f8fafc;
+                                }
+                                .date-range-modal .rdp-head_cell {
+                                    color: #94a3b8;
+                                    font-weight: 600;
+                                    font-size: 0.7rem;
+                                    text-transform: uppercase;
+                                }
+                                .dark .date-range-modal .rdp-head_cell {
+                                    color: rgba(255,255,255,0.7);
+                                }
+                                .date-range-modal .rdp-day {
+                                    font-weight: 500;
+                                    font-size: 0.85rem;
+                                }
+                                .date-range-modal .rdp-day_selected:not([disabled]) {
+                                    background-color: #2563eb;
+                                    color: #fff;
+                                }
+                                .date-range-modal .rdp-day_range_middle {
+                                    background-color: rgba(37,99,235,0.12);
+                                    color: inherit;
+                                    border-radius: 999px !important;
+                                }
+                                .date-range-modal .rdp-root,
+                                .date-range-modal .rdp-months,
+                                .date-range-modal .rdp-month {
+                                    width: 100%;
+                                }
+                                .date-range-modal .rdp-caption,
+                                .date-range-modal .rdp-nav {
+                                    display: none;
+                                }
+                            `
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/DateRangeModal.tsx",
+                                            lineNumber: 301,
+                                            columnNumber: 29
+                                        }, ("TURBOPACK compile-time value", void 0)),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "w-full flex flex-col md:flex-row gap-3 md:gap-6 justify-between",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "flex-1 border border-slate-100 rounded-2xl p-2 shadow-sm dark:border-white/10 backdrop-blur-sm",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(MonthControls, {
+                                                            month: leftMonth,
+                                                            onChange: handleLeftMonthChange
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/DateRangeModal.tsx",
+                                                            lineNumber: 347,
+                                                            columnNumber: 37
+                                                        }, ("TURBOPACK compile-time value", void 0)),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$day$2d$picker$2f$dist$2f$esm$2f$DayPicker$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DayPicker"], {
+                                                            mode: "range",
+                                                            selected: range,
+                                                            onSelect: handleRangeSelect,
+                                                            month: leftMonth,
+                                                            onMonthChange: handleLeftMonthChange,
+                                                            numberOfMonths: 1,
+                                                            locale: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$locale$2f$es$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["es"]
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/DateRangeModal.tsx",
+                                                            lineNumber: 351,
+                                                            columnNumber: 37
+                                                        }, ("TURBOPACK compile-time value", void 0))
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/components/DateRangeModal.tsx",
+                                                    lineNumber: 346,
+                                                    columnNumber: 33
+                                                }, ("TURBOPACK compile-time value", void 0)),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "flex-1 border border-slate-100 rounded-2xl p-2 shadow-sm dark:border-white/10 backdrop-blur-sm",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(MonthControls, {
+                                                            month: rightMonth,
+                                                            onChange: handleRightMonthChange,
+                                                            disablePrev: rightMonth <= (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addMonths"])(leftMonth, 1)
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/DateRangeModal.tsx",
+                                                            lineNumber: 362,
+                                                            columnNumber: 37
+                                                        }, ("TURBOPACK compile-time value", void 0)),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$day$2d$picker$2f$dist$2f$esm$2f$DayPicker$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DayPicker"], {
+                                                            mode: "range",
+                                                            selected: range,
+                                                            onSelect: handleRangeSelect,
+                                                            month: rightMonth,
+                                                            onMonthChange: handleRightMonthChange,
+                                                            numberOfMonths: 1,
+                                                            locale: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$locale$2f$es$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["es"]
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/components/DateRangeModal.tsx",
+                                                            lineNumber: 367,
+                                                            columnNumber: 37
+                                                        }, ("TURBOPACK compile-time value", void 0))
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/components/DateRangeModal.tsx",
+                                                    lineNumber: 361,
+                                                    columnNumber: 33
+                                                }, ("TURBOPACK compile-time value", void 0))
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/components/DateRangeModal.tsx",
+                                            lineNumber: 345,
+                                            columnNumber: 29
+                                        }, ("TURBOPACK compile-time value", void 0))
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/components/DateRangeModal.tsx",
+                                    lineNumber: 300,
+                                    columnNumber: 25
+                                }, ("TURBOPACK compile-time value", void 0))
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/components/DateRangeModal.tsx",
+                            lineNumber: 277,
+                            columnNumber: 21
+                        }, ("TURBOPACK compile-time value", void 0)),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "mt-5 border-t border-slate-100 dark:border-white/10 pt-3 flex flex-col gap-3",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex flex-col sm:flex-row sm:items-center gap-2 flex-1",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex items-center gap-2 w-full sm:w-auto",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                        readOnly: true,
+                                                        value: range?.from ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["format"])(range.from, 'dd/MM/yyyy') : '',
+                                                        placeholder: "Inicio",
+                                                        className: "flex-1 sm:w-32 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-700 focus:border-primary focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/components/DateRangeModal.tsx",
+                                                        lineNumber: 385,
+                                                        columnNumber: 37
+                                                    }, ("TURBOPACK compile-time value", void 0)),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "text-slate-400 text-xs",
+                                                        children: "-"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/components/DateRangeModal.tsx",
+                                                        lineNumber: 391,
+                                                        columnNumber: 37
+                                                    }, ("TURBOPACK compile-time value", void 0)),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                        readOnly: true,
+                                                        value: range?.to ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["format"])(range.to, 'dd/MM/yyyy') : '',
+                                                        placeholder: "Fin",
+                                                        className: "flex-1 sm:w-32 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-700 focus:border-primary focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/components/DateRangeModal.tsx",
+                                                        lineNumber: 392,
+                                                        columnNumber: 37
+                                                    }, ("TURBOPACK compile-time value", void 0))
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/components/DateRangeModal.tsx",
+                                                lineNumber: 384,
+                                                columnNumber: 33
+                                            }, ("TURBOPACK compile-time value", void 0)),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                className: "text-[11px] text-slate-400 dark:text-white/60",
+                                                children: formattedRange
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/DateRangeModal.tsx",
+                                                lineNumber: 399,
+                                                columnNumber: 33
+                                            }, ("TURBOPACK compile-time value", void 0))
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/components/DateRangeModal.tsx",
+                                        lineNumber: 383,
+                                        columnNumber: 29
+                                    }, ("TURBOPACK compile-time value", void 0)),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex flex-col sm:flex-row items-center gap-2 justify-end w-full sm:w-auto",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                onClick: onClose,
+                                                className: "px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-[11px] font-semibold hover:border-slate-300 dark:border-white/10 dark:text-white",
+                                                children: "Cancelar"
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/DateRangeModal.tsx",
+                                                lineNumber: 402,
+                                                columnNumber: 33
+                                            }, ("TURBOPACK compile-time value", void 0)),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                onClick: handleApply,
+                                                disabled: !range?.from || !range?.to,
+                                                className: "px-6 py-2 rounded-xl bg-primary text-white text-[11px] font-bold shadow-lg shadow-primary/30 hover:bg-primary-hover transition disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none",
+                                                children: "Aplicar"
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/DateRangeModal.tsx",
+                                                lineNumber: 405,
+                                                columnNumber: 33
+                                            }, ("TURBOPACK compile-time value", void 0))
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/components/DateRangeModal.tsx",
+                                        lineNumber: 401,
+                                        columnNumber: 29
+                                    }, ("TURBOPACK compile-time value", void 0))
+                                ]
+                            }, void 0, true, {
                                 fileName: "[project]/components/DateRangeModal.tsx",
-                                lineNumber: 53,
+                                lineNumber: 382,
                                 columnNumber: 25
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/components/DateRangeModal.tsx",
-                            lineNumber: 52,
+                            lineNumber: 381,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/DateRangeModal.tsx",
-                    lineNumber: 43,
-                    columnNumber: 17
-                }, ("TURBOPACK compile-time value", void 0)),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "flex justify-center bg-[#1a212b] rounded-xl p-4 border border-white/5",
-                    children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("style", {
-                            children: `
-                        .rdp { --rdp-cell-size: 40px; --rdp-accent-color: #307de8; --rdp-background-color: #307de8; margin: 0; }
-                        .rdp-day_selected:not([disabled]), .rdp-day_selected:focus:not([disabled]), .rdp-day_selected:active:not([disabled]), .rdp-day_selected:hover:not([disabled]) { 
-                            background-color: var(--rdp-accent-color); color: white; 
-                        }
-                        .rdp-day_selected.rdp-day_range_middle {
-                            background-color: rgba(48, 125, 232, 0.2) !important;
-                            color: white !important;
-                            border-radius: 0 !important;
-                        }
-                        .rdp-day_selected.rdp-day_range_start {
-                             border-top-left-radius: 50%; border-bottom-left-radius: 50%; border-top-right-radius: 0; border-bottom-right-radius: 0;
-                        }
-                        .rdp-day_selected.rdp-day_range_end {
-                             border-top-right-radius: 50%; border-bottom-right-radius: 50%; border-top-left-radius: 0; border-bottom-left-radius: 0;
-                        }
-                        .rdp-caption_label { color: white; font-weight: 600; font-size: 1rem; text-transform: capitalize; }
-                        .rdp-nav_button { color: #9da9b8; }
-                        .rdp-nav_button:hover { color: white; background-color: rgba(255,255,255,0.1); }
-                        .rdp-head_cell { color: #6b7280; font-weight: 500; font-size: 0.875rem; text-transform: uppercase; }
-                        .rdp-day { color: #e2e8f0; font-size: 0.9rem; }
-                        .rdp-day:hover:not(.rdp-day_selected) { background-color: rgba(255,255,255,0.1); }
-                        .rdp-months { gap: 2rem; justify-content: center; }
-                    `
-                        }, void 0, false, {
-                            fileName: "[project]/components/DateRangeModal.tsx",
-                            lineNumber: 58,
-                            columnNumber: 21
-                        }, ("TURBOPACK compile-time value", void 0)),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$day$2d$picker$2f$dist$2f$esm$2f$DayPicker$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DayPicker"], {
-                            mode: "range",
-                            selected: range,
-                            onSelect: setRange,
-                            numberOfMonths: 2,
-                            pagedNavigation: true,
-                            locale: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$locale$2f$es$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["es"],
-                            defaultMonth: initialStartDate || new Date()
-                        }, void 0, false, {
-                            fileName: "[project]/components/DateRangeModal.tsx",
-                            lineNumber: 82,
-                            columnNumber: 21
-                        }, ("TURBOPACK compile-time value", void 0))
-                    ]
-                }, void 0, true, {
-                    fileName: "[project]/components/DateRangeModal.tsx",
-                    lineNumber: 57,
-                    columnNumber: 17
-                }, ("TURBOPACK compile-time value", void 0)),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "flex justify-end gap-3 pt-6 mt-2 border-t border-white/10",
-                    children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                            onClick: onClose,
-                            className: "px-5 py-2.5 text-sm font-medium text-gray-400 hover:text-white transition-colors",
-                            children: "Cancelar"
-                        }, void 0, false, {
-                            fileName: "[project]/components/DateRangeModal.tsx",
-                            lineNumber: 94,
-                            columnNumber: 21
-                        }, ("TURBOPACK compile-time value", void 0)),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                            onClick: handleApply,
-                            disabled: !range?.from || !range?.to,
-                            className: "px-8 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none",
-                            children: "Aplicar Filtro"
-                        }, void 0, false, {
-                            fileName: "[project]/components/DateRangeModal.tsx",
-                            lineNumber: 97,
-                            columnNumber: 21
-                        }, ("TURBOPACK compile-time value", void 0))
-                    ]
-                }, void 0, true, {
-                    fileName: "[project]/components/DateRangeModal.tsx",
-                    lineNumber: 93,
+                    lineNumber: 263,
                     columnNumber: 17
                 }, ("TURBOPACK compile-time value", void 0))
-            ]
-        }, void 0, true, {
-            fileName: "[project]/components/DateRangeModal.tsx",
-            lineNumber: 42,
-            columnNumber: 13
-        }, ("TURBOPACK compile-time value", void 0))
-    }, void 0, false, {
+            }, void 0, false, {
+                fileName: "[project]/components/DateRangeModal.tsx",
+                lineNumber: 262,
+                columnNumber: 13
+            }, ("TURBOPACK compile-time value", void 0))
+        ]
+    }, void 0, true, {
         fileName: "[project]/components/DateRangeModal.tsx",
-        lineNumber: 41,
+        lineNumber: 260,
         columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(DateRangeModal, "x1EtOH5GX0gVFIfgdkLjkONjTwg=");
+_s(DateRangeModal, "F96xs+wXSBLpSsBUDt0Hfev3bic=");
 _c = DateRangeModal;
 var _c;
 __turbopack_context__.k.register(_c, "DateRangeModal");
