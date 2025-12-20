@@ -1,0 +1,3 @@
+{
+  "/(dashboard)/ledgers/page": "app/(dashboard)/ledgers/page.js"
+}

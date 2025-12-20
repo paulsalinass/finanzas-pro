@@ -1,0 +1,7 @@
+{
+  "name": "Finanzas Pro",
+  "description": "A sophisticated personal finance management application with AI-powered insights, multi-ledger support, and elegant glassmorphism design.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

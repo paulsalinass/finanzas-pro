@@ -1,0 +1,20 @@
+{
+  "node": {
+    "402879bac6c3d19ddc318cd676302d047c6936b67d": {
+      "workers": {
+        "app/page": {
+          "moduleId": "[project]/.next-internal/server/app/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/getFinancialAdvice.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getFinancialAdvice",
+          "filename": "app/actions/getFinancialAdvice.ts"
+        }
+      },
+      "layer": {
+        "app/page": "action-browser"
+      },
+      "exportedName": "getFinancialAdvice",
+      "filename": "app/actions/getFinancialAdvice.ts"
+    }
+  },
+  "edge": {}
+}
