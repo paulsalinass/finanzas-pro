@@ -8,15 +8,7 @@ import { DateRangeModal } from '@/components/DateRangeModal';
 import { useFinance } from '@/context/FinanceContext';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 
-const chartData = [
-    { name: '01 Oct', total: 150 },
-    { name: '05 Oct', total: 400 },
-    { name: '10 Oct', total: 300 },
-    { name: '15 Oct', total: 550 },
-    { name: '20 Oct', total: 480 },
-    { name: '25 Oct', total: 700 },
-    { name: '30 Oct', total: 650 },
-];
+
 
 export default function Dashboard() {
     const router = useRouter();
@@ -31,29 +23,33 @@ export default function Dashboard() {
 
     const tabs = ['Este mes', 'Mes pasado', 'Últimos 3 meses', 'Personalizado'];
 
-    useEffect(() => {
+    const handleTabClick = (tab: string) => {
+        if (tab === 'Personalizado') {
+            setIsDateModalOpen(true);
+            setActiveTab(tab);
+            return;
+        }
+
+        setActiveTab(tab);
         const now = new Date();
         let start: Date | null = null;
         let end: Date | null = null;
 
-        if (activeTab === 'Este mes') {
+        if (tab === 'Este mes') {
             start = new Date(now.getFullYear(), now.getMonth(), 1);
             end = now;
-        } else if (activeTab === 'Mes pasado') {
+        } else if (tab === 'Mes pasado') {
             start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
             end = new Date(now.getFullYear(), now.getMonth(), 0);
-        } else if (activeTab === 'Últimos 3 meses') {
+        } else if (tab === 'Últimos 3 meses') {
             start = new Date(now.getFullYear(), now.getMonth() - 3, 1);
             end = now;
-        } else if (activeTab === 'Personalizado') {
-            setIsDateModalOpen(true);
-            return; // Don't reset range automatically when clicking Custom, keep previous or wait for modal
         }
 
         if (start && end) {
             setDateRange({ start, end });
         }
-    }, [activeTab]);
+    };
 
     const handleCustomDateApply = (start: Date, end: Date) => {
         setDateRange({ start, end });
@@ -180,7 +176,7 @@ export default function Dashboard() {
                         {tabs.map((tab) => (
                             <button
                                 key={tab}
-                                onClick={() => setActiveTab(tab)}
+                                onClick={() => handleTabClick(tab)}
                                 className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${activeTab === tab
                                     ? 'bg-primary/20 text-primary dark:text-white border border-primary/20 shadow-sm'
                                     : 'text-text-muted dark:text-dark-muted hover:bg-white/5 dark:hover:text-white'
