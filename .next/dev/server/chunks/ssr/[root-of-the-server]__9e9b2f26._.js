@@ -63,6 +63,8 @@ const FinanceProvider = ({ children })=>{
     const [activeBookId, setActiveBookId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [transactions, setTransactions] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [accounts, setAccounts] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [categories, setCategories] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [categoryFolders, setCategoryFolders] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [budgets, setBudgets] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [commitments, setCommitments] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [recurringRules, setRecurringRules] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]); // Migration TODO: Link to commitments?
@@ -153,9 +155,19 @@ const FinanceProvider = ({ children })=>{
         // Fetch Data for this Book
         await Promise.all([
             fetchAccounts(bookId),
+            fetchCategories(bookId),
+            fetchCategoryFolders(bookId),
             fetchTransactions(bookId),
             fetchCommitments(bookId)
         ]);
+    };
+    const fetchCategories = async (bookId)=>{
+        const { data } = await supabase.from('categories').select('*').eq('book_id', bookId);
+        if (data) setCategories(data);
+    };
+    const fetchCategoryFolders = async (bookId)=>{
+        const { data } = await supabase.from('category_folders').select('*').eq('book_id', bookId);
+        if (data) setCategoryFolders(data);
     };
     const fetchAccounts = async (bookId)=>{
         const { data } = await supabase.from('accounts').select('*').eq('book_id', bookId);
@@ -207,8 +219,16 @@ const FinanceProvider = ({ children })=>{
         const account = accounts.find((a)=>a.name === t.account);
         const accountId = account?.id; // Fallback?
         if (!accountId) {
-            console.error("Account not found for transaction");
+            console.error("Account not found forTransaction name:", t.account); // Log the name we looked for
+            alert("Error: No se encontró la cuenta seleccionada ('" + t.account + "'). Por favor selecciona una cuenta válida.");
             return;
+        }
+        // Find category ID
+        // If t.category is a name, find ID. If t.category_id is provided, use it.
+        let categoryId = t.category_id;
+        if (!categoryId && t.category) {
+            const cat = categories.find((c)=>c.name === t.category);
+            categoryId = cat?.id;
         }
         const { data, error } = await supabase.from('transactions').insert({
             book_id: activeBookId,
@@ -216,8 +236,14 @@ const FinanceProvider = ({ children })=>{
             type: t.type,
             amount: t.amount,
             description: t.description,
-            occurred_at: t.date
+            occurred_at: t.date,
+            category_id: categoryId
         }).select().single();
+        if (error) {
+            console.error("Error creating transaction:", error);
+            alert("Error al guardar: " + error.message);
+            return;
+        }
         if (data) {
             // UI Optimistic Update or Refetch
             fetchTransactions(activeBookId);
@@ -254,11 +280,116 @@ const FinanceProvider = ({ children })=>{
     const activateLedger = (id)=>{
         handleChangeActiveBook(id);
     };
+    const generateSampleData = async ()=>{
+        if (!activeBookId) return;
+        setIsLoading(true);
+        // 1. Create Accounts
+        const accountsData = [
+            {
+                book_id: activeBookId,
+                name: 'Chase Sapphire',
+                type: 'CREDIT',
+                balance: -1250.00,
+                last_four: '4242'
+            },
+            {
+                book_id: activeBookId,
+                name: 'Bank of America',
+                type: 'DEBIT',
+                balance: 5430.50,
+                last_four: '8899'
+            },
+            {
+                book_id: activeBookId,
+                name: 'Efectivo',
+                type: 'CASH',
+                balance: 200.00,
+                last_four: 'N/A'
+            },
+            {
+                book_id: activeBookId,
+                name: 'Inversiones',
+                type: 'INVESTMENT',
+                balance: 15000.00,
+                last_four: 'N/A'
+            }
+        ];
+        const { data: newAccounts } = await supabase.from('accounts').insert(accountsData).select();
+        if (newAccounts) {
+            // 2. Create Transactions (Random dates in last 30 days)
+            const categories = [
+                'Alimentos',
+                'Transporte',
+                'Vivienda',
+                'Entretenimiento',
+                'Salud',
+                'Servicios'
+            ];
+            const types = [
+                'EXPENSE',
+                'EXPENSE',
+                'EXPENSE',
+                'INCOME'
+            ]; // More expenses usually
+            const transactionsData = Array.from({
+                length: 20
+            }).map((_, i)=>{
+                const type = types[Math.floor(Math.random() * types.length)];
+                const amount = Math.floor(Math.random() * 500) + 10;
+                const account = newAccounts[Math.floor(Math.random() * newAccounts.length)];
+                const category = categories[Math.floor(Math.random() * categories.length)];
+                const date = new Date();
+                date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+                return {
+                    book_id: activeBookId,
+                    account_id: account.id,
+                    type: type,
+                    amount: type === 'INCOME' ? amount * 5 : amount,
+                    description: `Movimiento de prueba ${i + 1}`,
+                    category_id: null,
+                    occurred_at: date.toISOString()
+                };
+            });
+            await supabase.from('transactions').insert(transactionsData);
+            // 3. Create Commitments
+            await supabase.from('commitments').insert([
+                {
+                    book_id: activeBookId,
+                    title: 'Netflix Premium',
+                    amount: 15.99,
+                    frequency: 'MONTHLY',
+                    next_due_date: new Date().toISOString(),
+                    status: 'PENDING'
+                },
+                {
+                    book_id: activeBookId,
+                    title: 'Spotify Couple',
+                    amount: 12.99,
+                    frequency: 'MONTHLY',
+                    next_due_date: new Date().toISOString(),
+                    status: 'PAID'
+                },
+                {
+                    book_id: activeBookId,
+                    title: 'Gym Membership',
+                    amount: 45.00,
+                    frequency: 'MONTHLY',
+                    next_due_date: new Date().toISOString(),
+                    status: 'PENDING'
+                }
+            ]);
+        }
+        // Refresh all
+        await handleChangeActiveBook(activeBookId);
+        setIsLoading(false);
+    };
     const totalBalance = accounts.reduce((sum, acc)=>sum + acc.balance, 0);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(FinanceContext.Provider, {
         value: {
             transactions,
             accounts,
+            categories,
+            categoryFolders,
             budgets,
             commitments,
             recurringRules,
@@ -270,6 +401,7 @@ const FinanceProvider = ({ children })=>{
             toggleCommitmentStatus,
             toggleRuleStatus,
             activateLedger,
+            generateSampleData,
             totalBalance,
             isDarkMode,
             toggleTheme,
@@ -279,7 +411,7 @@ const FinanceProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/context/FinanceContext.tsx",
-        lineNumber: 267,
+        lineNumber: 354,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FinancialAdvice } from '@/components/FinancialAdvice';
+
+import { DateRangeModal } from '@/components/DateRangeModal';
 import { useFinance } from '@/context/FinanceContext';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 
@@ -22,24 +23,140 @@ export default function Dashboard() {
     const { transactions, accounts, totalBalance } = useFinance();
     const [showBalance, setShowBalance] = useState(true);
     const [activeTab, setActiveTab] = useState('Este mes');
+    const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({
+        start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+        end: new Date()
+    });
+    const [isDateModalOpen, setIsDateModalOpen] = useState(false);
 
     const tabs = ['Este mes', 'Mes pasado', 'Últimos 3 meses', 'Personalizado'];
 
-    const monthlyIncome = transactions
+    useEffect(() => {
+        const now = new Date();
+        let start: Date | null = null;
+        let end: Date | null = null;
+
+        if (activeTab === 'Este mes') {
+            start = new Date(now.getFullYear(), now.getMonth(), 1);
+            end = now;
+        } else if (activeTab === 'Mes pasado') {
+            start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            end = new Date(now.getFullYear(), now.getMonth(), 0);
+        } else if (activeTab === 'Últimos 3 meses') {
+            start = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+            end = now;
+        } else if (activeTab === 'Personalizado') {
+            setIsDateModalOpen(true);
+            return; // Don't reset range automatically when clicking Custom, keep previous or wait for modal
+        }
+
+        if (start && end) {
+            setDateRange({ start, end });
+        }
+    }, [activeTab]);
+
+    const handleCustomDateApply = (start: Date, end: Date) => {
+        setDateRange({ start, end });
+    };
+
+    const filteredTransactions = transactions.filter(t => {
+        if (!dateRange.start || !dateRange.end) return true;
+        const tDate = new Date(t.date); // Assuming t.date is ISO or Date object. Context says t.occurred_at mapped to t.date
+        return tDate >= dateRange.start && tDate <= dateRange.end;
+    });
+
+    const monthlyIncome = filteredTransactions
         .filter(t => t.type === 'INCOME')
         .reduce((sum, t) => sum + t.amount, 0);
 
-    const monthlyExpense = transactions
+    const monthlyExpense = filteredTransactions
         .filter(t => t.type === 'EXPENSE')
         .reduce((sum, t) => sum + t.amount, 0);
+
+    // Chart Data Calculation
+    // Calculate Balance at the END of the selected range
+    const balanceAtEndOfRange = React.useMemo(() => {
+        if (!dateRange.end) return totalBalance;
+
+        // Transactions that happened AFTER the selected range
+        // We need to "undo" them to get the balance at that point in time.
+        // BalanceNow = BalanceOld + IncomeAfter - ExpenseAfter
+        // BalanceOld = BalanceNow - IncomeAfter + ExpenseAfter
+        const futureTransactions = transactions.filter(t => {
+            const tDate = new Date(t.date);
+            return tDate > dateRange.end!;
+        });
+
+        let calculatedBalance = totalBalance;
+        futureTransactions.forEach(t => {
+            if (t.type === 'INCOME') {
+                calculatedBalance -= t.amount;
+            } else if (t.type === 'EXPENSE') {
+                calculatedBalance += t.amount;
+            }
+        });
+
+        return calculatedBalance;
+    }, [totalBalance, transactions, dateRange.end]);
+
+    // Chart Data Calculation - Historical Balance
+    const chartData = React.useMemo(() => {
+        if (!dateRange.start || !dateRange.end) return [];
+
+        const data: { name: string; total: number; originalDate: Date }[] = [];
+        let currentBalance = balanceAtEndOfRange;
+
+        // Create a map of transactions by day (for the range) for fast lookup
+        const txsByDay: { [key: string]: { income: number, expense: number } } = {};
+
+        filteredTransactions.forEach(t => {
+            const dateStr = new Date(t.date).toISOString().split('T')[0];
+            if (!txsByDay[dateStr]) txsByDay[dateStr] = { income: 0, expense: 0 };
+            if (t.type === 'INCOME') txsByDay[dateStr].income += t.amount;
+            if (t.type === 'EXPENSE') txsByDay[dateStr].expense += t.amount;
+        });
+
+        // Iterate BACKWARDS from End Date to Start Date
+        const curr = new Date(dateRange.end);
+        const start = new Date(dateRange.start);
+
+        // Normalize time to midnight for loop comparison
+        curr.setHours(0, 0, 0, 0);
+        start.setHours(0, 0, 0, 0);
+
+        while (curr >= start) {
+            const dateStr = curr.toISOString().split('T')[0];
+            const displayDate = curr.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+
+            // Add point for End of Day balance
+            data.unshift({
+                name: displayDate,
+                total: currentBalance,
+                originalDate: new Date(curr)
+            });
+
+            // Calculate Start of Day Balance (which is End of Previous Day)
+            // StartBal = EndBal - Income + Expense
+            const dayTxs = txsByDay[dateStr] || { income: 0, expense: 0 };
+            currentBalance = currentBalance - dayTxs.income + dayTxs.expense;
+
+            // Move to previous day
+            curr.setDate(curr.getDate() - 1);
+        }
+
+        return data;
+        // Note: If range is huge, we might want to subsample, but for "This Month" it's fine (~30 points).
+    }, [filteredTransactions, balanceAtEndOfRange, dateRange]);
 
     return (
         <div className="flex-1 w-full h-full overflow-y-auto scrollbar-hide pb-28 lg:pb-8">
             <div className="max-w-[1200px] mx-auto p-4 md:p-8 flex flex-col gap-8">
                 <header className="flex flex-wrap items-end justify-between gap-4 pt-4 md:pt-0 animate-fade-in">
                     <div className="flex flex-col gap-2">
-                        <p className="text-text-muted dark:text-dark-muted text-sm font-semibold tracking-wide uppercase">Martes, 24 Octubre</p>
-                        <h2 className="text-3xl md:text-4xl font-black text-text-main dark:text-white tracking-tight">Hola, Alex <span className="text-2xl">👋</span></h2>
+                        <p className="text-text-muted dark:text-dark-muted text-sm font-semibold tracking-wide uppercase">
+                            {new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date())}
+                        </p>
+                        <h2 className="text-3xl md:text-4xl font-black text-text-main dark:text-white tracking-tight">Hola, Paul <span className="text-2xl">👋</span></h2>
                         <p className="text-text-muted dark:text-dark-muted/80 text-base font-normal max-w-lg">Aquí tienes el resumen de tu actividad financiera.</p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -76,7 +193,7 @@ export default function Dashboard() {
                     </div>
                 </section>
 
-                <FinancialAdvice />
+
 
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div className="glass-card rounded-3xl p-6 flex flex-col justify-between min-h-[160px] relative overflow-hidden group hover:shadow-soft transition-all duration-300">
@@ -87,7 +204,7 @@ export default function Dashboard() {
                             <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Saldo Total</p>
                             <div className="flex items-center gap-2">
                                 <p className={`text-text-main dark:text-white text-3xl font-bold tracking-tight transition-all duration-300 ${!showBalance && 'blur-md select-none'}`}>
-                                    ${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                    ${balanceAtEndOfRange.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                 </p>
                                 <button
                                     onClick={() => setShowBalance(!showBalance)}
@@ -110,7 +227,7 @@ export default function Dashboard() {
                             <div className="size-8 rounded-full bg-success/10 flex items-center justify-center text-success">
                                 <span className="material-symbols-outlined text-[20px]">arrow_downward</span>
                             </div>
-                            <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Ingresos (Mes)</p>
+                            <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Ingresos</p>
                         </div>
                         <p className="text-text-main dark:text-white text-3xl font-bold tracking-tight">${monthlyIncome.toLocaleString()}</p>
                         <div className="flex items-center gap-2 mt-4">
@@ -126,7 +243,7 @@ export default function Dashboard() {
                             <div className="size-8 rounded-full bg-danger/10 flex items-center justify-center text-danger">
                                 <span className="material-symbols-outlined text-[20px]">arrow_upward</span>
                             </div>
-                            <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Gastos (Mes)</p>
+                            <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Gastos</p>
                         </div>
                         <p className="text-text-main dark:text-white text-3xl font-bold tracking-tight">${monthlyExpense.toLocaleString()}</p>
                         <div className="flex items-center gap-2 mt-4">
@@ -143,8 +260,8 @@ export default function Dashboard() {
                     <div className="lg:col-span-2 glass-card rounded-3xl p-6 md:p-8 flex flex-col border border-white/5">
                         <div className="flex items-center justify-between mb-6">
                             <div>
-                                <h3 className="text-text-main dark:text-white text-lg font-bold">Flujo de Caja</h3>
-                                <p className="text-text-muted dark:text-dark-muted text-xs font-medium">Ingresos vs Gastos en el periodo</p>
+                                <h3 className="text-text-main dark:text-white text-lg font-bold">Historial de Saldo</h3>
+                                <p className="text-text-muted dark:text-dark-muted text-xs font-medium">Evolución del balance en el periodo</p>
                             </div>
                             <button className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors">
                                 <span className="material-symbols-outlined text-text-muted dark:text-dark-muted">more_horiz</span>
@@ -191,7 +308,7 @@ export default function Dashboard() {
                         </div>
                         <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
                             <div className="flex flex-col gap-1">
-                                {transactions.slice(0, 8).map((t) => (
+                                {filteredTransactions.slice(0, 8).map((t) => (
                                     <div key={t.id} onClick={() => router.push(`/transaction/${t.id}`)} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-white/5 transition-colors cursor-pointer group">
                                         <div className="flex items-center gap-3">
                                             <div className="size-10 rounded-full bg-gray-50 dark:bg-[#292f38] flex items-center justify-center text-text-main dark:text-white border border-gray-100 dark:border-white/5 transition-transform group-hover:scale-105">
@@ -252,6 +369,13 @@ export default function Dashboard() {
             <button onClick={() => router.push('/edit-transaction')} className="btn-interact fixed z-50 bottom-24 lg:bottom-12 right-6 md:right-12 size-14 md:size-16 bg-primary hover:bg-primary-hover text-white rounded-full shadow-[0_8px_30px_rgba(48,125,232,0.4)] flex items-center justify-center transition-all hover:scale-110 active:scale-95 group">
                 <span className="material-symbols-outlined text-3xl md:text-4xl group-hover:rotate-90 transition-transform duration-500">add</span>
             </button>
+            <DateRangeModal
+                isOpen={isDateModalOpen}
+                onClose={() => setIsDateModalOpen(false)}
+                onApply={handleCustomDateApply}
+                initialStartDate={dateRange.start}
+                initialEndDate={dateRange.end}
+            />
         </div>
     );
 }
