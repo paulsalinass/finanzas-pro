@@ -1,0 +1,50 @@
+{
+  "node": {
+    "6095f0c14631a054e1fcd79cfd112a6245dfe25f6d": {
+      "workers": {
+        "app/(dashboard)/books/[id]/settings/page": {
+          "moduleId": "[project]/.next-internal/server/app/(dashboard)/books/[id]/settings/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/book-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createBook",
+          "filename": "app/actions/book-actions.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/books/[id]/settings/page": "action-browser"
+      },
+      "exportedName": "createBook",
+      "filename": "app/actions/book-actions.ts"
+    },
+    "70063ef086deaa73ce98203c3b48b46dddf6c2ed0b": {
+      "workers": {
+        "app/(dashboard)/books/[id]/settings/page": {
+          "moduleId": "[project]/.next-internal/server/app/(dashboard)/books/[id]/settings/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/book-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateBook",
+          "filename": "app/actions/book-actions.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/books/[id]/settings/page": "action-browser"
+      },
+      "exportedName": "updateBook",
+      "filename": "app/actions/book-actions.ts"
+    },
+    "40e45e70d015f84a65d26dca3e235a6efb164dd243": {
+      "workers": {
+        "app/(dashboard)/books/[id]/settings/page": {
+          "moduleId": "[project]/.next-internal/server/app/(dashboard)/books/[id]/settings/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/book-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "deleteBook",
+          "filename": "app/actions/book-actions.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/books/[id]/settings/page": "action-browser"
+      },
+      "exportedName": "deleteBook",
+      "filename": "app/actions/book-actions.ts"
+    }
+  },
+  "edge": {}
+}

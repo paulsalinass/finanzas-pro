@@ -1,0 +1,1190 @@
+(globalThis.TURBOPACK || (globalThis.TURBOPACK = [])).push([typeof document === "object" ? document.currentScript : undefined,
+"[project]/app/actions/data:a87372 [app-client] (ecmascript) <text/javascript>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "resetAndSeedTransactions",
+    ()=>$$RSC_SERVER_ACTION_0
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$client$2d$wrapper$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/build/webpack/loaders/next-flight-loader/action-client-wrapper.js [app-client] (ecmascript)");
+/* __next_internal_action_entry_do_not_use__ [{"409177d0e1657581eae6dcd075dd20681ea0fe4bf6":"resetAndSeedTransactions"},"app/actions/transaction-actions.ts",""] */ "use turbopack no side effects";
+;
+const $$RSC_SERVER_ACTION_0 = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$client$2d$wrapper$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createServerReference"])("409177d0e1657581eae6dcd075dd20681ea0fe4bf6", __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$client$2d$wrapper$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["callServer"], void 0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$client$2d$wrapper$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["findSourceMapURL"], "resetAndSeedTransactions");
+;
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+ //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4vdHJhbnNhY3Rpb24tYWN0aW9ucy50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIndXNlIHNlcnZlcidcclxuXHJcbmltcG9ydCB7IGNyZWF0ZUNsaWVudCB9IGZyb20gXCJAL3V0aWxzL3N1cGFiYXNlL3NlcnZlclwiXHJcbmltcG9ydCB7IHJldmFsaWRhdGVQYXRoIH0gZnJvbSBcIm5leHQvY2FjaGVcIlxyXG5cclxuZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIHJlc2V0QW5kU2VlZFRyYW5zYWN0aW9ucyhib29rSWQ6IHN0cmluZykge1xyXG4gICAgY29uc3Qgc3VwYWJhc2UgPSBhd2FpdCBjcmVhdGVDbGllbnQoKVxyXG5cclxuICAgIC8vIDEuIERlbGV0ZSBhbGwgdHJhbnNhY3Rpb25zIGZvciB0aGlzIGJvb2tcclxuICAgIGNvbnN0IHsgZXJyb3I6IGRlbGV0ZUVycm9yIH0gPSBhd2FpdCBzdXBhYmFzZS5mcm9tKCd0cmFuc2FjdGlvbnMnKS5kZWxldGUoKS5lcSgnYm9va19pZCcsIGJvb2tJZClcclxuICAgIGlmIChkZWxldGVFcnJvcikgcmV0dXJuIHsgZXJyb3I6ICdFcnJvciBkZWxldGluZyB0cmFuc2FjdGlvbnM6ICcgKyBkZWxldGVFcnJvci5tZXNzYWdlIH1cclxuXHJcbiAgICAvLyAyLiBGZXRjaCBhdmFpbGFibGUgcmVzb3VyY2VzXHJcbiAgICBjb25zdCB7IGRhdGE6IGNhdGVnb3JpZXMgfSA9IGF3YWl0IHN1cGFiYXNlLmZyb20oJ2NhdGVnb3JpZXMnKS5zZWxlY3QoJ2lkLCBuYW1lJykuZXEoJ2Jvb2tfaWQnLCBib29rSWQpXHJcbiAgICBjb25zdCB7IGRhdGE6IGFjY291bnRzIH0gPSBhd2FpdCBzdXBhYmFzZS5mcm9tKCdhY2NvdW50cycpLnNlbGVjdCgnaWQsIG5hbWUnKS5lcSgnYm9va19pZCcsIGJvb2tJZClcclxuXHJcbiAgICBpZiAoIWNhdGVnb3JpZXMgfHwgY2F0ZWdvcmllcy5sZW5ndGggPT09IDApIHJldHVybiB7IGVycm9yOiAnTm8gaGF5IGNhdGVnb3LDrWFzIGRpc3BvbmlibGVzIHBhcmEgY3JlYXIgdHJhbnNhY2Npb25lcy4nIH1cclxuICAgIGlmICghYWNjb3VudHMgfHwgYWNjb3VudHMubGVuZ3RoID09PSAwKSByZXR1cm4geyBlcnJvcjogJ05vIGhheSBjdWVudGFzIGRpc3BvbmlibGVzLiBDcmVhIHVuYSBjdWVudGEgcHJpbWVyby4nIH1cclxuXHJcbiAgICAvLyAzLiBHZW5lcmF0ZSBEYXRhXHJcbiAgICBjb25zdCB0cmFuc2FjdGlvbnMgPSBbXVxyXG4gICAgY29uc3Qgbm93ID0gbmV3IERhdGUoKVxyXG5cclxuICAgIC8vIEhlbHBlciB0byBnZXQgcmFuZG9tIGl0ZW1cclxuICAgIGNvbnN0IGdldFJhbmQgPSAoYXJyOiBhbnlbXSkgPT4gYXJyW01hdGguZmxvb3IoTWF0aC5yYW5kb20oKSAqIGFyci5sZW5ndGgpXVxyXG5cclxuICAgIC8vIDIgSW5jb21lc1xyXG4gICAgZm9yIChsZXQgaSA9IDA7IGkgPCAyOyBpKyspIHtcclxuICAgICAgICB0cmFuc2FjdGlvbnMucHVzaCh7XHJcbiAgICAgICAgICAgIGJvb2tfaWQ6IGJvb2tJZCxcclxuICAgICAgICAgICAgYWNjb3VudF9pZDogZ2V0UmFuZChhY2NvdW50cykuaWQsXHJcbiAgICAgICAgICAgIGNhdGVnb3J5X2lkOiBnZXRSYW5kKGNhdGVnb3JpZXMpLmlkLFxyXG4gICAgICAgICAgICBhbW91bnQ6IE51bWJlcigoTWF0aC5yYW5kb20oKSAqIDQwMDAgKyA1MDApLnRvRml4ZWQoMikpLCAvLyA1MDAgLSA0NTAwXHJcbiAgICAgICAgICAgIHR5cGU6ICdJTkNPTUUnLFxyXG4gICAgICAgICAgICBkZXNjcmlwdGlvbjogYEluZ3Jlc28gZGUgcHJ1ZWJhICR7aSArIDF9YCxcclxuICAgICAgICAgICAgb2NjdXJyZWRfYXQ6IG5ldyBEYXRlKG5vdy5nZXRUaW1lKCkgLSBNYXRoLnJhbmRvbSgpICogMTAwMCAqIDYwICogNjAgKiAyNCAqIDMwKS50b0lTT1N0cmluZygpLCAvLyBSYW5kb20gdGltZSBpbiBsYXN0IDMwIGRheXNcclxuICAgICAgICB9KVxyXG4gICAgfVxyXG5cclxuICAgIC8vIDIgRXhwZW5zZXNcclxuICAgIGZvciAobGV0IGkgPSAwOyBpIDwgMjsgaSsrKSB7XHJcbiAgICAgICAgdHJhbnNhY3Rpb25zLnB1c2goe1xyXG4gICAgICAgICAgICBib29rX2lkOiBib29rSWQsXHJcbiAgICAgICAgICAgIGFjY291bnRfaWQ6IGdldFJhbmQoYWNjb3VudHMpLmlkLFxyXG4gICAgICAgICAgICBjYXRlZ29yeV9pZDogZ2V0UmFuZChjYXRlZ29yaWVzKS5pZCxcclxuICAgICAgICAgICAgYW1vdW50OiBOdW1iZXIoKE1hdGgucmFuZG9tKCkgKiAyMDAgKyAxMCkudG9GaXhlZCgyKSksIC8vIDEwIC0gMjEwXHJcbiAgICAgICAgICAgIHR5cGU6ICdFWFBFTlNFJyxcclxuICAgICAgICAgICAgZGVzY3JpcHRpb246IGBHYXN0byBkZSBwcnVlYmEgJHtpICsgMX1gLFxyXG4gICAgICAgICAgICBvY2N1cnJlZF9hdDogbmV3IERhdGUobm93LmdldFRpbWUoKSAtIE1hdGgucmFuZG9tKCkgKiAxMDAwICogNjAgKiA2MCAqIDI0ICogMzApLnRvSVNPU3RyaW5nKCksXHJcbiAgICAgICAgfSlcclxuICAgIH1cclxuXHJcbiAgICAvLyA0LiBJbnNlcnRcclxuICAgIGNvbnN0IHsgZXJyb3I6IGluc2VydEVycm9yIH0gPSBhd2FpdCBzdXBhYmFzZS5mcm9tKCd0cmFuc2FjdGlvbnMnKS5pbnNlcnQodHJhbnNhY3Rpb25zKVxyXG5cclxuICAgIGlmIChpbnNlcnRFcnJvcikgcmV0dXJuIHsgZXJyb3I6ICdFcnJvciBpbnNlcnRpbmcgZ2VuZXJpYyBkYXRhOiAnICsgaW5zZXJ0RXJyb3IubWVzc2FnZSB9XHJcblxyXG4gICAgcmV2YWxpZGF0ZVBhdGgoJy8nKVxyXG4gICAgcmV0dXJuIHsgc3VjY2VzczogdHJ1ZSB9XHJcbn1cclxuIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiIrU0FLc0IscU1BQUEifQ==
+}),
+"[project]/components/CategoryIcon.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "CategoryIcon",
+    ()=>CategoryIcon
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$lucide$2d$react$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/lucide-react.js [app-client] (ecmascript)");
+"use client";
+;
+;
+function CategoryIcon({ icon, className }) {
+    const LucideIcon = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$lucide$2d$react$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__[icon];
+    if (LucideIcon) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(LucideIcon, {
+            className: className
+        }, void 0, false, {
+            fileName: "[project]/components/CategoryIcon.tsx",
+            lineNumber: 9,
+            columnNumber: 16
+        }, this);
+    }
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+        className: `material-symbols-outlined ${className} !text-[inherit]`,
+        children: icon
+    }, void 0, false, {
+        fileName: "[project]/components/CategoryIcon.tsx",
+        lineNumber: 11,
+        columnNumber: 12
+    }, this);
+}
+_c = CategoryIcon;
+var _c;
+__turbopack_context__.k.register(_c, "CategoryIcon");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+"[project]/app/(dashboard)/transactions/page.tsx [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>Transactions
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$FinanceContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/context/FinanceContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$data$3a$a87372__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$text$2f$javascript$3e$__ = __turbopack_context__.i("[project]/app/actions/data:a87372 [app-client] (ecmascript) <text/javascript>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$CategoryIcon$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/CategoryIcon.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/startOfMonth.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/date-fns/format.js [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/endOfDay.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$locale$2f$es$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/locale/es.js [app-client] (ecmascript)");
+;
+var _s = __turbopack_context__.k.signature();
+"use client";
+;
+;
+;
+;
+;
+;
+;
+const COLOR_MAP = {
+    red: {
+        bg: 'bg-red-100 dark:bg-red-900/30',
+        text: 'text-red-600 dark:text-red-400',
+        ring: 'ring-red-500/10',
+        border: 'border-red-200',
+        solid: 'bg-red-500'
+    },
+    orange: {
+        bg: 'bg-orange-100 dark:bg-orange-900/30',
+        text: 'text-orange-600 dark:text-orange-400',
+        ring: 'ring-orange-500/10',
+        border: 'border-orange-200',
+        solid: 'bg-orange-500'
+    },
+    amber: {
+        bg: 'bg-amber-100 dark:bg-amber-900/30',
+        text: 'text-amber-600 dark:text-amber-400',
+        ring: 'ring-amber-500/10',
+        border: 'border-amber-200',
+        solid: 'bg-amber-500'
+    },
+    yellow: {
+        bg: 'bg-yellow-100 dark:bg-yellow-900/30',
+        text: 'text-yellow-600 dark:text-yellow-400',
+        ring: 'ring-yellow-500/10',
+        border: 'border-yellow-200',
+        solid: 'bg-yellow-500'
+    },
+    lime: {
+        bg: 'bg-lime-100 dark:bg-lime-900/30',
+        text: 'text-lime-600 dark:text-lime-400',
+        ring: 'ring-lime-500/10',
+        border: 'border-lime-200',
+        solid: 'bg-lime-500'
+    },
+    green: {
+        bg: 'bg-green-100 dark:bg-green-900/30',
+        text: 'text-green-600 dark:text-green-400',
+        ring: 'ring-green-500/10',
+        border: 'border-green-200',
+        solid: 'bg-green-500'
+    },
+    emerald: {
+        bg: 'bg-emerald-100 dark:bg-emerald-900/30',
+        text: 'text-emerald-600 dark:text-emerald-400',
+        ring: 'ring-emerald-500/10',
+        border: 'border-emerald-200',
+        solid: 'bg-emerald-500'
+    },
+    teal: {
+        bg: 'bg-teal-100 dark:bg-teal-900/30',
+        text: 'text-teal-600 dark:text-teal-400',
+        ring: 'ring-teal-500/10',
+        border: 'border-teal-200',
+        solid: 'bg-teal-500'
+    },
+    cyan: {
+        bg: 'bg-cyan-100 dark:bg-cyan-900/30',
+        text: 'text-cyan-600 dark:text-cyan-400',
+        ring: 'ring-cyan-500/10',
+        border: 'border-cyan-200',
+        solid: 'bg-cyan-500'
+    },
+    sky: {
+        bg: 'bg-sky-100 dark:bg-sky-900/30',
+        text: 'text-sky-600 dark:text-sky-400',
+        ring: 'ring-sky-500/10',
+        border: 'border-sky-200',
+        solid: 'bg-sky-500'
+    },
+    blue: {
+        bg: 'bg-blue-100 dark:bg-blue-900/30',
+        text: 'text-blue-600 dark:text-blue-400',
+        ring: 'ring-blue-500/10',
+        border: 'border-blue-200',
+        solid: 'bg-blue-500'
+    },
+    indigo: {
+        bg: 'bg-indigo-100 dark:bg-indigo-900/30',
+        text: 'text-indigo-600 dark:text-indigo-400',
+        ring: 'ring-indigo-500/10',
+        border: 'border-indigo-200',
+        solid: 'bg-indigo-500'
+    },
+    violet: {
+        bg: 'bg-violet-100 dark:bg-violet-900/30',
+        text: 'text-violet-600 dark:text-violet-400',
+        ring: 'ring-violet-500/10',
+        border: 'border-violet-200',
+        solid: 'bg-violet-500'
+    },
+    purple: {
+        bg: 'bg-purple-100 dark:bg-purple-900/30',
+        text: 'text-purple-600 dark:text-purple-400',
+        ring: 'ring-purple-500/10',
+        border: 'border-purple-200',
+        solid: 'bg-purple-500'
+    },
+    fuchsia: {
+        bg: 'bg-fuchsia-100 dark:bg-fuchsia-900/30',
+        text: 'text-fuchsia-600 dark:text-fuchsia-400',
+        ring: 'ring-fuchsia-500/10',
+        border: 'border-fuchsia-200',
+        solid: 'bg-fuchsia-500'
+    },
+    pink: {
+        bg: 'bg-pink-100 dark:bg-pink-900/30',
+        text: 'text-pink-600 dark:text-pink-400',
+        ring: 'ring-pink-500/10',
+        border: 'border-pink-200',
+        solid: 'bg-pink-500'
+    },
+    rose: {
+        bg: 'bg-rose-100 dark:bg-rose-900/30',
+        text: 'text-rose-600 dark:text-rose-400',
+        ring: 'ring-rose-500/10',
+        border: 'border-rose-200',
+        solid: 'bg-rose-500'
+    },
+    slate: {
+        bg: 'bg-slate-100 dark:bg-slate-800',
+        text: 'text-slate-600 dark:text-slate-400',
+        ring: 'ring-slate-500/10',
+        border: 'border-slate-200',
+        solid: 'bg-slate-500'
+    }
+};
+function Transactions() {
+    _s();
+    const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
+    const { transactions, categories: allCategories, budgets, recurringRules, formatAmount, openTransactionModal, totalBalance, activeBookId, refreshBooks, ledgers } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$FinanceContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useFinance"])();
+    const [search, setSearch] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
+    const [activeType, setActiveType] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('ALL');
+    const [selectedCategories, setSelectedCategories] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [isPending, startTransition] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTransition"])();
+    const [dateRange, setDateRange] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
+        start: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])(new Date()),
+        end: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endOfDay"])(new Date())
+    });
+    const [isDateModalOpen, setIsDateModalOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const handleDateRangeApply = (start, end)=>{
+        setDateRange({
+            start,
+            end
+        });
+    };
+    // Categorías disponibles (ahora todas)
+    const categories = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "Transactions.useMemo[categories]": ()=>{
+            return allCategories.map({
+                "Transactions.useMemo[categories]": (cat)=>({
+                        name: cat.name,
+                        icon: cat.icon || 'category',
+                        color: cat.color // Include color
+                    })
+            }["Transactions.useMemo[categories]"]);
+        }
+    }["Transactions.useMemo[categories]"], [
+        allCategories
+    ]);
+    // Lógica de filtrado
+    const filtered = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "Transactions.useMemo[filtered]": ()=>{
+            return transactions.filter({
+                "Transactions.useMemo[filtered]": (t)=>{
+                    const tCategoryName = t.category || 'Uncategorized';
+                    const tDate = new Date(t.date);
+                    const matchesSearch = t.description.toLowerCase().includes(search.toLowerCase()) || tCategoryName.toLowerCase().includes(search.toLowerCase());
+                    const matchesType = activeType === 'ALL' || t.type === activeType;
+                    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(tCategoryName);
+                    const matchesDate = (!dateRange.start || tDate >= dateRange.start) && (!dateRange.end || tDate <= dateRange.end);
+                    return matchesSearch && matchesType && matchesCategory && matchesDate;
+                }
+            }["Transactions.useMemo[filtered]"]);
+        }
+    }["Transactions.useMemo[filtered]"], [
+        transactions,
+        search,
+        activeType,
+        selectedCategories
+    ]);
+    // Agrupación por fechas
+    const groupedTransactions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "Transactions.useMemo[groupedTransactions]": ()=>{
+            const groups = {};
+            filtered.forEach({
+                "Transactions.useMemo[groupedTransactions]": (t)=>{
+                    const dateKey = new Date(t.date).toLocaleDateString('es-ES', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long'
+                    });
+                    if (!groups[dateKey]) {
+                        groups[dateKey] = {
+                            date: dateKey,
+                            items: [],
+                            total: 0
+                        };
+                    }
+                    groups[dateKey].items.push(t);
+                    groups[dateKey].total += t.type === 'INCOME' ? t.amount : -t.amount;
+                }
+            }["Transactions.useMemo[groupedTransactions]"]);
+            return Object.values(groups);
+        }
+    }["Transactions.useMemo[groupedTransactions]"], [
+        filtered
+    ]);
+    const toggleCategory = (cat)=>{
+        setSelectedCategories((prev)=>prev.includes(cat) ? prev.filter((c)=>c !== cat) : [
+                ...prev,
+                cat
+            ]);
+    };
+    const handleRegenerateData = ()=>{
+        if (!activeBookId) return;
+        if (!confirm('¿Estás seguro? Esto eliminará TODAS las transacciones actuales y creará 10 nuevas.')) return;
+        startTransition(async ()=>{
+            await (0, __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$data$3a$a87372__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$text$2f$javascript$3e$__["resetAndSeedTransactions"])(activeBookId);
+            await refreshBooks();
+        });
+    };
+    // Calculate totals and projections
+    const stats = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "Transactions.useMemo[stats]": ()=>{
+            const { income, expense } = filtered.reduce({
+                "Transactions.useMemo[stats]": (acc, t)=>{
+                    if (t.type === 'INCOME') acc.income += t.amount;
+                    else acc.expense += t.amount;
+                    return acc;
+                }
+            }["Transactions.useMemo[stats]"], {
+                income: 0,
+                expense: 0
+            });
+            // Calculate Expense Budget (Projected)
+            // If categories selected, sum budgets for those categories. Else sum all.
+            const relevantBudgets = selectedCategories.length > 0 ? budgets.filter({
+                "Transactions.useMemo[stats]": (b)=>selectedCategories.includes(b.category)
+            }["Transactions.useMemo[stats]"]) : budgets;
+            // If no specific budget found, maybe use the general "monthly limit" logic or sum of all limits
+            const expenseProjected = relevantBudgets.length > 0 ? relevantBudgets.reduce({
+                "Transactions.useMemo[stats]": (sum, b)=>sum + b.limit
+            }["Transactions.useMemo[stats]"], 0) : 0;
+            // Calculate Income Projected
+            // Use active recurring income rules as "Projected Income"
+            const incomeProjected = recurringRules.filter({
+                "Transactions.useMemo[stats].incomeProjected": (r)=>r.type === 'INCOME' && r.active
+            }["Transactions.useMemo[stats].incomeProjected"]).reduce({
+                "Transactions.useMemo[stats].incomeProjected": (sum, r)=>sum + r.amount
+            }["Transactions.useMemo[stats].incomeProjected"], 0);
+            return {
+                income,
+                expense,
+                expenseProjected,
+                incomeProjected
+            };
+        }
+    }["Transactions.useMemo[stats]"], [
+        filtered,
+        budgets,
+        recurringRules,
+        selectedCategories
+    ]);
+    const getProgress = (current, target)=>{
+        if (target === 0) return 0;
+        return Math.min(current / target * 100, 100);
+    };
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "flex-1 flex flex-col h-full overflow-hidden relative",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "fixed inset-0 -z-10 overflow-hidden pointer-events-none",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "absolute -top-[10%] -right-[5%] w-[800px] h-[800px] rounded-full bg-blue-100/50 dark:bg-blue-900/10 blur-[100px] mix-blend-multiply dark:mix-blend-screen"
+                    }, void 0, false, {
+                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                        lineNumber: 173,
+                        columnNumber: 17
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "absolute top-[20%] -left-[10%] w-[600px] h-[600px] rounded-full bg-purple-100/50 dark:bg-purple-900/10 blur-[100px] mix-blend-multiply dark:mix-blend-screen"
+                    }, void 0, false, {
+                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                        lineNumber: 174,
+                        columnNumber: 17
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                lineNumber: 172,
+                columnNumber: 13
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
+                className: "flex-1 max-w-7xl mx-auto w-full p-4 lg:p-8 flex gap-8 overflow-hidden",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("aside", {
+                        className: "hidden lg:flex flex-col w-72 shrink-0 gap-6 h-full overflow-y-auto pr-2 scrollbar-hide",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "glass-card p-6 rounded-2xl border border-white/40 dark:border-slate-800",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "text-sm font-medium text-slate-500 dark:text-slate-400 mb-2",
+                                        children: "Total Disponible"
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                        lineNumber: 181,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                        className: "text-3xl font-black text-slate-800 dark:text-white tracking-tight",
+                                        children: formatAmount(totalBalance)
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                        lineNumber: 182,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "mt-6 flex flex-col gap-4",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 border border-emerald-100 dark:border-emerald-500/10",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "flex items-center gap-2 mb-2",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "size-6 rounded-full bg-emerald-100 dark:bg-emerald-800/30 flex items-center justify-center",
+                                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-[14px]",
+                                                                    children: "arrow_downward"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                    lineNumber: 191,
+                                                                    columnNumber: 41
+                                                                }, this)
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                lineNumber: 190,
+                                                                columnNumber: 37
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider",
+                                                                children: "Ingresos"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                lineNumber: 193,
+                                                                columnNumber: 37
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 189,
+                                                        columnNumber: 33
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                        className: "text-xl font-black text-slate-800 dark:text-white mb-2",
+                                                        children: formatAmount(stats.income)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 195,
+                                                        columnNumber: 33
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "space-y-1",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "flex justify-between text-[10px] font-medium text-slate-400",
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                        children: "Proyectado"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                        lineNumber: 199,
+                                                                        columnNumber: 41
+                                                                    }, this),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                        children: formatAmount(stats.incomeProjected)
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                        lineNumber: 200,
+                                                                        columnNumber: 41
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                lineNumber: 198,
+                                                                columnNumber: 37
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "h-1.5 w-full bg-emerald-100 dark:bg-emerald-950 rounded-full overflow-hidden",
+                                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "h-full bg-emerald-500 rounded-full transition-all duration-1000",
+                                                                    style: {
+                                                                        width: `${getProgress(stats.income, stats.incomeProjected)}%`
+                                                                    }
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                    lineNumber: 203,
+                                                                    columnNumber: 41
+                                                                }, this)
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                lineNumber: 202,
+                                                                columnNumber: 37
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 197,
+                                                        columnNumber: 33
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                lineNumber: 188,
+                                                columnNumber: 29
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4 border border-orange-100 dark:border-orange-500/10",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "flex items-center gap-2 mb-2",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "size-6 rounded-full bg-orange-100 dark:bg-orange-800/30 flex items-center justify-center",
+                                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "material-symbols-outlined text-orange-600 dark:text-orange-400 text-[14px]",
+                                                                    children: "arrow_upward"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                    lineNumber: 215,
+                                                                    columnNumber: 41
+                                                                }, this)
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                lineNumber: 214,
+                                                                columnNumber: 37
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider",
+                                                                children: "Gastos"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                lineNumber: 217,
+                                                                columnNumber: 37
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 213,
+                                                        columnNumber: 33
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                        className: "text-xl font-black text-slate-800 dark:text-white mb-2",
+                                                        children: formatAmount(stats.expense)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 219,
+                                                        columnNumber: 33
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "space-y-1",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "flex justify-between text-[10px] font-medium text-slate-400",
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                        children: "Presupuesto"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                        lineNumber: 223,
+                                                                        columnNumber: 41
+                                                                    }, this),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                        children: formatAmount(stats.expenseProjected)
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                        lineNumber: 224,
+                                                                        columnNumber: 41
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                lineNumber: 222,
+                                                                columnNumber: 37
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "h-1.5 w-full bg-orange-100 dark:bg-orange-950 rounded-full overflow-hidden",
+                                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "h-full bg-orange-500 rounded-full transition-all duration-1000",
+                                                                    style: {
+                                                                        width: `${getProgress(stats.expense, stats.expenseProjected)}%`
+                                                                    }
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                    lineNumber: 227,
+                                                                    columnNumber: 41
+                                                                }, this)
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                lineNumber: 226,
+                                                                columnNumber: 37
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 221,
+                                                        columnNumber: 33
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                lineNumber: 212,
+                                                columnNumber: 29
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                        lineNumber: 186,
+                                        columnNumber: 25
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                lineNumber: 180,
+                                columnNumber: 21
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex flex-col gap-4",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex items-center justify-between",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                                className: "font-bold text-slate-700 dark:text-slate-200",
+                                                children: "Filtros"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                lineNumber: 239,
+                                                columnNumber: 29
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                onClick: ()=>{
+                                                    setSearch('');
+                                                    setActiveType('ALL');
+                                                    setSelectedCategories([]);
+                                                },
+                                                className: "text-xs text-primary hover:underline font-medium",
+                                                children: "Resetear"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                lineNumber: 240,
+                                                columnNumber: 29
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                        lineNumber: 238,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "glass-card p-4 rounded-xl space-y-3 border border-white/40 dark:border-slate-800",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                className: "text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider",
+                                                children: "Período"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                lineNumber: 253,
+                                                columnNumber: 29
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "relative",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                        onClick: ()=>setIsDateModalOpen(true),
+                                                        className: "w-full bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 pl-3 pr-10 text-sm font-medium text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-primary focus:bg-white text-left transition-all hover:bg-white dark:hover:bg-slate-800",
+                                                        children: dateRange.start && dateRange.end ? `${(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["format"])(dateRange.start, 'dd MMM', {
+                                                            locale: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$locale$2f$es$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["es"]
+                                                        })} - ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["format"])(dateRange.end, 'dd MMM', {
+                                                            locale: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$locale$2f$es$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["es"]
+                                                        })}` : 'Seleccionar rango'
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 255,
+                                                        columnNumber: 33
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg",
+                                                        children: "calendar_month"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 263,
+                                                        columnNumber: 33
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                lineNumber: 254,
+                                                columnNumber: 29
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                        lineNumber: 252,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "glass-card p-4 rounded-xl space-y-4 border border-white/40 dark:border-slate-800",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                className: "text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider",
+                                                children: "Categorías"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                lineNumber: 268,
+                                                columnNumber: 29
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "space-y-1",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                        className: "flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors group",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                type: "checkbox",
+                                                                checked: selectedCategories.length === 0,
+                                                                onChange: ()=>setSelectedCategories([]),
+                                                                className: "rounded border-slate-300 text-primary focus:ring-primary bg-transparent"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                lineNumber: 271,
+                                                                columnNumber: 37
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: "text-sm text-slate-600 dark:text-slate-300 font-medium group-hover:text-primary",
+                                                                children: "Todas"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                lineNumber: 277,
+                                                                columnNumber: 37
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 270,
+                                                        columnNumber: 33
+                                                    }, this),
+                                                    categories.map((cat)=>{
+                                                        const colors = COLOR_MAP[cat.color || 'slate'] || COLOR_MAP.slate;
+                                                        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                            className: "flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors group",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                    type: "checkbox",
+                                                                    checked: selectedCategories.includes(cat.name),
+                                                                    onChange: ()=>toggleCategory(cat.name),
+                                                                    className: "rounded border-slate-300 text-primary focus:ring-primary bg-transparent"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                    lineNumber: 283,
+                                                                    columnNumber: 45
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: `size-8 rounded-full flex items-center justify-center ${colors.bg} ${colors.text} ring-1 ring-inset ${colors.ring}`,
+                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$CategoryIcon$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CategoryIcon"], {
+                                                                        icon: cat.icon,
+                                                                        className: "text-[14px]"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                        lineNumber: 292,
+                                                                        columnNumber: 49
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                    lineNumber: 289,
+                                                                    columnNumber: 45
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: "text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white",
+                                                                    children: cat.name
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                    lineNumber: 294,
+                                                                    columnNumber: 45
+                                                                }, this)
+                                                            ]
+                                                        }, cat.name, true, {
+                                                            fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                            lineNumber: 282,
+                                                            columnNumber: 41
+                                                        }, this);
+                                                    })
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                lineNumber: 269,
+                                                columnNumber: 29
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                        lineNumber: 267,
+                                        columnNumber: 25
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                lineNumber: 237,
+                                columnNumber: 21
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                        lineNumber: 179,
+                        columnNumber: 17
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "flex-1 flex flex-col h-full overflow-hidden",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "mb-8 shrink-0 animate-fade-in",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex flex-wrap items-end justify-between gap-4 mb-6",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                                                        className: "text-2xl font-bold text-slate-800 dark:text-white",
+                                                        children: "Transacciones"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 308,
+                                                        columnNumber: 33
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                        className: "text-slate-500 dark:text-slate-400 text-sm mt-1",
+                                                        children: "Gestiona tus movimientos con claridad."
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 309,
+                                                        columnNumber: 33
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                lineNumber: 307,
+                                                columnNumber: 29
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex gap-2",
+                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                    onClick: openTransactionModal,
+                                                    className: "bg-primary hover:bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: "material-symbols-outlined text-[20px]",
+                                                            children: "add"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                            lineNumber: 317,
+                                                            columnNumber: 37
+                                                        }, this),
+                                                        "Nueva"
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                    lineNumber: 313,
+                                                    columnNumber: 33
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                lineNumber: 311,
+                                                columnNumber: 29
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                        lineNumber: 306,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex flex-col sm:flex-row gap-4",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "relative flex-1",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400",
+                                                        children: "search"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 325,
+                                                        columnNumber: 33
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                        value: search,
+                                                        onChange: (e)=>setSearch(e.target.value),
+                                                        className: "w-full glass-card pl-11 pr-4 py-3 rounded-xl border-transparent focus:border-primary focus:ring-0 text-sm font-medium placeholder:text-slate-400 text-slate-700 dark:text-white transition-all",
+                                                        placeholder: "Buscar transacción...",
+                                                        type: "text"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 326,
+                                                        columnNumber: 33
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                lineNumber: 324,
+                                                columnNumber: 29
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex gap-2 overflow-x-auto no-scrollbar pb-1",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                        onClick: ()=>setActiveType('ALL'),
+                                                        className: `px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeType === 'ALL' ? 'bg-slate-800 dark:bg-slate-700 text-white shadow-md' : 'glass-card text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800'}`,
+                                                        children: "Todo"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 335,
+                                                        columnNumber: 33
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                        onClick: ()=>setActiveType('INCOME'),
+                                                        className: `px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeType === 'INCOME' ? 'bg-slate-800 dark:bg-slate-700 text-white shadow-md' : 'glass-card text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800'}`,
+                                                        children: "Ingresos"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 341,
+                                                        columnNumber: 33
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                        onClick: ()=>setActiveType('EXPENSE'),
+                                                        className: `px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeType === 'EXPENSE' ? 'bg-slate-800 dark:bg-slate-700 text-white shadow-md' : 'glass-card text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800'}`,
+                                                        children: "Gastos"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                        lineNumber: 347,
+                                                        columnNumber: 33
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                lineNumber: 334,
+                                                columnNumber: 29
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                        lineNumber: 323,
+                                        columnNumber: 25
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                lineNumber: 305,
+                                columnNumber: 21
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex-1 overflow-y-auto pr-2 pb-20 space-y-8 scrollbar-hide animate-fade-in",
+                                style: {
+                                    animationDelay: '0.1s'
+                                },
+                                children: [
+                                    groupedTransactions.map((group, gIdx)=>{
+                                        const currencySymbol = ledgers.find((l)=>l.id === activeBookId)?.currency || '$';
+                                        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "sticky top-0 z-10 py-3 bg-[#f2f6fa]/95 dark:bg-[#020617]/95 backdrop-blur-md flex justify-between items-center border-b border-slate-200/50 dark:border-slate-800/50 mb-3",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                                            className: "text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest capitalize",
+                                                            children: group.date
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                            lineNumber: 363,
+                                                            columnNumber: 41
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                            className: `text-xs font-semibold px-2 py-1 rounded ${group.total >= 0 ? 'bg-emerald-100/50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-rose-100/50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'}`,
+                                                            children: [
+                                                                group.total >= 0 ? '+' : '-',
+                                                                currencySymbol,
+                                                                Math.abs(group.total).toLocaleString('es-ES', {
+                                                                    minimumFractionDigits: 2
+                                                                })
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                            lineNumber: 364,
+                                                            columnNumber: 41
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                    lineNumber: 362,
+                                                    columnNumber: 37
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "flex flex-col gap-3",
+                                                    children: group.items.map((t)=>{
+                                                        const category = allCategories.find((c)=>c.name === t.category);
+                                                        const colorKey = category?.color || 'slate';
+                                                        const colors = COLOR_MAP[colorKey] || COLOR_MAP.slate;
+                                                        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            onClick: ()=>router.push(`/transaction/${t.id}`),
+                                                            className: "group glass-card rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-white/90 dark:hover:bg-slate-800/80 hover:-translate-y-0.5 transition-all duration-200 border border-white/40 dark:border-slate-800",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: `size-12 rounded-2xl flex items-center justify-center shrink-0 border transition-colors ${colors.bg} ${colors.text} ${colors.border}`,
+                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$CategoryIcon$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CategoryIcon"], {
+                                                                        icon: t.icon || 'attach_money',
+                                                                        className: "text-[24px]"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                        lineNumber: 381,
+                                                                        columnNumber: 57
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                    lineNumber: 380,
+                                                                    columnNumber: 53
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "flex-1 min-w-0 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1",
+                                                                    children: [
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                            className: "text-sm font-bold text-slate-800 dark:text-slate-100 truncate",
+                                                                            title: t.description,
+                                                                            children: [
+                                                                                t.description.split(' ').slice(0, 5).join(' '),
+                                                                                t.description.split(' ').length > 5 ? '...' : ''
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                            lineNumber: 384,
+                                                                            columnNumber: 57
+                                                                        }, this),
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                            className: `text-sm font-bold text-right ${t.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500'}`,
+                                                                            children: [
+                                                                                t.type === 'EXPENSE' ? '-' : '+',
+                                                                                currencySymbol,
+                                                                                t.amount.toFixed(2)
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                            lineNumber: 387,
+                                                                            columnNumber: 57
+                                                                        }, this),
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                            className: "flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 truncate",
+                                                                            children: [
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                    children: t.account
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                                    lineNumber: 391,
+                                                                                    columnNumber: 61
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                    className: "size-1 rounded-full bg-slate-300 dark:bg-slate-700"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                                    lineNumber: 392,
+                                                                                    columnNumber: 61
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                    children: t.category
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                                    lineNumber: 393,
+                                                                                    columnNumber: 61
+                                                                                }, this)
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                            lineNumber: 390,
+                                                                            columnNumber: 57
+                                                                        }, this),
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                            className: "text-xs font-medium text-slate-400 text-right",
+                                                                            children: new Date(t.date).toLocaleTimeString('es-ES', {
+                                                                                hour: '2-digit',
+                                                                                minute: '2-digit'
+                                                                            })
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                            lineNumber: 395,
+                                                                            columnNumber: 57
+                                                                        }, this)
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                                    lineNumber: 383,
+                                                                    columnNumber: 53
+                                                                }, this)
+                                                            ]
+                                                        }, t.id, true, {
+                                                            fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                            lineNumber: 375,
+                                                            columnNumber: 49
+                                                        }, this);
+                                                    })
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                    lineNumber: 368,
+                                                    columnNumber: 37
+                                                }, this)
+                                            ]
+                                        }, group.date, true, {
+                                            fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                            lineNumber: 361,
+                                            columnNumber: 33
+                                        }, this);
+                                    }),
+                                    groupedTransactions.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex flex-col items-center justify-center py-20 opacity-50",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                className: "material-symbols-outlined text-6xl mb-4",
+                                                children: "history_toggle_off"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                lineNumber: 409,
+                                                columnNumber: 33
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                className: "text-sm text-slate-400",
+                                                children: "No se encontraron transacciones en este período."
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                                lineNumber: 410,
+                                                columnNumber: 33
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                        lineNumber: 408,
+                                        columnNumber: 29
+                                    }, this),
+                                    groupedTransactions.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "py-8 text-center",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            className: "text-sm text-slate-400 dark:text-slate-600",
+                                            children: "No hay más transacciones"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                            lineNumber: 416,
+                                            columnNumber: 33
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                        lineNumber: 415,
+                                        columnNumber: 29
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                                lineNumber: 357,
+                                columnNumber: 21
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                        lineNumber: 304,
+                        columnNumber: 17
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+                lineNumber: 177,
+                columnNumber: 13
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/app/(dashboard)/transactions/page.tsx",
+        lineNumber: 170,
+        columnNumber: 9
+    }, this);
+}
+_s(Transactions, "MG3wFALieqJ6wKOb7JAW6BOkowo=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$FinanceContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useFinance"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTransition"]
+    ];
+});
+_c = Transactions;
+var _c;
+__turbopack_context__.k.register(_c, "Transactions");
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
+}
+}),
+]);
+
+//# sourceMappingURL=_aa98fef7._.js.map

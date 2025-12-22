@@ -1,18 +1,36 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 import { DateRangeModal } from '@/components/DateRangeModal';
+import { NotificationsModal } from '@/components/NotificationsModal';
 import { useFinance } from '@/context/FinanceContext';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import { startOfMonth, endOfMonth, differenceInCalendarDays, addDays, startOfDay, format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 
+
+const HEX_ALPHA = (hex: string, alpha: number) => {
+    if (!hex) return `rgba(148, 163, 184, ${alpha})`;
+    let normalized = hex.trim();
+    if (normalized.startsWith('#')) normalized = normalized.slice(1);
+    if (normalized.length === 3) {
+        normalized = normalized.split('').map(ch => ch + ch).join('');
+    }
+    const int = parseInt(normalized, 16);
+    if (Number.isNaN(int)) return `rgba(148, 163, 184, ${alpha})`;
+    const r = (int >> 16) & 255;
+    const g = (int >> 8) & 255;
+    const b = int & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
 
 export default function Dashboard() {
     const router = useRouter();
-    const { transactions, accounts, totalBalance } = useFinance();
+    const { transactions, accounts, totalBalance, budgets, commitments, recurringRules, categories, openTransactionModal, formatAmount } = useFinance();
     const [showBalance, setShowBalance] = useState(true);
     const [activeTab, setActiveTab] = useState('Este mes');
     const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({
@@ -20,8 +38,68 @@ export default function Dashboard() {
         end: new Date()
     });
     const [isDateModalOpen, setIsDateModalOpen] = useState(false);
+    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
     const tabs = ['Este mes', 'Mes pasado', 'Últimos 3 meses', 'Personalizado'];
+    const dateMeta = React.useMemo(() => {
+        const now = new Date();
+        const start = startOfMonth(now);
+        const end = endOfMonth(now);
+        return {
+            today: now,
+            currentMonthStart: start,
+            currentMonthEnd: end,
+            daysInMonth: differenceInCalendarDays(end, start) + 1,
+            daysElapsed: differenceInCalendarDays(now, start) + 1
+        };
+    }, []);
+    const { today, currentMonthStart, currentMonthEnd, daysInMonth, daysElapsed } = dateMeta;
+
+    const parseRuleDate = useCallback((value?: string | null) => {
+        if (!value) return null;
+        const direct = new Date(value);
+        if (!Number.isNaN(direct.getTime())) {
+            return direct;
+        }
+        const normalized = value.replace(/de/gi, '').replace(',', '').trim();
+        const match = normalized.match(/(\d{1,2})\s+([A-Za-z]+)/);
+        if (match) {
+            const day = Number(match[1]);
+            const monthKey = match[2].slice(0, 3).toLowerCase();
+            const monthMap: Record<string, number> = {
+                ene: 0, feb: 1, mar: 2, abr: 3, may: 4, jun: 5,
+                jul: 6, ago: 7, sep: 8, oct: 9, nov: 10, dic: 11
+            };
+            if (monthMap[monthKey] !== undefined) {
+                const candidate = new Date(today.getFullYear(), monthMap[monthKey], day);
+                if (candidate < today) {
+                    candidate.setFullYear(candidate.getFullYear() + 1);
+                }
+                return candidate;
+            }
+        }
+        return null;
+    }, [today]);
+
+    const categoryVisualMap = React.useMemo(() => {
+        const map = new Map<string, { name: string; color: string; icon: string }>();
+        categories.forEach(cat => {
+            map.set(cat.id, { name: cat.name, color: cat.color || '#2563eb', icon: cat.icon || 'category' });
+            map.set(cat.name.toLowerCase(), { name: cat.name, color: cat.color || '#2563eb', icon: cat.icon || 'category' });
+        });
+        return map;
+    }, [categories]);
+
+    const getCategoryVisuals = useCallback((transaction: typeof transactions[number]) => {
+        const key = transaction.category_id && categoryVisualMap.get(transaction.category_id);
+        const fallback = categoryVisualMap.get(transaction.category?.toLowerCase?.() || '');
+        const info = key || fallback;
+        return {
+            name: info?.name || transaction.category || 'General',
+            color: info?.color || '#cbd5f5',
+            icon: info?.icon || transaction.icon || 'payments'
+        };
+    }, [categoryVisualMap]);
 
     const handleTabClick = (tab: string) => {
         if (tab === 'Personalizado') {
@@ -68,6 +146,90 @@ export default function Dashboard() {
     const monthlyExpense = filteredTransactions
         .filter(t => t.type === 'EXPENSE')
         .reduce((sum, t) => sum + t.amount, 0);
+
+    const currentMonthExpenses = React.useMemo(() => {
+        return transactions.reduce((sum, t) => {
+            const tDate = new Date(t.date);
+            if (t.type === 'EXPENSE' && tDate >= currentMonthStart && tDate <= currentMonthEnd) {
+                return sum + t.amount;
+            }
+            return sum;
+        }, 0);
+    }, [transactions, currentMonthStart, currentMonthEnd]);
+
+    const currentMonthIncome = React.useMemo(() => {
+        return transactions.reduce((sum, t) => {
+            const tDate = new Date(t.date);
+            if (t.type === 'INCOME' && tDate >= currentMonthStart && tDate <= currentMonthEnd) {
+                return sum + t.amount;
+            }
+            return sum;
+        }, 0);
+    }, [transactions, currentMonthStart, currentMonthEnd]);
+
+    const monthlyLimit = React.useMemo(() => {
+        const monthlyBudgets = budgets.filter(b => b.period === 'MONTHLY');
+        if (monthlyBudgets.length > 0) {
+            return monthlyBudgets.reduce((sum, b) => sum + b.limit, 0);
+        }
+        return Math.max(currentMonthIncome * 0.8, currentMonthExpenses * 1.2, 1000);
+    }, [budgets, currentMonthIncome, currentMonthExpenses]);
+
+    const monthlyProgress = monthlyLimit > 0 ? (currentMonthExpenses / monthlyLimit) * 100 : 0;
+    const monthlyRemaining = Math.max(monthlyLimit - currentMonthExpenses, 0);
+    const dailyAllowance = monthlyLimit > 0 ? monthlyLimit / daysInMonth : 0;
+    const dailySpent = daysElapsed > 0 ? currentMonthExpenses / daysElapsed : 0;
+    const dailyTrendPositive = dailySpent <= dailyAllowance;
+    const dailyTrendDelta = Math.abs(dailyAllowance - dailySpent);
+    const dailyTrendMessage = dailyTrendPositive ? 'Vas por debajo del ritmo planificado' : 'Estás superando tu ritmo diario';
+
+    const dailyExpensesData = React.useMemo(() => {
+        const totals = new Map<string, number>();
+        transactions.forEach((t) => {
+            if (t.type !== 'EXPENSE') return;
+            const tDate = new Date(t.date);
+            if (tDate < currentMonthStart || tDate > currentMonthEnd) return;
+            const key = tDate.toISOString().split('T')[0];
+            totals.set(key, (totals.get(key) || 0) + t.amount);
+        });
+        const days = differenceInCalendarDays(currentMonthEnd, currentMonthStart) + 1;
+        return Array.from({ length: days }, (_, idx) => {
+            const date = addDays(currentMonthStart, idx);
+            const key = date.toISOString().split('T')[0];
+            return {
+                label: format(date, 'd MMM', { locale: es }),
+                amount: Number((totals.get(key) || 0).toFixed(2))
+            };
+        });
+    }, [transactions, currentMonthStart, currentMonthEnd]);
+
+    const upcomingBills = React.useMemo(() => {
+        const start = startOfDay(today);
+        const limit = addDays(start, 5);
+        return commitments
+            .map(commitment => ({
+                ...commitment,
+                dueDateObj: commitment.nextDueDate ? new Date(commitment.nextDueDate) : null
+            }))
+            .filter(c => c.dueDateObj && c.dueDateObj >= start && c.dueDateObj <= limit)
+            .sort((a, b) => (a.dueDateObj!.getTime() - b.dueDateObj!.getTime()))
+            .slice(0, 5);
+    }, [commitments, today]);
+
+    const nextIncomeInfo = React.useMemo(() => {
+        const start = startOfDay(today);
+        let result: { rule: typeof recurringRules[number]; date: Date } | null = null;
+        recurringRules.forEach(rule => {
+            if (!rule.active || rule.type !== 'INCOME') return;
+            const parsed = parseRuleDate(rule.nextDate);
+            if (!parsed || parsed < start) return;
+            if (!result || parsed < result.date) {
+                result = { rule, date: parsed };
+            }
+        });
+        return result;
+    }, [recurringRules, parseRuleDate, today]);
+    const daysUntilNextPay = nextIncomeInfo ? differenceInCalendarDays(startOfDay(nextIncomeInfo.date), startOfDay(today)) : null;
 
     // Chart Data Calculation
     // Calculate Balance at the END of the selected range
@@ -157,7 +319,7 @@ export default function Dashboard() {
                     </div>
                     <div className="flex items-center gap-3">
                         <button
-                            onClick={() => router.push('/notifications')}
+                            onClick={() => setIsNotificationsOpen(true)}
                             className="btn-interact flex items-center justify-center rounded-xl size-11 bg-white dark:bg-[#292f38] text-text-muted dark:text-white hover:text-primary transition-colors border border-gray-200 dark:border-white/5 shadow-sm relative"
                         >
                             <span className="material-symbols-outlined">notifications</span>
@@ -257,7 +419,7 @@ export default function Dashboard() {
                         <div className="flex items-center justify-between mb-6">
                             <div>
                                 <h3 className="text-text-main dark:text-white text-lg font-bold">Historial de Saldo</h3>
-                                <p className="text-text-muted dark:text-dark-muted text-xs font-medium">Evolución del balance en el periodo</p>
+                                <p className="text-text-muted dark:text-dark-muted text-sm font-medium">Agregar Cuenta</p>
                             </div>
                             <button className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors">
                                 <span className="material-symbols-outlined text-text-muted dark:text-dark-muted">more_horiz</span>
@@ -304,27 +466,136 @@ export default function Dashboard() {
                         </div>
                         <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
                             <div className="flex flex-col gap-1">
-                                {filteredTransactions.slice(0, 8).map((t) => (
-                                    <div key={t.id} onClick={() => router.push(`/transaction/${t.id}`)} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-white/5 transition-colors cursor-pointer group">
-                                        <div className="flex items-center gap-3">
-                                            <div className="size-10 rounded-full bg-gray-50 dark:bg-[#292f38] flex items-center justify-center text-text-main dark:text-white border border-gray-100 dark:border-white/5 transition-transform group-hover:scale-105">
-                                                <span className="material-symbols-outlined text-[20px]">{t.icon}</span>
+                                {filteredTransactions.slice(0, 8).map((t) => {
+                                    const visuals = getCategoryVisuals(t);
+                                    const badgeBg = HEX_ALPHA(visuals.color, 0.12);
+                                    const badgeBorder = HEX_ALPHA(visuals.color, 0.3);
+                                    return (
+                                        <div key={t.id} onClick={() => router.push(`/transaction/${t.id}`)} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-white/5 transition-colors cursor-pointer group">
+                                            <div className="flex items-center gap-3">
+                                                <div className="size-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-105" style={{ backgroundColor: badgeBg, border: `1px solid ${badgeBorder}`, color: visuals.color }}>
+                                                    <span className="material-symbols-outlined text-[20px]">{visuals.icon}</span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <p className="text-text-main dark:text-white text-sm font-medium group-hover:text-primary transition-colors">{t.description || visuals.name}</p>
+                                                    <p className="text-[11px] font-semibold" style={{ color: visuals.color }}>{visuals.name}</p>
+                                                </div>
                                             </div>
-                                            <div className="flex flex-col">
-                                                <p className="text-text-main dark:text-white text-sm font-medium group-hover:text-primary transition-colors">{t.description}</p>
-                                                <p className="text-text-muted dark:text-dark-muted text-xs">{t.category}</p>
+                                            <div className="flex flex-col items-end">
+                                                <p className={`text-sm font-bold ${t.type === 'INCOME' ? 'text-success' : 'text-text-main dark:text-white'}`}>
+                                                    {t.type === 'EXPENSE' ? '-' : '+'}${t.amount.toFixed(2)}
+                                                </p>
+                                                <p className="text-text-light dark:text-dark-muted text-[10px] font-medium">Hoy</p>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col items-end">
-                                            <p className={`text-sm font-bold ${t.type === 'INCOME' ? 'text-success' : 'text-text-main dark:text-white'}`}>
-                                                {t.type === 'EXPENSE' ? '-' : '+'}${t.amount.toFixed(2)}
-                                            </p>
-                                            <p className="text-text-light dark:text-dark-muted text-[10px] font-medium">Hoy</p>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 glass-card rounded-3xl p-6 md:p-8 flex flex-col gap-4 border border-white/5">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-semibold uppercase text-text-muted dark:text-dark-muted/70 tracking-widest">Límite mensual</p>
+                                <h3 className="text-2xl font-black text-text-main dark:text-white">Seguimiento de gastos</h3>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-sm font-semibold text-text-muted dark:text-dark-muted/70">Gastado</p>
+                                <p className="text-2xl font-bold text-primary">${currentMonthExpenses.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <div className="flex items-center justify-between text-xs font-semibold text-text-muted dark:text-dark-muted mb-2">
+                                <span>{monthlyProgress.toFixed(0)}% utilizado</span>
+                                <span>Te quedan ${monthlyRemaining.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                            </div>
+                            <div className="h-3 w-full bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+                                <div className={`h-full ${monthlyProgress > 95 ? 'bg-danger' : monthlyProgress > 80 ? 'bg-warning' : 'bg-primary'} transition-all duration-700`} style={{ width: `${Math.min(monthlyProgress, 130)}%` }}></div>
+                            </div>
+                            <div className="mt-2 text-xs text-text-muted dark:text-dark-muted flex items-center justify-between">
+                                <span>Límite: ${monthlyLimit.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                                <span>Promedio diario permitido: ${dailyAllowance.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <div className={`px-4 py-3 rounded-2xl border ${dailyTrendPositive ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-900/20' : 'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900/50 dark:bg-orange-900/20'}`}>
+                            <p className="text-sm font-semibold">{dailyTrendMessage}</p>
+                            <p className="text-xs opacity-80">Diferencia diaria de ${dailyTrendDelta.toFixed(2)} ({dailyTrendPositive ? 'por debajo' : 'por encima'} del ritmo).</p>
+                        </div>
+                        <div className="h-40">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={dailyExpensesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="dailyExpenseGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#94a3b8' }} interval={Math.ceil(dailyExpensesData.length / 6)} />
+                                    <YAxis hide />
+                                    <Tooltip
+                                        formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Gasto']}
+                                        labelFormatter={(label) => label}
+                                        contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.15)' }}
+                                    />
+                                    <Area type="monotone" dataKey="amount" stroke="#2563eb" strokeWidth={3} fill="url(#dailyExpenseGradient)" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    <div className="glass-card rounded-3xl p-6 border border-white/5 flex flex-col gap-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-text-main dark:text-white">Próximas facturas</h3>
+                            <span className="text-xs font-semibold text-text-muted dark:text-dark-muted/70">Próx. 5 días</span>
+                        </div>
+                        {upcomingBills.length === 0 ? (
+                            <div className="flex-1 flex flex-col items-center justify-center text-center text-text-muted dark:text-dark-muted/70 text-sm">
+                                <span className="material-symbols-outlined text-3xl mb-2">event_available</span>
+                                No tienes pagos pendientes en los próximos días.
+                            </div>
+                        ) : (
+                            <div className="flex flex-col gap-3">
+                                {upcomingBills.map((bill) => (
+                                    <div key={bill.id} className="flex items-center justify-between rounded-2xl border border-gray-100 dark:border-white/10 px-4 py-3">
+                                        <div>
+                                            <p className="text-sm font-semibold text-text-main dark:text-white">{bill.name}</p>
+                                            <p className="text-xs text-text-muted dark:text-dark-muted">{bill.dueDateObj ? format(bill.dueDateObj, "EEE d 'de' MMM", { locale: es }) : 'Sin fecha'}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-base font-bold text-text-main dark:text-white">${bill.amount.toFixed(2)}</p>
+                                            <p className="text-[10px] text-primary font-semibold uppercase tracking-widest">{bill.frequency}</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
+                        )}
+                    </div>
+
+                    <div className="glass-card rounded-3xl p-6 border border-white/5 flex flex-col gap-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-text-main dark:text-white">Próximo pago</h3>
+                            <button onClick={() => router.push('/rules')} className="text-xs font-bold text-primary hover:text-primary-hover">Configurar</button>
                         </div>
+                        {nextIncomeInfo ? (
+                            <>
+                                <div>
+                                    <p className="text-4xl font-black text-primary">{daysUntilNextPay ?? 0}<span className="text-base font-medium text-text-muted dark:text-dark-muted ml-2">días</span></p>
+                                    <p className="text-sm text-text-muted dark:text-dark-muted/70">para {nextIncomeInfo.rule.name}</p>
+                                </div>
+                                <div className="bg-primary/10 text-primary rounded-2xl px-4 py-3">
+                                    <p className="text-sm font-semibold">${nextIncomeInfo.rule.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })} entrarán a {nextIncomeInfo.rule.account}</p>
+                                    <p className="text-xs opacity-80">Fecha estimada: {format(nextIncomeInfo.date, "EEEE d 'de' MMMM", { locale: es })}</p>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="flex-1 flex flex-col items-center justify-center text-center text-text-muted dark:text-dark-muted/70 text-sm">
+                                <span className="material-symbols-outlined text-3xl mb-2">hourglass_empty</span>
+                                Aún no registras reglas de ingresos activas.
+                            </div>
+                        )}
                     </div>
                 </section>
 
@@ -362,7 +633,7 @@ export default function Dashboard() {
                 </section>
             </div>
 
-            <button onClick={() => router.push('/edit-transaction')} className="btn-interact fixed z-50 bottom-24 lg:bottom-12 right-6 md:right-12 size-14 md:size-16 bg-primary hover:bg-primary-hover text-white rounded-full shadow-[0_8px_30px_rgba(48,125,232,0.4)] flex items-center justify-center transition-all hover:scale-110 active:scale-95 group">
+            <button onClick={openTransactionModal} className="btn-interact fixed z-50 bottom-24 lg:bottom-12 right-6 md:right-12 size-14 md:size-16 bg-primary hover:bg-primary-hover text-white rounded-full shadow-[0_8px_30px_rgba(48,125,232,0.4)] flex items-center justify-center transition-all hover:scale-110 active:scale-95 group">
                 <span className="material-symbols-outlined text-3xl md:text-4xl group-hover:rotate-90 transition-transform duration-500">add</span>
             </button>
             <DateRangeModal
@@ -372,6 +643,7 @@ export default function Dashboard() {
                 initialStartDate={dateRange.start}
                 initialEndDate={dateRange.end}
             />
-        </div>
+            <NotificationsModal isOpen={isNotificationsOpen} onClose={() => setIsNotificationsOpen(false)} />
+        </div >
     );
 }

@@ -1,0 +1,55 @@
+'use client'
+
+import { Check } from "lucide-react"
+
+export const BOOK_COLORS = {
+    Classic: [
+        { name: 'Red', value: 'red', hex: '#ef4444' },
+        { name: 'Orange', value: 'orange', hex: '#f97316' },
+        { name: 'Amber', value: 'amber', hex: '#f59e0b' },
+        { name: 'Yellow', value: 'yellow', hex: '#eab308' },
+        { name: 'Lime', value: 'lime', hex: '#84cc16' },
+        { name: 'Green', value: 'green', hex: '#22c55e' },
+        { name: 'Emerald', value: 'emerald', hex: '#10b981' },
+        { name: 'Teal', value: 'teal', hex: '#14b8a6' },
+        { name: 'Cyan', value: 'cyan', hex: '#06b6d4' },
+        { name: 'Sky', value: 'sky', hex: '#0ea5e9' },
+        { name: 'Blue', value: 'blue', hex: '#3b82f6' },
+        { name: 'Indigo', value: 'indigo', hex: '#6366f1' },
+        { name: 'Violet', value: 'violet', hex: '#8b5cf6' },
+        { name: 'Purple', value: 'purple', hex: '#a855f7' },
+        { name: 'Fuchsia', value: 'fuchsia', hex: '#d946ef' },
+        { name: 'Pink', value: 'pink', hex: '#ec4899' },
+        { name: 'Rose', value: 'rose', hex: '#f43f5e' },
+        { name: 'Slate', value: 'slate', hex: '#64748b' },
+    ]
+}
+
+export function ColorPicker({ value, onChange }: { value: string, onChange: (color: string) => void }) {
+    return (
+        <div className="space-y-3">
+            <label className="text-sm font-medium text-text-main">Color</label>
+            <div className="flex flex-wrap gap-3">
+                {BOOK_COLORS.Classic.map((color) => {
+                    const isSelected = value === color.value
+                    return (
+                        <button
+                            key={color.value}
+                            type="button"
+                            onClick={() => onChange(color.value)}
+                            className={`
+                                w-10 h-10 rounded-full flex items-center justify-center transition-all
+                                ${isSelected ? 'ring-2 ring-offset-2 ring-primary dark:ring-offset-gray-900 scale-110' : 'hover:scale-105'}
+                            `}
+                            style={{ backgroundColor: color.hex }}
+                            title={color.name}
+                        >
+                            {isSelected && <Check size={18} className="text-white drop-shadow-md" />}
+                        </button>
+                    )
+                })}
+            </div>
+            <input type="hidden" name="color" value={value} />
+        </div>
+    )
+}

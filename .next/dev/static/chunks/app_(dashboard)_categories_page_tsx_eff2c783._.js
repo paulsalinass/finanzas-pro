@@ -14,6 +14,19 @@ var _s = __turbopack_context__.k.signature();
 "use client";
 ;
 ;
+const withAlpha = (hex, alpha)=>{
+    if (!hex) return `rgba(99, 102, 241, ${alpha})`;
+    let normalized = hex.replace('#', '');
+    if (normalized.length === 3) {
+        normalized = normalized.split('').map((ch)=>ch + ch).join('');
+    }
+    const int = parseInt(normalized, 16);
+    if (Number.isNaN(int)) return `rgba(99, 102, 241, ${alpha})`;
+    const r = int >> 16 & 255;
+    const g = int >> 8 & 255;
+    const b = int & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
 function Categories() {
     _s();
     const { categories, categoryFolders } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$FinanceContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useFinance"])();
@@ -116,14 +129,14 @@ function Categories() {
                 className: "absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-blue-400/15 rounded-full blur-[100px] pointer-events-none"
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                lineNumber: 80,
+                lineNumber: 94,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-400/10 rounded-full blur-[100px] pointer-events-none"
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                lineNumber: 81,
+                lineNumber: 95,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -142,7 +155,7 @@ function Categories() {
                                                 children: "Configuración"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                lineNumber: 88,
+                                                lineNumber: 102,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -150,7 +163,7 @@ function Categories() {
                                                 children: "chevron_right"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                lineNumber: 89,
+                                                lineNumber: 103,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -158,13 +171,13 @@ function Categories() {
                                                 children: "Categorías"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                lineNumber: 90,
+                                                lineNumber: 104,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                        lineNumber: 87,
+                                        lineNumber: 101,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -172,13 +185,13 @@ function Categories() {
                                         children: "Gestión de Categorías"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                        lineNumber: 92,
+                                        lineNumber: 106,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                lineNumber: 86,
+                                lineNumber: 100,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -192,31 +205,31 @@ function Categories() {
                                             children: "add"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                            lineNumber: 99,
+                                            lineNumber: 113,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                             children: "Nueva Categoría"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                            lineNumber: 100,
+                                            lineNumber: 114,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                    lineNumber: 95,
+                                    lineNumber: 109,
                                     columnNumber: 25
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                lineNumber: 94,
+                                lineNumber: 108,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                        lineNumber: 85,
+                        lineNumber: 99,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -236,7 +249,7 @@ function Categories() {
                                                     children: "Gastos"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                    lineNumber: 110,
+                                                    lineNumber: 124,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -245,13 +258,13 @@ function Categories() {
                                                     children: "Ingresos"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                    lineNumber: 116,
+                                                    lineNumber: 130,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                            lineNumber: 109,
+                                            lineNumber: 123,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -265,7 +278,7 @@ function Categories() {
                                                             children: "folder"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                            lineNumber: 125,
+                                                            lineNumber: 139,
                                                             columnNumber: 37
                                                         }, this),
                                                         categoryFolders.length,
@@ -273,7 +286,7 @@ function Categories() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                    lineNumber: 124,
+                                                    lineNumber: 138,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -284,7 +297,7 @@ function Categories() {
                                                             children: "category"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                            lineNumber: 129,
+                                                            lineNumber: 143,
                                                             columnNumber: 37
                                                         }, this),
                                                         categories.length,
@@ -292,19 +305,19 @@ function Categories() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                    lineNumber: 128,
+                                                    lineNumber: 142,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                            lineNumber: 123,
+                                            lineNumber: 137,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                    lineNumber: 108,
+                                    lineNumber: 122,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -323,22 +336,26 @@ function Categories() {
                                                                     children: "drag_indicator"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                                    lineNumber: 140,
+                                                                    lineNumber: 154,
                                                                     columnNumber: 45
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: `size-11 rounded-xl flex items-center justify-center bg-${folder.color}-100 text-${folder.color}-600`,
+                                                                    className: "size-11 rounded-xl flex items-center justify-center",
+                                                                    style: {
+                                                                        backgroundColor: withAlpha(folder.color || '#6366f1', 0.15),
+                                                                        color: folder.color || '#6366f1'
+                                                                    },
                                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                         className: "material-symbols-outlined text-2xl",
                                                                         children: folder.icon
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                                        lineNumber: 142,
+                                                                        lineNumber: 159,
                                                                         columnNumber: 49
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                                    lineNumber: 141,
+                                                                    lineNumber: 155,
                                                                     columnNumber: 45
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -348,7 +365,7 @@ function Categories() {
                                                                             children: folder.name
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                                            lineNumber: 145,
+                                                                            lineNumber: 162,
                                                                             columnNumber: 49
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -359,24 +376,24 @@ function Categories() {
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                                            lineNumber: 146,
+                                                                            lineNumber: 163,
                                                                             columnNumber: 49
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                                    lineNumber: 144,
+                                                                    lineNumber: 161,
                                                                     columnNumber: 45
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                            lineNumber: 139,
+                                                            lineNumber: 153,
                                                             columnNumber: 41
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                        lineNumber: 138,
+                                                        lineNumber: 152,
                                                         columnNumber: 37
                                                     }, this),
                                                     folder.items.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -388,18 +405,23 @@ function Categories() {
                                                                         className: "flex items-center gap-3 flex-1",
                                                                         children: [
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                className: `size-8 rounded-full flex items-center justify-center border bg-slate-50 border-slate-100`,
+                                                                                className: "size-8 rounded-full flex items-center justify-center border",
+                                                                                style: {
+                                                                                    color: item.color || '#64748b',
+                                                                                    backgroundColor: withAlpha(item.color || '#64748b', 0.15),
+                                                                                    borderColor: withAlpha(item.color || '#64748b', 0.3)
+                                                                                },
                                                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                    className: `material-symbols-outlined text-[18px] text-${item.color || 'slate-500'}`,
+                                                                                    className: "material-symbols-outlined text-[18px]",
                                                                                     children: item.icon || 'category'
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                                                    lineNumber: 157,
+                                                                                    lineNumber: 181,
                                                                                     columnNumber: 61
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                                                lineNumber: 156,
+                                                                                lineNumber: 173,
                                                                                 columnNumber: 57
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -407,13 +429,13 @@ function Categories() {
                                                                                 children: item.name
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                                                lineNumber: 159,
+                                                                                lineNumber: 183,
                                                                                 columnNumber: 57
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                                        lineNumber: 155,
+                                                                        lineNumber: 172,
                                                                         columnNumber: 53
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -423,23 +445,23 @@ function Categories() {
                                                                             children: "edit"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                                            lineNumber: 162,
+                                                                            lineNumber: 186,
                                                                             columnNumber: 57
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                                        lineNumber: 161,
+                                                                        lineNumber: 185,
                                                                         columnNumber: 53
                                                                     }, this)
                                                                 ]
                                                             }, item.id, true, {
                                                                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                                lineNumber: 154,
+                                                                lineNumber: 171,
                                                                 columnNumber: 49
                                                             }, this))
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                        lineNumber: 152,
+                                                        lineNumber: 169,
                                                         columnNumber: 41
                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-8 flex flex-col items-center justify-center bg-slate-50/50 dark:bg-slate-900/20",
@@ -448,18 +470,18 @@ function Categories() {
                                                             children: "Carpeta vacía"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                            lineNumber: 169,
+                                                            lineNumber: 193,
                                                             columnNumber: 45
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                        lineNumber: 168,
+                                                        lineNumber: 192,
                                                         columnNumber: 41
                                                     }, this)
                                                 ]
                                             }, folder.id, true, {
                                                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                lineNumber: 137,
+                                                lineNumber: 151,
                                                 columnNumber: 33
                                             }, this)),
                                         foldersUI.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -468,35 +490,35 @@ function Categories() {
                                                 children: "No hay categorías ni carpetas."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                                lineNumber: 176,
+                                                lineNumber: 200,
                                                 columnNumber: 37
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                            lineNumber: 175,
+                                            lineNumber: 199,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                    lineNumber: 135,
+                                    lineNumber: 149,
                                     columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                            lineNumber: 106,
+                            lineNumber: 120,
                             columnNumber: 21
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                        lineNumber: 105,
+                        lineNumber: 119,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                lineNumber: 84,
+                lineNumber: 98,
                 columnNumber: 13
             }, this),
             isModalOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -513,12 +535,12 @@ function Categories() {
                                         children: "Nueva Categoría"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                        lineNumber: 192,
+                                        lineNumber: 216,
                                         columnNumber: 33
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                    lineNumber: 191,
+                                    lineNumber: 215,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -529,18 +551,18 @@ function Categories() {
                                         children: "close"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                        lineNumber: 195,
+                                        lineNumber: 219,
                                         columnNumber: 33
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                    lineNumber: 194,
+                                    lineNumber: 218,
                                     columnNumber: 29
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                            lineNumber: 190,
+                            lineNumber: 214,
                             columnNumber: 25
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -550,12 +572,12 @@ function Categories() {
                                 children: "Funcionalidad de crear categorías en desarrollo..."
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                lineNumber: 199,
+                                lineNumber: 223,
                                 columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                            lineNumber: 198,
+                            lineNumber: 222,
                             columnNumber: 25
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -566,29 +588,29 @@ function Categories() {
                                 children: "Cancelar"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                                lineNumber: 202,
+                                lineNumber: 226,
                                 columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                            lineNumber: 201,
+                            lineNumber: 225,
                             columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                    lineNumber: 189,
+                    lineNumber: 213,
                     columnNumber: 21
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/categories/page.tsx",
-                lineNumber: 188,
+                lineNumber: 212,
                 columnNumber: 17
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/(dashboard)/categories/page.tsx",
-        lineNumber: 78,
+        lineNumber: 92,
         columnNumber: 9
     }, this);
 }

@@ -1,4 +1,20 @@
 {
-  "node": {},
+  "node": {
+    "409177d0e1657581eae6dcd075dd20681ea0fe4bf6": {
+      "workers": {
+        "app/(dashboard)/transactions/page": {
+          "moduleId": "[project]/.next-internal/server/app/(dashboard)/transactions/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/transaction-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "resetAndSeedTransactions",
+          "filename": "app/actions/transaction-actions.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/transactions/page": "action-browser"
+      },
+      "exportedName": "resetAndSeedTransactions",
+      "filename": "app/actions/transaction-actions.ts"
+    }
+  },
   "edge": {}
 }

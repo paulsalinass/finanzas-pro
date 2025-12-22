@@ -65,53 +65,100 @@ const FinanceProvider = ({ children })=>{
             return newMode;
         });
     };
-    // Initial Load: Auth & Books
+    const fetchBooks = async ()=>{
+        setIsLoading(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            setIsLoading(false);
+            return;
+        }
+        const { data: books, error } = await supabase.from('books').select('*');
+        if (books && books.length > 0) {
+            const mappedLedgers = books.map((b)=>({
+                    id: b.id,
+                    name: b.name,
+                    description: b.short_description || '',
+                    balance: 0,
+                    isActive: false,
+                    isArchived: false,
+                    lastUpdate: b.created_at,
+                    icon: b.icon || 'Wallet',
+                    color: b.color || 'blue',
+                    type: 'PERSONAL',
+                    members: [],
+                    currency: b.currency
+                }));
+            setLedgers(mappedLedgers);
+        // Initial activation logic can be here or in useEffect
+        // We will activate first if none active in useEffect or consumer
+        } else {
+            await createDefaultBook(user.id);
+        }
+        setIsLoading(false);
+    };
+    // Initial Load
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "FinanceProvider.useEffect": ()=>{
-            const init = {
-                "FinanceProvider.useEffect.init": async ()=>{
-                    setIsLoading(true);
-                    const { data: { user } } = await supabase.auth.getUser();
-                    if (!user) {
-                        // Allow public mock view OR redirect? 
-                        // For now, let's keep loading false so UI shows "empty" or redirects in middleware
-                        setIsLoading(false);
-                        return;
-                    }
-                    // Fetch Books (mapped to Ledgers in UI)
-                    const { data: books, error } = await supabase.from('books').select('*');
-                    if (books && books.length > 0) {
-                        // Map DB Books to UI Ledgers
-                        const mappedLedgers = books.map({
-                            "FinanceProvider.useEffect.init.mappedLedgers": (b)=>({
-                                    id: b.id,
-                                    name: b.name,
-                                    description: '',
-                                    balance: 0,
-                                    isActive: false,
-                                    isArchived: false,
-                                    lastUpdate: b.created_at,
-                                    icon: 'account_balance_wallet',
-                                    color: 'blue',
-                                    type: 'PERSONAL',
-                                    members: []
-                                })
-                        }["FinanceProvider.useEffect.init.mappedLedgers"]);
-                        setLedgers(mappedLedgers);
-                        // Activate first book or saved preference
-                        if (mappedLedgers.length > 0) {
-                            handleChangeActiveBook(mappedLedgers[0].id);
-                        }
-                    } else {
-                        // Create Default Book if none exists
-                        await createDefaultBook(user.id);
-                    }
-                    setIsLoading(false);
+            fetchBooks().then({
+                "FinanceProvider.useEffect": (mappedLedgers)=>{
+                // Logic moved inside to have access to the fetched ledgers directly if returned, 
+                // or we rely on state updates which might be async.
+                // Better approach: fetchBooks updates state. We wait for that.
                 }
-            }["FinanceProvider.useEffect.init"];
-            init();
+            }["FinanceProvider.useEffect"]);
         }
     }["FinanceProvider.useEffect"], []);
+    // Effect to handle initial active book selection once ledgers are loaded
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "FinanceProvider.useEffect": ()=>{
+            if (!isLoading && ledgers.length > 0 && !activeBookId) {
+                // Try to recover from localStorage
+                const savedBookId = localStorage.getItem('finance_active_book_id');
+                const targetBook = ledgers.find({
+                    "FinanceProvider.useEffect.targetBook": (l)=>l.id === savedBookId
+                }["FinanceProvider.useEffect.targetBook"]);
+                if (targetBook) {
+                    handleChangeActiveBook(targetBook.id);
+                } else {
+                    // Default to first if no saved book or saved book not found/deleted
+                    handleChangeActiveBook(ledgers[0].id);
+                }
+            }
+        }
+    }["FinanceProvider.useEffect"], [
+        isLoading,
+        ledgers,
+        activeBookId
+    ]);
+    // Helper to format currency based on active book
+    const formatAmount = (amount)=>{
+        const activeLedger = ledgers.find((l)=>l.id === activeBookId);
+        const currency = activeLedger?.currency || 'MXN';
+        let locale = 'es-MX';
+        if (currency === 'USD') locale = 'en-US';
+        if (currency === 'EUR') locale = 'es-ES';
+        if (currency === 'PEN') locale = 'es-PE';
+        if (currency === 'COP') locale = 'es-CO';
+        return new Intl.NumberFormat(locale, {
+            style: 'currency',
+            currency: currency,
+            minimumFractionDigits: 2
+        }).format(amount);
+    };
+    const refreshBooks = async ()=>{
+        await fetchBooks();
+        if (activeBookId) {
+            await Promise.all([
+                fetchAccounts(activeBookId),
+                fetchCategories(activeBookId),
+                fetchCategoryFolders(activeBookId),
+                fetchTransactions(activeBookId),
+                fetchCommitments(activeBookId),
+                fetchBudgets(activeBookId),
+                fetchRecurringRules(activeBookId)
+            ]);
+        }
+    };
     const createDefaultBook = async (userId)=>{
         const { data, error } = await supabase.from('books').insert({
             name: 'Personal',
@@ -139,6 +186,7 @@ const FinanceProvider = ({ children })=>{
     };
     const handleChangeActiveBook = async (bookId)=>{
         setActiveBookId(bookId);
+        localStorage.setItem('finance_active_book_id', bookId); // Persist selection
         setLedgers((prev)=>prev.map((l)=>({
                     ...l,
                     isActive: l.id === bookId
@@ -149,16 +197,33 @@ const FinanceProvider = ({ children })=>{
             fetchCategories(bookId),
             fetchCategoryFolders(bookId),
             fetchTransactions(bookId),
-            fetchCommitments(bookId)
+            fetchCommitments(bookId),
+            fetchBudgets(bookId),
+            fetchRecurringRules(bookId)
         ]);
     };
     const fetchCategories = async (bookId)=>{
         const { data } = await supabase.from('categories').select('*').eq('book_id', bookId);
-        if (data) setCategories(data);
+        if (data) {
+            setCategories(data.map((cat)=>({
+                    id: cat.id,
+                    name: cat.name,
+                    color: cat.color || '#2563eb',
+                    icon: cat.icon || 'category',
+                    folder_id: cat.folder_id || null
+                })));
+        }
     };
     const fetchCategoryFolders = async (bookId)=>{
         const { data } = await supabase.from('category_folders').select('*').eq('book_id', bookId);
-        if (data) setCategoryFolders(data);
+        if (data) {
+            setCategoryFolders(data.map((folder)=>({
+                    id: folder.id,
+                    name: folder.name,
+                    color: folder.color || '#6366f1',
+                    icon: folder.icon || 'folder'
+                })));
+        }
     };
     const fetchAccounts = async (bookId)=>{
         const { data } = await supabase.from('accounts').select('*').eq('book_id', bookId);
@@ -199,6 +264,44 @@ const FinanceProvider = ({ children })=>{
                     frequency: c.frequency,
                     nextDueDate: c.next_due_date,
                     status: c.status
+                })));
+        }
+    };
+    const fetchBudgets = async (bookId)=>{
+        const { data, error } = await supabase.from('budgets').select('*').eq('book_id', bookId);
+        if (error) {
+            console.warn('No fue posible cargar presupuestos', error.message);
+            return;
+        }
+        if (data) {
+            setBudgets(data.map((b)=>({
+                    id: b.id,
+                    category: b.category || b.name || 'Sin categoría',
+                    limit: Number(b.limit ?? b.amount_limit ?? 0),
+                    spent: Number(b.spent ?? 0),
+                    period: b.period || 'MONTHLY',
+                    severity: b.severity || 'NORMAL'
+                })));
+        }
+    };
+    const fetchRecurringRules = async (bookId)=>{
+        const { data, error } = await supabase.from('recurring_rules').select('*').eq('book_id', bookId);
+        if (error) {
+            console.warn('No fue posible cargar reglas recurrentes', error.message);
+            return;
+        }
+        if (data) {
+            setRecurringRules(data.map((r)=>({
+                    id: r.id,
+                    name: r.name,
+                    category: r.category || 'General',
+                    account: r.account || r.account_name || 'Cuenta principal',
+                    amount: Number(r.amount ?? 0),
+                    type: r.type || 'EXPENSE',
+                    frequency: r.frequency || 'Mensual',
+                    nextDate: r.next_run_at || r.next_date || '',
+                    active: r.is_active ?? true,
+                    icon: r.icon || 'autorenew'
                 })));
         }
     };
@@ -374,6 +477,10 @@ const FinanceProvider = ({ children })=>{
         await handleChangeActiveBook(activeBookId);
         setIsLoading(false);
     };
+    // Modal State
+    const [isTransactionModalOpen, setIsTransactionModalOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const openTransactionModal = ()=>setIsTransactionModalOpen(true);
+    const closeTransactionModal = ()=>setIsTransactionModalOpen(false);
     const totalBalance = accounts.reduce((sum, acc)=>sum + acc.balance, 0);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(FinanceContext.Provider, {
         value: {
@@ -397,16 +504,21 @@ const FinanceProvider = ({ children })=>{
             isDarkMode,
             toggleTheme,
             isLoading,
-            activeBookId
+            activeBookId,
+            refreshBooks,
+            formatAmount,
+            isTransactionModalOpen,
+            openTransactionModal,
+            closeTransactionModal
         },
         children: children
     }, void 0, false, {
         fileName: "[project]/context/FinanceContext.tsx",
-        lineNumber: 354,
+        lineNumber: 470,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(FinanceProvider, "Mgyep+74TlPE3VnGvfgp2KTQrCs=", false, function() {
+_s(FinanceProvider, "MGhX0HkQhN6+7VFYq1+NldVlG0w=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"]
     ];

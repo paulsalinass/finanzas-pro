@@ -1,4 +1,80 @@
 {
-  "node": {},
+  "node": {
+    "60c23372b8b45b596ffd1839aa760061a49fe9f017": {
+      "workers": {
+        "app/(dashboard)/categories/page": {
+          "moduleId": "[project]/.next-internal/server/app/(dashboard)/categories/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/category-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "moveCategory",
+          "filename": "app/actions/category-actions.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/categories/page": "action-browser"
+      },
+      "exportedName": "moveCategory",
+      "filename": "app/actions/category-actions.ts"
+    },
+    "40ef68b1e954541f24d8a4aaa3cade72ef55cd2e67": {
+      "workers": {
+        "app/(dashboard)/categories/page": {
+          "moduleId": "[project]/.next-internal/server/app/(dashboard)/categories/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/category-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createCategory",
+          "filename": "app/actions/category-actions.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/categories/page": "action-browser"
+      },
+      "exportedName": "createCategory",
+      "filename": "app/actions/category-actions.ts"
+    },
+    "40a680bceef55496edf0f120787b0ff31a2336938a": {
+      "workers": {
+        "app/(dashboard)/categories/page": {
+          "moduleId": "[project]/.next-internal/server/app/(dashboard)/categories/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/category-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateCategory",
+          "filename": "app/actions/category-actions.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/categories/page": "action-browser"
+      },
+      "exportedName": "updateCategory",
+      "filename": "app/actions/category-actions.ts"
+    },
+    "409da29aca1f799ee873ce4b3e42a5dbc85a55b1d1": {
+      "workers": {
+        "app/(dashboard)/categories/page": {
+          "moduleId": "[project]/.next-internal/server/app/(dashboard)/categories/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/category-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createFolder",
+          "filename": "app/actions/category-actions.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/categories/page": "action-browser"
+      },
+      "exportedName": "createFolder",
+      "filename": "app/actions/category-actions.ts"
+    },
+    "405a0688f2ad623ba4c7dd22759fc48431f55c7cd7": {
+      "workers": {
+        "app/(dashboard)/categories/page": {
+          "moduleId": "[project]/.next-internal/server/app/(dashboard)/categories/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/category-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateFolder",
+          "filename": "app/actions/category-actions.ts"
+        }
+      },
+      "layer": {
+        "app/(dashboard)/categories/page": "action-browser"
+      },
+      "exportedName": "updateFolder",
+      "filename": "app/actions/category-actions.ts"
+    }
+  },
   "edge": {}
 }

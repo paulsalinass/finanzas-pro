@@ -11,29 +11,41 @@ interface SidebarLinkProps {
   exact?: boolean;
   fill?: boolean;
   collapsed?: boolean;
+  onHoverChange?: (info: { label: string; top: number } | null) => void;
 }
 
-const SidebarLink: React.FC<SidebarLinkProps> = ({ to, icon, label, exact = false, fill = false, collapsed = false }) => {
+const SidebarLink: React.FC<SidebarLinkProps> = ({ to, icon, label, exact = false, fill = false, collapsed = false, onHoverChange }) => {
   const pathname = usePathname();
   const isActive = exact ? pathname === to : pathname.startsWith(to);
+  const linkRef = React.useRef<HTMLAnchorElement | null>(null);
+
+  const handleMouseEnter = () => {
+    if (!collapsed || !onHoverChange) return;
+    const rect = linkRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    onHoverChange({
+      label,
+      top: rect.top + rect.height / 2,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    if (!onHoverChange) return;
+    onHoverChange(null);
+  };
 
   return (
     <Link
       href={to}
-      className={`relative flex items-center gap-3 rounded-xl transition-all group ${collapsed ? 'justify-center px-2 py-3' : 'px-4 py-3'
-        } ${isActive ? 'bg-primary text-white shadow-lg shadow-primary/25' : 'text-[#637288] dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800 hover:text-[#111418] dark:hover:text-white'
+      className={`relative flex items-center gap-3 rounded-xl transition-all group overflow-visible ${collapsed ? 'justify-center px-2 py-3' : 'px-4 py-3'
+        } ${isActive ? 'bg-primary text-white shadow-lg shadow-primary/25' : 'text-[#637288] dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800 hover:text-primary dark:hover:text-primary'
         }`}
+      ref={linkRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <span className={`material-symbols-outlined text-[22px] group-hover:scale-105 transition-transform ${isActive || fill ? 'fill-1' : ''}`}>{icon}</span>
       {!collapsed && <span className={`text-sm ${isActive ? 'font-bold' : 'font-medium'}`}>{label}</span>}
-      {collapsed && (
-        <span className="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-200">
-          <span className="relative px-3 py-1 rounded-2xl bg-[#111418] text-white text-xs font-semibold shadow-lg whitespace-nowrap">
-            {label}
-            <span className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-[#111418] rotate-45"></span>
-          </span>
-        </span>
-      )}
     </Link>
   );
 };
@@ -42,7 +54,16 @@ interface SidebarProps {
   collapsed?: boolean;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => (
+export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
+  const [tooltip, setTooltip] = React.useState<{ label: string; top: number } | null>(null);
+
+  React.useEffect(() => {
+    if (!collapsed) {
+      setTooltip(null);
+    }
+  }, [collapsed]);
+
+  return (
   <aside className={`${collapsed ? 'w-[88px]' : 'w-[280px]'} relative bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border-r border-white/50 dark:border-slate-800 flex flex-col z-50 hidden lg:flex shrink-0 transition-all duration-300 overflow-visible`}>
     <div className={`h-20 flex items-center ${collapsed ? 'justify-center' : 'px-6'}`}>
       <Link className={`flex items-center gap-3 group w-full ${collapsed ? 'justify-center' : ''}`} href="/">
@@ -55,22 +76,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => (
 
     <nav className={`flex-1 overflow-y-auto overflow-x-visible ${collapsed ? 'px-2' : 'px-4'} py-2 space-y-1 scrollbar-hide`}>
       {!collapsed && <p className="px-4 mt-4 mb-2 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Principal</p>}
-      <SidebarLink collapsed={collapsed} to="/" icon="dashboard" label="Visión general" exact />
-      <SidebarLink collapsed={collapsed} to="/transactions" icon="receipt_long" label="Transacciones" />
-      <SidebarLink collapsed={collapsed} to="/budgets" icon="pie_chart" label="Presupuestos" />
-      <SidebarLink collapsed={collapsed} to="/reports" icon="monitoring" label="Reportes" />
+      <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/" icon="dashboard" label="Visión general" exact />
+      <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/transactions" icon="receipt_long" label="Transacciones" />
+      <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/budgets" icon="pie_chart" label="Presupuestos" />
+      <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/reports" icon="monitoring" label="Reportes" />
 
       {!collapsed && <p className="px-4 mt-6 mb-2 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Gestión</p>}
-      <SidebarLink collapsed={collapsed} to="/accounts" icon="account_balance" label="Cuentas" />
-      <SidebarLink collapsed={collapsed} to="/commitments" icon="event_repeat" label="Compromisos" />
-      <SidebarLink collapsed={collapsed} to="/categories" icon="category" label="Categorías" />
-      <SidebarLink collapsed={collapsed} to="/cards" icon="credit_card" label="Tarjetas y Cuotas" />
-      <SidebarLink collapsed={collapsed} to="/rules" icon="update" label="Reglas Recurrentes" />
-      <SidebarLink collapsed={collapsed} to="/ledgers" icon="menu_book" label="Libros Contables" />
+      <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/accounts" icon="account_balance" label="Cuentas" />
+      <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/commitments" icon="event_repeat" label="Compromisos" />
+      <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/categories" icon="category" label="Categorías" />
+      <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/cards" icon="credit_card" label="Tarjetas y Cuotas" />
+      <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/rules" icon="update" label="Reglas Recurrentes" />
+      <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/ledgers" icon="menu_book" label="Libros Contables" />
 
       {!collapsed && <p className="px-4 mt-6 mb-2 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Configuración</p>}
-      <SidebarLink collapsed={collapsed} to="/profile" icon="person" label="Perfil de Usuario" />
-      <SidebarLink collapsed={collapsed} to="/settings" icon="settings" label="Ajustes" />
+      <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/profile" icon="person" label="Perfil de Usuario" />
+      <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/settings" icon="settings" label="Ajustes" />
       <div className="h-6"></div>
     </nav>
 
@@ -88,5 +109,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => (
         )}
       </button>
     </div>
+    {collapsed && tooltip && (
+      <div className="pointer-events-none fixed z-[99] -translate-y-1/2" style={{ top: tooltip.top, left: collapsed ? 96 : -9999 }}>
+        <div className="relative px-5 py-3 rounded-lg bg-[#292929] text-white text-xs font-semibold shadow-lg whitespace-nowrap">
+          {tooltip.label}
+          <span className="absolute -left-[4px] top-1/2 -translate-y-1/2 w-2 h-2 bg-[#292929] rotate-45"></span>
+        </div>
+      </div>
+    )}
   </aside>
-);
+  );
+};

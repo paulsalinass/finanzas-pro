@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { FinanceProvider } from "../context/FinanceContext";
+import { TransactionModal } from "@/components/TransactionModal";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -24,6 +25,7 @@ export default function RootLayout({
             <body className={`${inter.className} font-body selection:bg-primary/20 bg-background-page dark:bg-background-dark text-text-main dark:text-white h-screen overflow-hidden`}>
                 <FinanceProvider>
                     {children}
+                    <TransactionModal />
                 </FinanceProvider>
             </body>
         </html>

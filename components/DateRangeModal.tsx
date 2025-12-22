@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
 import { DayPicker, DateRange } from 'react-day-picker';
 import { format, startOfDay, endOfDay, subDays, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -85,6 +85,8 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
     const [activePreset, setActivePreset] = useState<string | null>(null);
     const [leftMonth, setLeftMonth] = useState<Date>(() => startOfMonth(initialStartDate || new Date()));
     const [rightMonth, setRightMonth] = useState<Date>(() => addMonths(startOfMonth(initialStartDate || new Date()), 1));
+    const [isMounted, setIsMounted] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
 
     const syncCalendarMonths = (fromDate?: Date | null, toDate?: Date | null) => {
         const baseLeft = startOfMonth(fromDate || new Date());
@@ -117,6 +119,20 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, onClose]);
+
+    useLayoutEffect(() => {
+        if (isOpen) {
+            setIsMounted(true);
+            const raf = requestAnimationFrame(() => setIsVisible(true));
+            return () => cancelAnimationFrame(raf);
+        }
+
+        if (isMounted) {
+            setIsVisible(false);
+            const timeout = setTimeout(() => setIsMounted(false), 300);
+            return () => clearTimeout(timeout);
+        }
+    }, [isOpen, isMounted]);
 
     const years = useMemo(() => {
         const current = new Date().getFullYear();
@@ -169,6 +185,8 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
         if (!range?.from || !range?.to) return 'Selecciona un rango';
         return `${format(range.from, "d MMM, yyyy", { locale: es })} - ${format(range.to, "d MMM, yyyy", { locale: es })}`;
     }, [range]);
+
+    if (!isMounted) return null;
 
     const handleLeftMonthChange = (next: Date) => {
         const normalized = startOfMonth(next);
@@ -254,14 +272,20 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
         </div>
     );
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 z-[120] flex" onClick={onClose}>
-            <div className="hidden lg:block w-[240px]" />
-            <div className="flex-1 relative bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+        <div
+            className={`fixed inset-0 z-[120] flex transition-opacity duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+            onClick={onClose}
+        >
+            <div
+                className="hidden lg:block h-full"
+                style={{ width: 'var(--sidebar-width, 280px)' }}
+            />
+            <div
+                className={`flex-1 w-full relative flex items-center justify-center bg-slate-900/35 p-3 sm:p-4 transition-[opacity,backdrop-filter] duration-300 ease-out ${isVisible ? 'opacity-100 backdrop-blur-md' : 'opacity-0 backdrop-blur-none'}`}
+            >
                 <div
-                    className="date-range-modal w-full max-w-5xl bg-white dark:bg-[#101828] rounded-[28px] shadow-2xl border border-slate-200/80 dark:border-white/10 p-4 sm:p-5"
+                    className={`date-range-modal w-full max-w-5xl bg-white dark:bg-[#101828] rounded-[28px] shadow-2xl border border-slate-200/80 dark:border-white/10 p-4 sm:p-5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="flex items-start justify-between gap-3 mb-4">

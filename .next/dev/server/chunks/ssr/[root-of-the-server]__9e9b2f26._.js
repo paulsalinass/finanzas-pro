@@ -158,16 +158,33 @@ const FinanceProvider = ({ children })=>{
             fetchCategories(bookId),
             fetchCategoryFolders(bookId),
             fetchTransactions(bookId),
-            fetchCommitments(bookId)
+            fetchCommitments(bookId),
+            fetchBudgets(bookId),
+            fetchRecurringRules(bookId)
         ]);
     };
     const fetchCategories = async (bookId)=>{
         const { data } = await supabase.from('categories').select('*').eq('book_id', bookId);
-        if (data) setCategories(data);
+        if (data) {
+            setCategories(data.map((cat)=>({
+                    id: cat.id,
+                    name: cat.name,
+                    color: cat.color || '#2563eb',
+                    icon: cat.icon || 'category',
+                    folder_id: cat.folder_id || null
+                })));
+        }
     };
     const fetchCategoryFolders = async (bookId)=>{
         const { data } = await supabase.from('category_folders').select('*').eq('book_id', bookId);
-        if (data) setCategoryFolders(data);
+        if (data) {
+            setCategoryFolders(data.map((folder)=>({
+                    id: folder.id,
+                    name: folder.name,
+                    color: folder.color || '#6366f1',
+                    icon: folder.icon || 'folder'
+                })));
+        }
     };
     const fetchAccounts = async (bookId)=>{
         const { data } = await supabase.from('accounts').select('*').eq('book_id', bookId);
@@ -208,6 +225,44 @@ const FinanceProvider = ({ children })=>{
                     frequency: c.frequency,
                     nextDueDate: c.next_due_date,
                     status: c.status
+                })));
+        }
+    };
+    const fetchBudgets = async (bookId)=>{
+        const { data, error } = await supabase.from('budgets').select('*').eq('book_id', bookId);
+        if (error) {
+            console.warn('No fue posible cargar presupuestos', error.message);
+            return;
+        }
+        if (data) {
+            setBudgets(data.map((b)=>({
+                    id: b.id,
+                    category: b.category || b.name || 'Sin categoría',
+                    limit: Number(b.limit ?? b.amount_limit ?? 0),
+                    spent: Number(b.spent ?? 0),
+                    period: b.period || 'MONTHLY',
+                    severity: b.severity || 'NORMAL'
+                })));
+        }
+    };
+    const fetchRecurringRules = async (bookId)=>{
+        const { data, error } = await supabase.from('recurring_rules').select('*').eq('book_id', bookId);
+        if (error) {
+            console.warn('No fue posible cargar reglas recurrentes', error.message);
+            return;
+        }
+        if (data) {
+            setRecurringRules(data.map((r)=>({
+                    id: r.id,
+                    name: r.name,
+                    category: r.category || 'General',
+                    account: r.account || r.account_name || 'Cuenta principal',
+                    amount: Number(r.amount ?? 0),
+                    type: r.type || 'EXPENSE',
+                    frequency: r.frequency || 'Mensual',
+                    nextDate: r.next_run_at || r.next_date || '',
+                    active: r.is_active ?? true,
+                    icon: r.icon || 'autorenew'
                 })));
         }
     };
@@ -411,7 +466,7 @@ const FinanceProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/context/FinanceContext.tsx",
-        lineNumber: 354,
+        lineNumber: 411,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

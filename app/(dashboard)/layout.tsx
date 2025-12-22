@@ -11,6 +11,8 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }>) {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const SIDEBAR_EXPANDED = 280;
+    const SIDEBAR_COLLAPSED = 88;
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
@@ -23,6 +25,8 @@ export default function DashboardLayout({
     useEffect(() => {
         if (typeof window === 'undefined') return;
         localStorage.setItem('sidebar-collapsed', JSON.stringify(isCollapsed));
+        const width = isCollapsed ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED;
+        document.documentElement.style.setProperty('--sidebar-width', `${width}px`);
     }, [isCollapsed]);
 
     return (

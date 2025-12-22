@@ -28,6 +28,10 @@ export interface Transaction {
   icon: string;
   account_id?: string;
   category_id?: string;
+  status?: 'COMPLETED' | 'PENDING';
+  location?: string;
+  notes?: string;
+  isRecurring?: boolean;
 }
 
 export interface Account {
@@ -99,4 +103,5 @@ export interface Ledger {
   color: 'blue' | 'purple' | 'green' | 'orange';
   type: 'SAVINGS' | 'BUSINESS' | 'PERSONAL';
   members?: string[];
+  currency?: string;
 }

@@ -1,34 +1,92 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFinance } from '@/context/FinanceContext';
 import { Transaction } from '@/types';
+import { resetAndSeedTransactions } from '@/app/actions/transaction-actions';
+
+
+import { CategoryIcon } from '@/components/CategoryIcon';
+import { DateRangeModal } from '@/components/DateRangeModal';
+import { startOfMonth, endOfMonth, format, startOfDay, endOfDay } from 'date-fns';
+import { es } from 'date-fns/locale';
+
+const COLOR_MAP: Record<string, { bg: string, text: string, ring: string, border: string, solid: string }> = {
+    red: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400', ring: 'ring-red-500/10', border: 'border-red-200', solid: 'bg-red-500' },
+    orange: { bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-600 dark:text-orange-400', ring: 'ring-orange-500/10', border: 'border-orange-200', solid: 'bg-orange-500' },
+    amber: { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-600 dark:text-amber-400', ring: 'ring-amber-500/10', border: 'border-amber-200', solid: 'bg-amber-500' },
+    yellow: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-600 dark:text-yellow-400', ring: 'ring-yellow-500/10', border: 'border-yellow-200', solid: 'bg-yellow-500' },
+    lime: { bg: 'bg-lime-100 dark:bg-lime-900/30', text: 'text-lime-600 dark:text-lime-400', ring: 'ring-lime-500/10', border: 'border-lime-200', solid: 'bg-lime-500' },
+    green: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-600 dark:text-green-400', ring: 'ring-green-500/10', border: 'border-green-200', solid: 'bg-green-500' },
+    emerald: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-600 dark:text-emerald-400', ring: 'ring-emerald-500/10', border: 'border-emerald-200', solid: 'bg-emerald-500' },
+    teal: { bg: 'bg-teal-100 dark:bg-teal-900/30', text: 'text-teal-600 dark:text-teal-400', ring: 'ring-teal-500/10', border: 'border-teal-200', solid: 'bg-teal-500' },
+    cyan: { bg: 'bg-cyan-100 dark:bg-cyan-900/30', text: 'text-cyan-600 dark:text-cyan-400', ring: 'ring-cyan-500/10', border: 'border-cyan-200', solid: 'bg-cyan-500' },
+    sky: { bg: 'bg-sky-100 dark:bg-sky-900/30', text: 'text-sky-600 dark:text-sky-400', ring: 'ring-sky-500/10', border: 'border-sky-200', solid: 'bg-sky-500' },
+    blue: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-600 dark:text-blue-400', ring: 'ring-blue-500/10', border: 'border-blue-200', solid: 'bg-blue-500' },
+    indigo: { bg: 'bg-indigo-100 dark:bg-indigo-900/30', text: 'text-indigo-600 dark:text-indigo-400', ring: 'ring-indigo-500/10', border: 'border-indigo-200', solid: 'bg-indigo-500' },
+    violet: { bg: 'bg-violet-100 dark:bg-violet-900/30', text: 'text-violet-600 dark:text-violet-400', ring: 'ring-violet-500/10', border: 'border-violet-200', solid: 'bg-violet-500' },
+    purple: { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-600 dark:text-purple-400', ring: 'ring-purple-500/10', border: 'border-purple-200', solid: 'bg-purple-500' },
+    fuchsia: { bg: 'bg-fuchsia-100 dark:bg-fuchsia-900/30', text: 'text-fuchsia-600 dark:text-fuchsia-400', ring: 'ring-fuchsia-500/10', border: 'border-fuchsia-200', solid: 'bg-fuchsia-500' },
+    pink: { bg: 'bg-pink-100 dark:bg-pink-900/30', text: 'text-pink-600 dark:text-pink-400', ring: 'ring-pink-500/10', border: 'border-pink-200', solid: 'bg-pink-500' },
+    rose: { bg: 'bg-rose-100 dark:bg-rose-900/30', text: 'text-rose-600 dark:text-rose-400', ring: 'ring-rose-500/10', border: 'border-rose-200', solid: 'bg-rose-500' },
+    slate: { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-600 dark:text-slate-400', ring: 'ring-slate-500/10', border: 'border-slate-200', solid: 'bg-slate-500' },
+};
+
 
 export default function Transactions() {
     const router = useRouter();
-    const { transactions, totalBalance } = useFinance();
+    const {
+        transactions,
+        categories: allCategories,
+        budgets,
+        recurringRules,
+        formatAmount,
+        openTransactionModal,
+        totalBalance,
+        activeBookId,
+        refreshBooks,
+        ledgers
+    } = useFinance();
     const [search, setSearch] = useState('');
     const [activeType, setActiveType] = useState<'ALL' | 'INCOME' | 'EXPENSE'>('ALL');
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const [isPending, startTransition] = useTransition();
+    const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({
+        start: startOfMonth(new Date()),
+        end: endOfMonth(new Date())
+    });
+    const [isDateModalOpen, setIsDateModalOpen] = useState(false);
+    const [visibleCount, setVisibleCount] = useState(20);
 
-    // Categorías únicas de las transacciones para los filtros
+    const handleDateRangeApply = (start: Date, end: Date) => {
+        setDateRange({ start, end });
+    };
+
+    // Categorías disponibles (ahora todas)
     const categories = useMemo(() => {
-        const cats = Array.from(new Set(transactions.map(t => t.category)));
-        return cats.map(cat => ({
-            name: cat,
-            icon: transactions.find(t => t.category === cat)?.icon || 'category'
+        return allCategories.map(cat => ({
+            name: cat.name,
+            icon: cat.icon || 'category',
+            color: cat.color // Include color
         }));
-    }, [transactions]);
+    }, [allCategories]);
 
     // Lógica de filtrado
     const filtered = useMemo(() => {
         return transactions.filter(t => {
+            const tCategoryName = t.category || 'Uncategorized';
+
+            const tDate = new Date(t.date);
             const matchesSearch = t.description.toLowerCase().includes(search.toLowerCase()) ||
-                t.category.toLowerCase().includes(search.toLowerCase());
+                tCategoryName.toLowerCase().includes(search.toLowerCase());
             const matchesType = activeType === 'ALL' || t.type === activeType;
-            const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(t.category);
-            return matchesSearch && matchesType && matchesCategory;
+            const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(tCategoryName);
+
+            const matchesDate = (!dateRange.start || tDate >= dateRange.start) &&
+                (!dateRange.end || tDate <= dateRange.end);
+
+            return matchesSearch && matchesType && matchesCategory && matchesDate;
         });
     }, [transactions, search, activeType, selectedCategories]);
 
@@ -36,7 +94,7 @@ export default function Transactions() {
     const groupedTransactions = useMemo(() => {
         const groups: { [key: string]: { date: string, items: Transaction[], total: number } } = {};
 
-        filtered.forEach(t => {
+        filtered.slice(0, visibleCount).forEach(t => {
             const dateKey = new Date(t.date).toLocaleDateString('es-ES', {
                 weekday: 'long',
                 day: 'numeric',
@@ -52,7 +110,7 @@ export default function Transactions() {
         });
 
         return Object.values(groups);
-    }, [filtered]);
+    }, [filtered, visibleCount]);
 
     const toggleCategory = (cat: string) => {
         setSelectedCategories(prev =>
@@ -60,9 +118,58 @@ export default function Transactions() {
         );
     };
 
+    const handleRegenerateData = () => {
+        if (!activeBookId) return;
+        if (!confirm('¿Estás seguro? Esto eliminará TODAS las transacciones actuales y creará 10 nuevas.')) return;
+
+        startTransition(async () => {
+            await resetAndSeedTransactions(activeBookId);
+            await refreshBooks();
+        });
+    };
+
+    // Calculate totals and projections
+    const stats = useMemo(() => {
+        const { income, expense } = filtered.reduce((acc, t) => {
+            if (t.type === 'INCOME') acc.income += t.amount;
+            else acc.expense += t.amount;
+            return acc;
+        }, { income: 0, expense: 0 });
+
+        // Calculate Expense Budget (Projected)
+        // If categories selected, sum budgets for those categories. Else sum all.
+        const relevantBudgets = selectedCategories.length > 0
+            ? budgets.filter(b => selectedCategories.includes(b.category))
+            : budgets;
+
+        // If no specific budget found, maybe use the general "monthly limit" logic or sum of all limits
+        const expenseProjected = relevantBudgets.length > 0
+            ? relevantBudgets.reduce((sum, b) => sum + b.limit, 0)
+            // Fallback: If no strict budgets, let's defaults to 0 if no budgets defined to avoid confusion.
+            : 0;
+
+        // Calculate Income Projected
+        // Use active recurring income rules as "Projected Income"
+        const incomeProjected = recurringRules
+            .filter(r => r.type === 'INCOME' && r.active)
+            .reduce((sum, r) => sum + r.amount, 0);
+
+        return {
+            income,
+            expense,
+            expenseProjected,
+            incomeProjected
+        };
+    }, [filtered, budgets, recurringRules, selectedCategories]);
+
+    const getProgress = (current: number, target: number) => {
+        if (target === 0) return 0;
+        return Math.min((current / target) * 100, 100);
+    };
+
     return (
         <div className="flex-1 flex flex-col h-full overflow-hidden relative">
-            {/* Background decoration (blobs from user style) */}
+            {/* Background decoration */}
             <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
                 <div className="absolute -top-[10%] -right-[5%] w-[800px] h-[800px] rounded-full bg-blue-100/50 dark:bg-blue-900/10 blur-[100px] mix-blend-multiply dark:mix-blend-screen"></div>
                 <div className="absolute top-[20%] -left-[10%] w-[600px] h-[600px] rounded-full bg-purple-100/50 dark:bg-purple-900/10 blur-[100px] mix-blend-multiply dark:mix-blend-screen"></div>
@@ -74,11 +181,57 @@ export default function Transactions() {
                     <div className="glass-card p-6 rounded-2xl border border-white/40 dark:border-slate-800">
                         <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Total Disponible</p>
                         <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">
-                            ${totalBalance.toLocaleString('es-ES', { minimumFractionDigits: 2 })}
+                            {formatAmount(totalBalance)}
                         </h2>
-                        <div className="mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-700/50 flex justify-between items-center text-sm">
-                            <span className="text-slate-500">Este mes</span>
-                            <span className="text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full dark:bg-emerald-900/30">+ $2,120.50</span>
+
+                        <div className="mt-6 flex flex-col gap-4">
+                            {/* Income Card */}
+                            <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 border border-emerald-100 dark:border-emerald-500/10">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="size-6 rounded-full bg-emerald-100 dark:bg-emerald-800/30 flex items-center justify-center">
+                                        <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-[14px]">arrow_downward</span>
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ingresos</span>
+                                </div>
+                                <p className="text-xl font-black text-slate-800 dark:text-white mb-2">{formatAmount(stats.income)}</p>
+
+                                <div className="space-y-1">
+                                    <div className="flex justify-between text-[10px] font-medium text-slate-400">
+                                        <span>Proyectado</span>
+                                        <span>{formatAmount(stats.incomeProjected)}</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-emerald-100 dark:bg-emerald-950 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-emerald-500 rounded-full transition-all duration-1000"
+                                            style={{ width: `${getProgress(stats.income, stats.incomeProjected)}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Expense Card */}
+                            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4 border border-orange-100 dark:border-orange-500/10">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <div className="size-6 rounded-full bg-orange-100 dark:bg-orange-800/30 flex items-center justify-center">
+                                        <span className="material-symbols-outlined text-orange-600 dark:text-orange-400 text-[14px]">arrow_upward</span>
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Gastos</span>
+                                </div>
+                                <p className="text-xl font-black text-slate-800 dark:text-white mb-2">{formatAmount(stats.expense)}</p>
+
+                                <div className="space-y-1">
+                                    <div className="flex justify-between text-[10px] font-medium text-slate-400">
+                                        <span>Presupuesto</span>
+                                        <span>{formatAmount(stats.expenseProjected)}</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-orange-100 dark:bg-orange-950 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-orange-500 rounded-full transition-all duration-1000"
+                                            style={{ width: `${getProgress(stats.expense, stats.expenseProjected)}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -90,6 +243,11 @@ export default function Transactions() {
                                     setSearch('');
                                     setActiveType('ALL');
                                     setSelectedCategories([]);
+                                    setVisibleCount(20);
+                                    setDateRange({
+                                        start: startOfMonth(new Date()),
+                                        end: endOfMonth(new Date())
+                                    });
                                 }}
                                 className="text-xs text-primary hover:underline font-medium"
                             >
@@ -100,10 +258,14 @@ export default function Transactions() {
                         <div className="glass-card p-4 rounded-xl space-y-3 border border-white/40 dark:border-slate-800">
                             <label className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Período</label>
                             <div className="relative">
-                                <select className="w-full bg-white/50 dark:bg-slate-800/50 border-0 ring-1 ring-slate-200 dark:ring-slate-700 rounded-lg py-2.5 pl-3 pr-10 text-sm font-medium text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-primary focus:bg-white transition-all appearance-none cursor-pointer">
-                                    <option>Octubre 2024</option>
-                                    <option>Septiembre 2024</option>
-                                </select>
+                                <button
+                                    onClick={() => setIsDateModalOpen(true)}
+                                    className="w-full bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 pl-3 pr-10 text-sm font-medium text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-primary focus:bg-white text-left transition-all hover:bg-white dark:hover:bg-slate-800"
+                                >
+                                    {dateRange.start && dateRange.end
+                                        ? `${format(dateRange.start, 'dd MMM', { locale: es })} - ${format(dateRange.end, 'dd MMM', { locale: es })}`
+                                        : 'Seleccionar rango'}
+                                </button>
                                 <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-lg">calendar_month</span>
                             </div>
                         </div>
@@ -120,20 +282,25 @@ export default function Transactions() {
                                     />
                                     <span className="text-sm text-slate-600 dark:text-slate-300 font-medium group-hover:text-primary">Todas</span>
                                 </label>
-                                {categories.map(cat => (
-                                    <label key={cat.name} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors group">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedCategories.includes(cat.name)}
-                                            onChange={() => toggleCategory(cat.name)}
-                                            className="rounded border-slate-300 text-primary focus:ring-primary bg-transparent"
-                                        />
-                                        <div className="size-6 rounded-full bg-blue-50 dark:bg-blue-900/30 text-primary flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-[14px]">{cat.icon}</span>
-                                        </div>
-                                        <span className="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">{cat.name}</span>
-                                    </label>
-                                ))}
+                                {categories.map(cat => {
+                                    const colors = COLOR_MAP[cat.color || 'slate'] || COLOR_MAP.slate;
+                                    return (
+                                        <label key={cat.name} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors group">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedCategories.includes(cat.name)}
+                                                onChange={() => toggleCategory(cat.name)}
+                                                className="rounded border-slate-300 text-primary focus:ring-primary bg-transparent"
+                                            />
+                                            <div
+                                                className={`size-8 rounded-full flex items-center justify-center ${colors.bg} ${colors.text} ring-1 ring-inset ${colors.ring}`}
+                                            >
+                                                <CategoryIcon icon={cat.icon} className="text-[14px]" />
+                                            </div>
+                                            <span className="text-sm text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">{cat.name}</span>
+                                        </label>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
@@ -147,13 +314,16 @@ export default function Transactions() {
                                 <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Transacciones</h1>
                                 <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Gestiona tus movimientos con claridad.</p>
                             </div>
-                            <button
-                                onClick={() => router.push('/edit-transaction')}
-                                className="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/30 flex items-center gap-2 transition-all active:scale-95"
-                            >
-                                <span className="material-symbols-outlined text-[20px]">add</span>
-                                <span>Nueva</span>
-                            </button>
+                            <div className="flex gap-2">
+
+                                <button
+                                    onClick={openTransactionModal}
+                                    className="bg-primary hover:bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5"
+                                >
+                                    <span className="material-symbols-outlined text-[20px]">add</span>
+                                    Nueva
+                                </button>
+                            </div>
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-4">
@@ -191,46 +361,54 @@ export default function Transactions() {
                     </div>
 
                     <div className="flex-1 overflow-y-auto pr-2 pb-20 space-y-8 scrollbar-hide animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                        {groupedTransactions.map((group, gIdx) => (
-                            <div key={group.date}>
-                                <div className="sticky top-0 z-10 py-3 bg-[#f2f6fa]/95 dark:bg-[#020617]/95 backdrop-blur-md flex justify-between items-center border-b border-slate-200/50 dark:border-slate-800/50 mb-3">
-                                    <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest capitalize">{group.date}</h3>
-                                    <span className={`text-xs font-semibold px-2 py-1 rounded ${group.total >= 0 ? 'bg-emerald-100/50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-rose-100/50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'}`}>
-                                        {group.total >= 0 ? '+' : '-'}${Math.abs(group.total).toLocaleString('es-ES', { minimumFractionDigits: 2 })}
-                                    </span>
-                                </div>
-                                <div className="flex flex-col gap-3">
-                                    {group.items.map((t) => (
-                                        <div
-                                            key={t.id}
-                                            onClick={() => router.push(`/transaction/${t.id}`)}
-                                            className="group glass-card rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-white/90 dark:hover:bg-slate-800/80 hover:-translate-y-0.5 transition-all duration-200 border border-white/40 dark:border-slate-800"
-                                        >
-                                            <div className={`size-12 rounded-2xl flex items-center justify-center shrink-0 border transition-colors ${t.type === 'INCOME'
-                                                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 border-emerald-100 dark:border-emerald-500/10'
-                                                : 'bg-orange-50 dark:bg-orange-900/20 text-orange-500 border-orange-100 dark:border-orange-500/10'
-                                                }`}>
-                                                <span className="material-symbols-outlined">{t.icon}</span>
-                                            </div>
-                                            <div className="flex-1 min-w-0 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1">
-                                                <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">{t.description}</p>
-                                                <p className={`text-sm font-bold text-right ${t.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                                    {t.type === 'EXPENSE' ? '-' : '+'}${t.amount.toFixed(2)}
-                                                </p>
-                                                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 truncate">
-                                                    <span>{t.account}</span>
-                                                    <span className="size-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
-                                                    <span>{t.category}</span>
+                        {groupedTransactions.map((group, gIdx) => {
+                            const currencySymbol = ledgers.find(l => l.id === activeBookId)?.currency || '$';
+                            return (
+                                <div key={group.date}>
+                                    <div className="sticky top-0 z-10 py-3 bg-[#f2f6fa]/95 dark:bg-[#020617]/95 backdrop-blur-md flex justify-between items-center border-b border-slate-200/50 dark:border-slate-800/50 mb-3">
+                                        <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest capitalize">{group.date}</h3>
+                                        <span className={`text-xs font-semibold px-2 py-1 rounded ${group.total >= 0 ? 'bg-emerald-100/50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-rose-100/50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'}`}>
+                                            {group.total >= 0 ? '+' : '-'}{currencySymbol}{Math.abs(group.total).toLocaleString('es-ES', { minimumFractionDigits: 2 })}
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col gap-3">
+                                        {group.items.map((t) => {
+                                            const category = allCategories.find(c => c.name === t.category);
+                                            const colorKey = category?.color || 'slate';
+                                            const colors = COLOR_MAP[colorKey] || COLOR_MAP.slate;
+
+                                            return (
+                                                <div
+                                                    key={t.id}
+                                                    onClick={() => router.push(`/transaction/${t.id}`)}
+                                                    className="group glass-card rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-white/90 dark:hover:bg-slate-800/80 hover:-translate-y-0.5 transition-all duration-200 border border-white/40 dark:border-slate-800"
+                                                >
+                                                    <div className={`size-12 rounded-2xl flex items-center justify-center shrink-0 border transition-colors ${colors.bg} ${colors.text} ${colors.border}`}>
+                                                        <CategoryIcon icon={t.icon || 'attach_money'} className="text-[24px]" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0 grid grid-cols-[1fr_auto] gap-x-4 gap-y-1">
+                                                        <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate" title={t.description}>
+                                                            {t.description.split(' ').slice(0, 5).join(' ')}{t.description.split(' ').length > 5 ? '...' : ''}
+                                                        </p>
+                                                        <p className={`text-sm font-bold text-right ${t.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                            {t.type === 'EXPENSE' ? '-' : '+'}{currencySymbol}{t.amount.toFixed(2)}
+                                                        </p>
+                                                        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 truncate">
+                                                            <span>{t.account}</span>
+                                                            <span className="size-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                                                            <span>{t.category}</span>
+                                                        </div>
+                                                        <p className="text-xs font-medium text-slate-400 text-right">
+                                                            {new Date(t.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <p className="text-xs font-medium text-slate-400 text-right">
-                                                    {new Date(t.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ))}
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
 
                         {groupedTransactions.length === 0 && (
                             <div className="flex flex-col items-center justify-center py-20 opacity-50">
@@ -239,14 +417,32 @@ export default function Transactions() {
                             </div>
                         )}
 
-                        {groupedTransactions.length > 0 && (
+                        {filtered.length > visibleCount ? (
                             <div className="py-8 text-center">
-                                <p className="text-sm text-slate-400 dark:text-slate-600">No hay más transacciones</p>
+                                <button
+                                    onClick={() => setVisibleCount(prev => prev + 20)}
+                                    className="text-sm font-bold text-primary hover:text-primary-hover hover:underline transition-all"
+                                >
+                                    Ver más transacciones
+                                </button>
                             </div>
+                        ) : (
+                            groupedTransactions.length > 0 && (
+                                <div className="py-8 text-center">
+                                    <p className="text-sm text-slate-400 dark:text-slate-600">No hay más transacciones</p>
+                                </div>
+                            )
                         )}
                     </div>
                 </div>
             </main>
+            <DateRangeModal
+                isOpen={isDateModalOpen}
+                onClose={() => setIsDateModalOpen(false)}
+                onApply={handleDateRangeApply}
+                initialStartDate={dateRange.start}
+                initialEndDate={dateRange.end}
+            />
         </div>
     );
 }
