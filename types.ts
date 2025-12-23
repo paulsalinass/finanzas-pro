@@ -32,6 +32,11 @@ export interface Transaction {
   location?: string;
   notes?: string;
   isRecurring?: boolean;
+  frequency?: string;
+  end_date?: string | null;
+  beneficiary?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Account {
@@ -41,6 +46,7 @@ export interface Account {
   type: 'DEBIT' | 'CREDIT' | 'CASH' | 'INVESTMENT';
   currency: string;
   isDefault?: boolean;
+  color?: string;
   // Credit Card Specifics
   lastFour?: string;
   bank?: string;
@@ -75,15 +81,30 @@ export interface Budget {
   spent: number;
   period: 'MONTHLY' | 'WEEKLY' | 'YEARLY';
   severity: 'NORMAL' | 'URGENT';
+  // Extended fields
+  category_id?: string;
+  start_date?: string;
+  end_date?: string;
+  recurrence_type?: string;
+  recurrence_interval?: number;
 }
 
 export interface Commitment {
   id: string;
   name: string;
   amount: number;
-  frequency: 'MONTHLY' | 'WEEKLY' | 'ANNUAL';
+  frequency: 'MONTHLY' | 'WEEKLY' | 'ANNUAL' | 'DAILY' | 'BIWEEKLY' | 'QUARTERLY' | 'SEMIANNUAL';
   nextDueDate: string;
-  status: 'PAID' | 'PENDING';
+  status: 'PENDING' | 'PAID' | 'LATE' | 'SKIPPED';
+  type: 'FIXED' | 'TEMPORAL';
+  isActive: boolean;
+  endDate?: string;
+  category?: string;
+  account?: string;
+  categoryId?: string;
+  accountId?: string;
+  recurrence?: string;
+  transaction_type?: 'INCOME' | 'EXPENSE';
 }
 
 export interface RecurringRule {

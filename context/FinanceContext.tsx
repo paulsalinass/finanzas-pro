@@ -27,8 +27,12 @@ interface FinanceContextType {
   updateAccount: (id: string, a: Partial<Account>) => Promise<void>;
   deleteAccount: (id: string) => Promise<void>;
   addCommitment: (c: Omit<Commitment, 'id'>) => Promise<void>;
-  toggleCommitmentStatus: (id: string, currentStatus: string) => Promise<void>; // Updated signature
+  updateCommitment: (id: string, updates: Partial<Commitment>) => Promise<void>;
+  deleteCommitment: (id: string) => Promise<void>;
+  toggleCommitmentStatus: (id: string, currentStatus: string) => Promise<void>;
   toggleRuleStatus: (id: string) => void;
+  updateTransaction: (id: string, updates: Partial<Transaction>) => Promise<void>;
+  duplicateTransaction: (id: string) => Promise<void>;
   activateLedger: (id: string) => void;
   generateSampleData: () => Promise<void>;
 
@@ -42,6 +46,7 @@ interface FinanceContextType {
   isTransactionModalOpen: boolean;
   openTransactionModal: () => void;
   closeTransactionModal: () => void;
+  addBudget: (b: { amount: number; categoryId: string; recurrenceType?: string; recurrenceInterval?: number; startDate?: string; endDate?: string }) => Promise<void>;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -147,7 +152,7 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     let locale = 'es-MX';
     if (currency === 'USD') locale = 'en-US';
     if (currency === 'EUR') locale = 'es-ES';
-    if (currency === 'PEN') locale = 'es-PE';
+    if (currency === 'PEN') return `S/ ${amount.toLocaleString('es-PE', { minimumFractionDigits: 2 })}`;
     if (currency === 'COP') locale = 'es-CO';
 
     return new Intl.NumberFormat(locale, {
@@ -274,46 +279,88 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         date: t.occurred_at,
         icon: t.categories?.icon || 'attach_money',
         status: t.status as any,
-        location: t.location,
-        notes: t.notes
+        location: t.location_text, // Map DB location_text to UI location
+        notes: t.notes,
+        beneficiary: t.beneficiary,
+        created_at: t.created_at,
+        updated_at: t.updated_at
       })));
     }
   };
 
   const fetchCommitments = async (bookId: string) => {
-    const { data } = await supabase.from('commitments').select('*').eq('book_id', bookId);
+    const { data, error } = await supabase
+      .from('commitments')
+      .select(`
+        *,
+        categories (name),
+        accounts:account_id (name)
+      `)
+      .eq('book_id', bookId);
+
+    if (error) {
+      console.error('Error fetching commitments:', error);
+    }
+
     if (data) {
-      setCommitments(data.map(c => ({
+      setCommitments(data.map((c: any) => ({
         id: c.id,
         name: c.title,
         amount: c.amount,
         frequency: c.frequency as any,
         nextDueDate: c.next_due_date,
-        status: c.status as any
+        status: c.status as any,
+        type: c.type as any || 'FIXED',
+        isActive: c.is_active ?? true,
+        endDate: c.end_date,
+        category: c.categories?.name || 'General',
+        account: c.accounts?.name || 'Cuenta principal',
+        categoryId: c.category_id,
+        accountId: c.account_id,
+        recurrence: c.recurrence,
+        transaction_type: c.transaction_type
       })));
     }
   };
 
   const fetchBudgets = async (bookId: string) => {
-    const { data, error } = await supabase.from('budgets').select('*').eq('book_id', bookId);
+    // Joining handled client-side in UI to ensure robustness
+    const { data, error } = await supabase
+      .from('budgets')
+      .select('*')
+      .eq('book_id', bookId);
+
     if (error) {
-      console.warn('No fue posible cargar presupuestos', error.message);
+      console.warn('Error loading budgets', error.message);
       return;
     }
     if (data) {
       setBudgets(data.map((b: any) => ({
         id: b.id,
-        category: b.category || b.name || 'Sin categoría',
-        limit: Number(b.limit ?? b.amount_limit ?? 0),
-        spent: Number(b.spent ?? 0),
-        period: (b.period as Budget['period']) || 'MONTHLY',
-        severity: (b.severity as Budget['severity']) || 'NORMAL'
+        category: 'Loading...', // Main mapping done in Page via category_id
+        category_id: b.category_id,
+        limit: Number(b.amount || 0),
+        spent: 0,
+        period: 'MONTHLY',
+        severity: 'NORMAL',
+        start_date: b.start_date,
+        end_date: b.end_date,
+        recurrence_type: b.recurrence_type,
+        recurrence_interval: b.recurrence_interval
       })));
     }
   };
 
   const fetchRecurringRules = async (bookId: string) => {
-    const { data, error } = await supabase.from('recurring_rules').select('*').eq('book_id', bookId);
+    const { data, error } = await supabase
+      .from('recurring_rules')
+      .select(`
+        *,
+        categories (name, icon, color),
+        accounts (name)
+      `)
+      .eq('book_id', bookId);
+
     if (error) {
       console.warn('No fue posible cargar reglas recurrentes', error.message);
       return;
@@ -322,14 +369,14 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       setRecurringRules(data.map((r: any) => ({
         id: r.id,
         name: r.name,
-        category: r.category || 'General',
-        account: r.account || r.account_name || 'Cuenta principal',
+        category: r.categories?.name || 'General',
+        account: r.accounts?.name || 'Cuenta principal',
         amount: Number(r.amount ?? 0),
         type: (r.type as TransactionType) || 'EXPENSE',
         frequency: r.frequency || 'Mensual',
-        nextDate: r.next_run_at || r.next_date || '',
+        nextDate: r.next_run_at || '',
         active: r.is_active ?? true,
-        icon: r.icon || 'autorenew'
+        icon: r.categories?.icon || 'autorenew'
       })));
     }
   };
@@ -364,13 +411,54 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       amount: t.amount,
       description: t.description,
       occurred_at: t.date,
-      category_id: categoryId
+      category_id: categoryId,
+      currency: account.currency || 'USD',
+      location_text: t.location,
+      notes: t.notes,
+      beneficiary: t.beneficiary,
+      frequency: t.frequency // Save frequency to transaction
     }).select().single();
 
     if (error) {
       console.error("Error creating transaction:", error);
       alert("Error al guardar: " + error.message);
       return;
+    }
+
+    // Create Recurring Rule if needed
+    if (data && t.frequency) {
+      // Calculate next run? For now, we just create the rule.
+      // Logic for next run could be complex (e.g. 1 month from now). 
+      // For simplicity, we set next_run_at to the transaction date + interval (or just the date if the rule runner handles it).
+      // Let's assume we want the NEXT occurrence.
+
+      let nextDate = new Date(t.date);
+      // Simple logic for next date
+      if (t.frequency === 'DAILY') nextDate.setDate(nextDate.getDate() + 1);
+      if (t.frequency === 'WEEKLY') nextDate.setDate(nextDate.getDate() + 7);
+      if (t.frequency === 'BIWEEKLY') nextDate.setDate(nextDate.getDate() + 14);
+      if (t.frequency === 'MONTHLY') nextDate.setMonth(nextDate.getMonth() + 1);
+      if (t.frequency === 'ANNUAL') nextDate.setFullYear(nextDate.getFullYear() + 1);
+      // ... add others if strict needed, or rely on null/logic elsewhere.
+
+      const { error: ruleError } = await supabase.from('recurring_rules').insert({
+        book_id: activeBookId,
+        name: t.description,
+        amount: t.amount,
+        category_id: categoryId,
+        account_id: accountId,
+        type: t.type,
+        frequency: t.frequency,
+        next_run_at: nextDate.toISOString(),
+        end_date: t.end_date,
+        is_active: true
+      });
+
+      if (ruleError) {
+        console.warn("Failed to create recurring rule:", ruleError);
+      } else {
+        fetchRecurringRules(activeBookId);
+      }
     }
 
     if (data) {
@@ -467,19 +555,161 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const addCommitment = async (c: Omit<Commitment, 'id'>) => {
     if (!activeBookId) return;
-    // implementation...
+
+    const payload: any = {
+      book_id: activeBookId,
+      title: c.name,
+      amount: c.amount,
+      frequency: c.frequency,
+      next_due_date: c.nextDueDate,
+      status: c.status,
+      type: c.type,
+      is_active: c.isActive,
+      end_date: c.endDate,
+      category_id: c.categoryId,
+      account_id: c.accountId,
+      recurrence: c.recurrence,
+      transaction_type: c.transaction_type
+    };
+
+    if (!c.categoryId && c.category) {
+      const cat = categories.find(cat => cat.name === c.category);
+      if (cat) payload.category_id = cat.id;
+    }
+
+    if (!c.accountId && c.account) {
+      const acc = accounts.find(a => a.name === c.account);
+      if (acc) payload.account_id = acc.id;
+    }
+
+    const { error } = await supabase.from('commitments').insert(payload);
+
+    if (error) {
+      console.error('Error creating commitment:', error);
+      alert('Error al crear compromiso: ' + error.message);
+      return;
+    }
+
+    fetchCommitments(activeBookId);
+  };
+
+  const updateCommitment = async (id: string, updates: Partial<Commitment>) => {
+    if (!activeBookId) return;
+
+    const payload: any = {};
+    if (updates.name !== undefined) payload.title = updates.name;
+    if (updates.amount !== undefined) payload.amount = updates.amount;
+    if (updates.frequency !== undefined) payload.frequency = updates.frequency;
+    if (updates.nextDueDate !== undefined) payload.next_due_date = updates.nextDueDate;
+    if (updates.status !== undefined) payload.status = updates.status;
+    if (updates.type !== undefined) payload.type = updates.type;
+    if (updates.isActive !== undefined) payload.is_active = updates.isActive;
+    if (updates.endDate !== undefined) payload.end_date = updates.endDate;
+    if (updates.recurrence !== undefined) payload.recurrence = updates.recurrence;
+    if (updates.transaction_type !== undefined) payload.transaction_type = updates.transaction_type;
+
+    if (updates.categoryId !== undefined) payload.category_id = updates.categoryId;
+    if (updates.accountId !== undefined) payload.account_id = updates.accountId;
+
+    // Fallback for names
+    if (!updates.categoryId && updates.category) {
+      const cat = categories.find(c => c.name === updates.category);
+      if (cat) payload.category_id = cat.id;
+    }
+    if (!updates.accountId && updates.account) {
+      const acc = accounts.find(a => a.name === updates.account);
+      if (acc) payload.account_id = acc.id;
+    }
+
+    const { error } = await supabase.from('commitments').update(payload).eq('id', id);
+
+    if (error) {
+      console.error('Error updating commitment:', error);
+      alert('Error updating commitment: ' + error.message);
+      return;
+    }
+
+    fetchCommitments(activeBookId);
+  };
+
+  const deleteCommitment = async (id: string) => {
+    const { error } = await supabase.from('commitments').delete().eq('id', id);
+    if (error) {
+      console.error("Error deleting commitment:", error);
+      alert("Error deleting commitment: " + error.message);
+      return;
+    }
+    if (activeBookId) fetchCommitments(activeBookId);
   };
 
   const deleteTransaction = async (id: string) => {
-    await supabase.from('transactions').delete().eq('id', id);
+    const { error } = await supabase.from('transactions').delete().eq('id', id);
+    if (error) {
+      console.error("Error deleting transaction:", error);
+      alert("Error deleting transaction: " + error.message);
+      return;
+    }
     if (activeBookId) {
       fetchTransactions(activeBookId);
       fetchAccounts(activeBookId);
     }
   };
 
+  const updateTransaction = async (id: string, updates: Partial<Transaction>) => {
+    // Map UI fields to DB fields
+    const payload: any = {};
+    if (updates.amount !== undefined) payload.amount = updates.amount;
+    if (updates.description !== undefined) payload.description = updates.description;
+    if (updates.date !== undefined) payload.occurred_at = updates.date;
+    if (updates.type !== undefined) payload.type = updates.type;
+    if (updates.notes !== undefined) payload.notes = updates.notes;
+    if (updates.location !== undefined) payload.location_text = updates.location;
+    if (updates.beneficiary !== undefined) payload.beneficiary = updates.beneficiary;
+    if (updates.frequency !== undefined) payload.frequency = updates.frequency;
+    if (updates.end_date !== undefined) payload.end_date = updates.end_date;
+    if (updates.end_date !== undefined) payload.end_date = updates.end_date;
+    // Relationship updates
+    if (updates.category_id) payload.category_id = updates.category_id;
+    if (updates.account_id) payload.account_id = updates.account_id;
+    // Also support name-based updates if IDs not passed (legacy/UI compatibility)
+    if (!updates.category_id && updates.category) {
+      const cat = categories.find(c => c.name === updates.category);
+      if (cat) payload.category_id = cat.id;
+    }
+
+    payload.updated_at = new Date().toISOString();
+
+    const { error } = await supabase.from('transactions').update(payload).eq('id', id);
+
+    if (error) {
+      console.error("Error updating transaction:", error);
+      alert("Error updating transaction: " + error.message);
+      return;
+    }
+    if (activeBookId) {
+      fetchTransactions(activeBookId);
+      fetchAccounts(activeBookId); // Balance might change
+    }
+  };
+
+  const duplicateTransaction = async (id: string) => {
+    const original = transactions.find(t => t.id === id);
+    if (!original) return;
+
+    const newTrans: Omit<Transaction, 'id'> = {
+      ...original,
+      date: new Date().toISOString(), // Update to current time
+      notes: (original.notes ? original.notes + " " : "") + "(Copia)",
+      created_at: undefined, // Let DB set this
+      updated_at: undefined
+    };
+
+    await addTransaction(newTrans);
+  };
+
   const toggleCommitmentStatus = async (id: string, currentStatus: string) => {
-    // impl
+    const newStatus = currentStatus === 'PAID' ? 'PENDING' : 'PAID';
+    await updateCommitment(id, { status: newStatus as any });
   };
 
   const toggleRuleStatus = (id: string) => {
@@ -545,6 +775,29 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     setIsLoading(false);
   };
 
+  const addBudget = async (budgetData: { amount: number; categoryId: string; recurrenceType?: string; recurrenceInterval?: number; startDate?: string; endDate?: string }) => {
+    if (!activeBookId) return;
+
+    const { error } = await supabase.from('budgets').insert({
+      book_id: activeBookId,
+      category_id: budgetData.categoryId,
+      amount: budgetData.amount,
+      recurrence_type: budgetData.recurrenceType || 'MONTHLY',
+      recurrence_interval: budgetData.recurrenceInterval || 1,
+      start_date: budgetData.startDate || new Date().toISOString(),
+      end_date: budgetData.endDate || null,
+      period: 'MONTHLY' // Default for legacy/required DB column if I made it NOT NULL default 'MONTHLY'
+    });
+
+    if (error) {
+      console.error('Error creating budget:', error);
+      alert('Error al crear presupuesto: ' + error.message);
+      return;
+    }
+
+    await fetchBudgets(activeBookId);
+  };
+
   // Modal State
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
 
@@ -556,10 +809,12 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
   return (
     <FinanceContext.Provider value={{
       transactions, accounts, categories, categoryFolders, budgets, commitments, recurringRules, ledgers,
-      addTransaction, deleteTransaction, addAccount, updateAccount, deleteAccount, addCommitment,
-      toggleCommitmentStatus, toggleRuleStatus, activateLedger, generateSampleData, totalBalance,
+      addTransaction, deleteTransaction, addAccount, updateAccount, deleteAccount,
+      addCommitment, updateCommitment, deleteCommitment, toggleCommitmentStatus,
+      toggleRuleStatus, activateLedger, generateSampleData, totalBalance,
       isDarkMode, toggleTheme, isLoading, activeBookId, refreshBooks, formatAmount,
-      isTransactionModalOpen, openTransactionModal, closeTransactionModal
+      isTransactionModalOpen, openTransactionModal, closeTransactionModal,
+      addBudget, updateTransaction, duplicateTransaction
     }}>
       {children}
     </FinanceContext.Provider>

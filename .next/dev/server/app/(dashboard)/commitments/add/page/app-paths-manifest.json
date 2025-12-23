@@ -1,0 +1,3 @@
+{
+  "/(dashboard)/commitments/add/page": "app/(dashboard)/commitments/add/page.js"
+}

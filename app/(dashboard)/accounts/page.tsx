@@ -294,7 +294,7 @@ export default function Accounts() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                         {assetsList.map((acc, idx) => (
-                            <div key={acc.id} onClick={() => router.push(`/accounts?id=${acc.id}`)} className="glass-card p-5 rounded-3xl flex flex-col gap-5 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 group">
+                            <div key={acc.id} onClick={() => router.push(`/accounts?id=${acc.id}`)} className="glass-card !overflow-visible p-5 rounded-3xl flex flex-col gap-5 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 group">
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="size-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200">
@@ -307,9 +307,9 @@ export default function Accounts() {
                                             <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mt-0.5">**** {acc.lastFour || '----'}</p>
                                         </div>
                                     </div>
-                                    <button className="text-slate-300 hover:text-slate-500 transition-colors">
-                                        <span className="material-symbols-outlined text-[18px]">more_horiz</span>
-                                    </button>
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <AccountActions account={acc} />
+                                    </div>
                                 </div>
 
                                 <div>
@@ -350,7 +350,7 @@ export default function Accounts() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                         {liabilitiesList.map((acc) => (
-                            <div key={acc.id} className="glass-card p-5 rounded-3xl flex flex-col gap-5 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 group">
+                            <div key={acc.id} className="glass-card !overflow-visible p-5 rounded-3xl flex flex-col gap-5 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 group">
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="size-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
@@ -361,9 +361,9 @@ export default function Accounts() {
                                             <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mt-0.5">**** {acc.lastFour || '----'}</p>
                                         </div>
                                     </div>
-                                    <button className="text-slate-300 hover:text-slate-500 transition-colors">
-                                        <span className="material-symbols-outlined text-[18px]">more_horiz</span>
-                                    </button>
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <AccountActions account={acc} />
+                                    </div>
                                 </div>
 
                                 <div>
@@ -643,6 +643,37 @@ export default function Accounts() {
                             </button>
                         </footer>
                     </main>
+                </div>
+            )}
+
+            {/* DELETE MODAL */}
+            {isDeleteModalOpen && accountToDelete && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+                    <div className="w-full max-w-sm bg-white dark:bg-[#1e293b] rounded-[2rem] shadow-2xl p-6 animate-scale-in border border-slate-200 dark:border-slate-700">
+                        <div className="flex flex-col items-center gap-4 text-center">
+                            <div className="size-16 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-2">
+                                <span className="material-symbols-outlined text-3xl text-red-500">priority_high</span>
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">¿Eliminar cuenta?</h3>
+                            <p className="text-slate-500 dark:text-slate-400 text-sm">
+                                Estás a punto de eliminar <strong>{accountToDelete.name}</strong>. Esta acción no se puede deshacer.
+                            </p>
+                            <div className="flex gap-3 w-full mt-4">
+                                <button
+                                    onClick={() => setIsDeleteModalOpen(false)}
+                                    className="flex-1 px-4 py-2.5 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors bg-slate-100 dark:bg-slate-800"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={confirmDelete}
+                                    className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-sm shadow-md shadow-red-500/20 transition-all"
+                                >
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

@@ -9,6 +9,8 @@ import { resetAndSeedTransactions } from '@/app/actions/transaction-actions';
 
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { DateRangeModal } from '@/components/DateRangeModal';
+import { TransactionDetailsModal } from '@/components/TransactionDetailsModal';
+import { TransactionModal } from '@/components/TransactionModal';
 import { startOfMonth, endOfMonth, format, startOfDay, endOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -59,6 +61,10 @@ export default function Transactions() {
     const [isDateModalOpen, setIsDateModalOpen] = useState(false);
     const [visibleCount, setVisibleCount] = useState(20);
 
+    // Modal States for Details/Edit
+    const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+    const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+
     const handleDateRangeApply = (start: Date, end: Date) => {
         setDateRange({ start, end });
     };
@@ -73,22 +79,28 @@ export default function Transactions() {
     }, [allCategories]);
 
     // Lógica de filtrado
-    const filtered = useMemo(() => {
+    // 1. Filtrado por Fecha (Base para estadísticas y lista)
+    const periodTransactions = useMemo(() => {
         return transactions.filter(t => {
+            const tDate = new Date(t.date);
+            return (!dateRange.start || tDate >= dateRange.start) &&
+                (!dateRange.end || tDate <= dateRange.end);
+        });
+    }, [transactions, dateRange]);
+
+    // 2. Filtrado para la Lista (Búsqueda, Tipo, Categorías)
+    const filtered = useMemo(() => {
+        return periodTransactions.filter(t => {
             const tCategoryName = t.category || 'Uncategorized';
 
-            const tDate = new Date(t.date);
             const matchesSearch = t.description.toLowerCase().includes(search.toLowerCase()) ||
                 tCategoryName.toLowerCase().includes(search.toLowerCase());
             const matchesType = activeType === 'ALL' || t.type === activeType;
             const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(tCategoryName);
 
-            const matchesDate = (!dateRange.start || tDate >= dateRange.start) &&
-                (!dateRange.end || tDate <= dateRange.end);
-
-            return matchesSearch && matchesType && matchesCategory && matchesDate;
+            return matchesSearch && matchesType && matchesCategory;
         });
-    }, [transactions, search, activeType, selectedCategories, dateRange]);
+    }, [periodTransactions, search, activeType, selectedCategories]);
 
     // Agrupación por fechas
     const groupedTransactions = useMemo(() => {
@@ -129,8 +141,16 @@ export default function Transactions() {
     };
 
     // Calculate totals and projections
+    // Calculate totals and projections based on PERIOD only (ignoring visual filters)
     const stats = useMemo(() => {
-        const { income, expense } = filtered.reduce((acc, t) => {
+        // 1. Calculate Period Totals (for Available Budget - Independent of visual filters)
+        const periodStats = periodTransactions.reduce((acc, t) => {
+            if (t.type === 'EXPENSE') acc.expense += t.amount;
+            return acc;
+        }, { expense: 0 });
+
+        // 2. Calculate Visible Totals (for Cards - Affected by all filters)
+        const viewStats = filtered.reduce((acc, t) => {
             if (t.type === 'INCOME') acc.income += t.amount;
             else acc.expense += t.amount;
             return acc;
@@ -145,22 +165,42 @@ export default function Transactions() {
         // If no specific budget found, maybe use the general "monthly limit" logic or sum of all limits
         const expenseProjected = relevantBudgets.length > 0
             ? relevantBudgets.reduce((sum, b) => sum + b.limit, 0)
-            // Fallback: If no strict budgets, let's defaults to 0 if no budgets defined to avoid confusion.
             : 0;
 
         // Calculate Income Projected
-        // Use active recurring income rules as "Projected Income"
         const incomeProjected = recurringRules
             .filter(r => r.type === 'INCOME' && r.active)
             .reduce((sum, r) => sum + r.amount, 0);
 
+        // Calculate Total Budget Limit (sum of all budget limits - Independent of visual filters for Available)
+        const totalBudgetLimit = budgets.reduce((sum, b) => sum + b.limit, 0);
+
+        // Calculate Available (Global Budget - Global Expenses in Period)
+        const availableBudget = totalBudgetLimit - periodStats.expense;
+
         return {
-            income,
-            expense,
+            income: viewStats.income,
+            expense: viewStats.expense,
             expenseProjected,
-            incomeProjected
+            incomeProjected,
+            totalBudgetLimit,
+            availableBudget
         };
-    }, [filtered, budgets, recurringRules, selectedCategories]);
+    }, [periodTransactions, filtered, budgets, recurringRules, selectedCategories]);
+
+    // Helper to display currency with smaller symbol
+    const CurrencyDisplay = ({ amount, className = "" }: { amount: number, className?: string }) => {
+        const activeLedger = ledgers.find(l => l.id === activeBookId);
+        const currency = activeLedger?.currency || 'USD';
+        const symbol = currency === 'PEN' ? 'S/' : (currency === 'EUR' ? '€' : '$');
+
+        return (
+            <span className={`inline-flex items-baseline ${className}`}>
+                <span className="text-[0.6em] mr-1">{symbol}</span>
+                <span>{amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+            </span>
+        );
+    };
 
     const getProgress = (current: number, target: number) => {
         if (target === 0) return 0;
@@ -180,8 +220,8 @@ export default function Transactions() {
                 <aside className="hidden lg:flex flex-col w-72 shrink-0 gap-6 h-full overflow-y-auto pr-2 scrollbar-hide">
                     <div className="glass-card p-6 rounded-2xl border border-white/40 dark:border-slate-800">
                         <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Total Disponible</p>
-                        <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">
-                            {formatAmount(totalBalance)}
+                        <h2 className="text-4xl font-black text-slate-800 dark:text-white tracking-tight">
+                            <CurrencyDisplay amount={stats.availableBudget} />
                         </h2>
 
                         <div className="mt-6 flex flex-col gap-4">
@@ -193,7 +233,7 @@ export default function Transactions() {
                                     </div>
                                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ingresos</span>
                                 </div>
-                                <p className="text-xl font-black text-slate-800 dark:text-white mb-2">{formatAmount(stats.income)}</p>
+                                <div className="text-xl font-black text-slate-800 dark:text-white mb-2"><CurrencyDisplay amount={stats.income} /></div>
 
                                 <div className="space-y-1">
                                     <div className="flex justify-between text-[10px] font-medium text-slate-400">
@@ -217,7 +257,7 @@ export default function Transactions() {
                                     </div>
                                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Gastos</span>
                                 </div>
-                                <p className="text-xl font-black text-slate-800 dark:text-white mb-2">{formatAmount(stats.expense)}</p>
+                                <div className="text-xl font-black text-slate-800 dark:text-white mb-2"><CurrencyDisplay amount={stats.expense} /></div>
 
                                 <div className="space-y-1">
                                     <div className="flex justify-between text-[10px] font-medium text-slate-400">
@@ -362,14 +402,16 @@ export default function Transactions() {
 
                     <div className="flex-1 overflow-y-auto pr-2 pb-20 space-y-8 scrollbar-hide animate-fade-in" style={{ animationDelay: '0.1s' }}>
                         {groupedTransactions.map((group, gIdx) => {
-                            const currencySymbol = ledgers.find(l => l.id === activeBookId)?.currency || '$';
+                            // Currency handled by CurrencyDisplay
                             return (
                                 <div key={group.date}>
                                     <div className="sticky top-0 z-10 py-3 bg-[#f2f6fa]/95 dark:bg-[#020617]/95 backdrop-blur-md flex justify-between items-center border-b border-slate-200/50 dark:border-slate-800/50 mb-3">
                                         <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest capitalize">{group.date}</h3>
-                                        <span className={`text-xs font-semibold px-2 py-1 rounded ${group.total >= 0 ? 'bg-emerald-100/50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-rose-100/50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'}`}>
-                                            {group.total >= 0 ? '+' : '-'}{currencySymbol}{Math.abs(group.total).toLocaleString('es-ES', { minimumFractionDigits: 2 })}
-                                        </span>
+                                        <div className={`text-xs font-semibold px-2 py-1 rounded flex items-center gap-1 ${group.total >= 0 ? 'bg-emerald-100/50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-rose-100/50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'}`}>
+                                            {group.total < 0 && <span>-</span>}
+                                            {group.total >= 0 && <span>+</span>}
+                                            <CurrencyDisplay amount={Math.abs(group.total)} />
+                                        </div>
                                     </div>
                                     <div className="flex flex-col gap-3">
                                         {group.items.map((t) => {
@@ -380,7 +422,7 @@ export default function Transactions() {
                                             return (
                                                 <div
                                                     key={t.id}
-                                                    onClick={() => router.push(`/transaction/${t.id}`)}
+                                                    onClick={() => setSelectedTransaction(t)}
                                                     className="group glass-card rounded-2xl p-4 flex items-center gap-4 cursor-pointer hover:bg-white/90 dark:hover:bg-slate-800/80 hover:-translate-y-0.5 transition-all duration-200 border border-white/40 dark:border-slate-800"
                                                 >
                                                     <div className={`size-12 rounded-2xl flex items-center justify-center shrink-0 border transition-colors ${colors.bg} ${colors.text} ${colors.border}`}>
@@ -390,9 +432,10 @@ export default function Transactions() {
                                                         <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate" title={t.description}>
                                                             {t.description.split(' ').slice(0, 5).join(' ')}{t.description.split(' ').length > 5 ? '...' : ''}
                                                         </p>
-                                                        <p className={`text-sm font-bold text-right ${t.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                                            {t.type === 'EXPENSE' ? '-' : '+'}{currencySymbol}{t.amount.toFixed(2)}
-                                                        </p>
+                                                        <div className={`text-sm font-bold text-right flex justify-end items-center gap-0.5 ${t.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                                            {t.type === 'EXPENSE' ? '-' : '+'}
+                                                            <CurrencyDisplay amount={t.amount} />
+                                                        </div>
                                                         <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 truncate">
                                                             <span>{t.account}</span>
                                                             <span className="size-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
@@ -442,6 +485,24 @@ export default function Transactions() {
                 onApply={handleDateRangeApply}
                 initialStartDate={dateRange.start}
                 initialEndDate={dateRange.end}
+            />
+
+            {/* Transaction Details Modal */}
+            <TransactionDetailsModal
+                isOpen={!!selectedTransaction}
+                onClose={() => setSelectedTransaction(null)}
+                transaction={selectedTransaction}
+                onEdit={(t) => {
+                    setSelectedTransaction(null);
+                    setEditingTransaction(t);
+                }}
+            />
+
+            {/* Edit Transaction Modal */}
+            <TransactionModal
+                isOpen={!!editingTransaction}
+                onClose={() => setEditingTransaction(null)}
+                transactionToEdit={editingTransaction}
             />
         </div>
     );
