@@ -24,6 +24,8 @@ interface FinanceContextType {
   addTransaction: (t: Omit<Transaction, 'id'>) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
   addAccount: (a: Omit<Account, 'id'>) => Promise<void>;
+  updateAccount: (id: string, a: Partial<Account>) => Promise<void>;
+  deleteAccount: (id: string) => Promise<void>;
   addCommitment: (c: Omit<Commitment, 'id'>) => Promise<void>;
   toggleCommitmentStatus: (id: string, currentStatus: string) => Promise<void>; // Updated signature
   toggleRuleStatus: (id: string) => void;
@@ -380,14 +382,87 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const addAccount = async (a: Omit<Account, 'id'>) => {
     if (!activeBookId) return;
-    const { error } = await supabase.from('accounts').insert({
+
+    // Prepare payload - casting to any to bypass strict database types until migration is run
+    const payload: any = {
       book_id: activeBookId,
       name: a.name,
       type: a.type,
       balance: a.balance,
-      // map other fields
-    });
-    if (!error) fetchAccounts(activeBookId);
+      currency: a.currency,
+      is_default: a.isDefault,
+      // Credit Card Fields
+      credit_limit: a.creditLimit,
+      available_credit: a.availableCredit,
+      cutoff_day: a.cutoffDay,
+      pay_day: a.payDay,
+      network: a.network,
+      auto_pay: a.autoPay,
+      last_four: a.lastFour, // Ensure this exists or is removed if unused
+      color: 'blue', // Default for now, or passed from 'a' if added to Account type
+      icon: 'account_balance' // Default
+    };
+
+    const { error } = await supabase.from('accounts').insert(payload);
+
+    if (error) {
+      console.error("Error creating account:", error);
+      alert("Error creating account: " + error.message);
+      return;
+    }
+
+    fetchAccounts(activeBookId);
+    fetchAccounts(activeBookId);
+  };
+
+  const updateAccount = async (id: string, a: Partial<Account>) => {
+    if (!activeBookId) return;
+
+    // Prepare payload
+    const payload: any = {
+      name: a.name,
+      type: a.type,
+      balance: a.balance,
+      currency: a.currency,
+      is_default: a.isDefault,
+      credit_limit: a.creditLimit,
+      available_credit: a.availableCredit,
+      cutoff_day: a.cutoffDay,
+      pay_day: a.payDay,
+      network: a.network,
+      auto_pay: a.autoPay,
+      last_four: a.lastFour,
+      color: a.color || 'blue', // preserve or update
+    };
+
+    // Remove undefined keys
+    Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
+
+    const { error } = await supabase.from('accounts').update(payload).eq('id', id);
+
+    if (error) {
+      console.error("Error updating account:", error);
+      alert("Error updating account: " + error.message);
+      return;
+    }
+
+    fetchAccounts(activeBookId);
+  };
+
+  const deleteAccount = async (id: string) => {
+    if (!activeBookId) return;
+
+    // Check for dependencies? Ideally transactions cascade or block. 
+    // Supabase usually set to CASECADE or RESTRICT. Assuming CASCADE or user handled.
+    const { error } = await supabase.from('accounts').delete().eq('id', id);
+
+    if (error) {
+      console.error("Error deleting account:", error);
+      alert("Error al eliminar cuenta: " + error.message);
+      return;
+    }
+
+    fetchAccounts(activeBookId);
   };
 
   const addCommitment = async (c: Omit<Commitment, 'id'>) => {
@@ -481,7 +556,7 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
   return (
     <FinanceContext.Provider value={{
       transactions, accounts, categories, categoryFolders, budgets, commitments, recurringRules, ledgers,
-      addTransaction, deleteTransaction, addAccount, addCommitment,
+      addTransaction, deleteTransaction, addAccount, updateAccount, deleteAccount, addCommitment,
       toggleCommitmentStatus, toggleRuleStatus, activateLedger, generateSampleData, totalBalance,
       isDarkMode, toggleTheme, isLoading, activeBookId, refreshBooks, formatAmount,
       isTransactionModalOpen, openTransactionModal, closeTransactionModal

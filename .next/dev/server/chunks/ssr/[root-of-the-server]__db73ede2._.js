@@ -360,13 +360,73 @@ const FinanceProvider = ({ children })=>{
     };
     const addAccount = async (a)=>{
         if (!activeBookId) return;
-        const { error } = await supabase.from('accounts').insert({
+        // Prepare payload - casting to any to bypass strict database types until migration is run
+        const payload = {
             book_id: activeBookId,
             name: a.name,
             type: a.type,
-            balance: a.balance
-        });
-        if (!error) fetchAccounts(activeBookId);
+            balance: a.balance,
+            currency: a.currency,
+            is_default: a.isDefault,
+            // Credit Card Fields
+            credit_limit: a.creditLimit,
+            available_credit: a.availableCredit,
+            cutoff_day: a.cutoffDay,
+            pay_day: a.payDay,
+            network: a.network,
+            auto_pay: a.autoPay,
+            last_four: a.lastFour,
+            color: 'blue',
+            icon: 'account_balance' // Default
+        };
+        const { error } = await supabase.from('accounts').insert(payload);
+        if (error) {
+            console.error("Error creating account:", error);
+            alert("Error creating account: " + error.message);
+            return;
+        }
+        fetchAccounts(activeBookId);
+        fetchAccounts(activeBookId);
+    };
+    const updateAccount = async (id, a)=>{
+        if (!activeBookId) return;
+        // Prepare payload
+        const payload = {
+            name: a.name,
+            type: a.type,
+            balance: a.balance,
+            currency: a.currency,
+            is_default: a.isDefault,
+            credit_limit: a.creditLimit,
+            available_credit: a.availableCredit,
+            cutoff_day: a.cutoffDay,
+            pay_day: a.payDay,
+            network: a.network,
+            auto_pay: a.autoPay,
+            last_four: a.lastFour,
+            color: a.color || 'blue'
+        };
+        // Remove undefined keys
+        Object.keys(payload).forEach((key)=>payload[key] === undefined && delete payload[key]);
+        const { error } = await supabase.from('accounts').update(payload).eq('id', id);
+        if (error) {
+            console.error("Error updating account:", error);
+            alert("Error updating account: " + error.message);
+            return;
+        }
+        fetchAccounts(activeBookId);
+    };
+    const deleteAccount = async (id)=>{
+        if (!activeBookId) return;
+        // Check for dependencies? Ideally transactions cascade or block. 
+        // Supabase usually set to CASECADE or RESTRICT. Assuming CASCADE or user handled.
+        const { error } = await supabase.from('accounts').delete().eq('id', id);
+        if (error) {
+            console.error("Error deleting account:", error);
+            alert("Error al eliminar cuenta: " + error.message);
+            return;
+        }
+        fetchAccounts(activeBookId);
     };
     const addCommitment = async (c)=>{
         if (!activeBookId) return;
@@ -509,6 +569,8 @@ const FinanceProvider = ({ children })=>{
             addTransaction,
             deleteTransaction,
             addAccount,
+            updateAccount,
+            deleteAccount,
             addCommitment,
             toggleCommitmentStatus,
             toggleRuleStatus,
@@ -528,7 +590,7 @@ const FinanceProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/context/FinanceContext.tsx",
-        lineNumber: 482,
+        lineNumber: 557,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

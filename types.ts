@@ -39,13 +39,21 @@ export interface Account {
   name: string;
   balance: number;
   type: 'DEBIT' | 'CREDIT' | 'CASH' | 'INVESTMENT';
+  currency: string;
+  isDefault?: boolean;
+  // Credit Card Specifics
   lastFour?: string;
   bank?: string;
   status?: 'Active' | 'Inactive';
-  limit?: number;
-  closingDate?: string;
-  dueDate?: string;
+  creditLimit?: number;
+  availableCredit?: number;
+  cutoffDay?: number; // Day of month
+  payDay?: number; // Day of month
+  network?: 'VISA' | 'MASTERCARD' | 'AMEX' | 'DINERS';
+  autoPay?: boolean;
 }
+
+export type CreditCardNetwork = 'VISA' | 'MASTERCARD' | 'AMEX' | 'DINERS';
 
 export interface InstallmentPlan {
   id: string;

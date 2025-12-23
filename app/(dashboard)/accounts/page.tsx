@@ -1,28 +1,183 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFinance } from '@/context/FinanceContext';
+import { LineChart, Line, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 export default function Accounts() {
     const router = useRouter();
-    const { accounts, totalBalance } = useFinance();
+    const { accounts, totalBalance, ledgers, activeBookId, addAccount, updateAccount, deleteAccount } = useFinance();
 
-    // Modal State
+    // Modal & Form State
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
+
     const [accountName, setAccountName] = useState('');
     const [initialBalance, setInitialBalance] = useState('');
     const [accountType, setAccountType] = useState('cash');
     const [labelColor, setLabelColor] = useState('blue');
 
+    // Enhanced Fields
+    const [selectedCurrency, setSelectedCurrency] = useState('PEN');
+    const [isDefault, setIsDefault] = useState(false);
+
+    // Credit Card Specifics
+    const [cardNetwork, setCardNetwork] = useState('VISA');
+    const [lastFour, setLastFour] = useState('');
+    const [cutoffDay, setCutoffDay] = useState('');
+    const [payDay, setPayDay] = useState('');
+    const [creditLimit, setCreditLimit] = useState('');
+    const [availableCredit, setAvailableCredit] = useState('');
+    const [autoBilling, setAutoBilling] = useState(false);
+
+    // Delete Modal State
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [accountToDelete, setAccountToDelete] = useState<any>(null);
+
+    const resetForm = () => {
+        setEditingId(null);
+        setAccountName('');
+        setInitialBalance('');
+        setAccountType('cash');
+        setLabelColor('blue');
+        setSelectedCurrency('PEN');
+        setIsDefault(false);
+        setCardNetwork('VISA');
+        setLastFour('');
+        setCutoffDay('');
+        setPayDay('');
+        setCreditLimit('');
+        setAvailableCredit('');
+        setAutoBilling(false);
+    };
+
+    const openCreateModal = () => {
+        resetForm();
+        setIsModalOpen(true);
+    };
+
+    const handleEdit = (acc: any) => {
+        setEditingId(acc.id);
+        setAccountName(acc.name);
+        setInitialBalance(acc.balance.toString());
+        setAccountType(acc.type.toLowerCase() === 'credit' ? 'credit' : acc.type.toLowerCase());
+        setLabelColor(acc.color || 'blue');
+        setSelectedCurrency(acc.currency || 'PEN');
+        setIsDefault(acc.is_default || false);
+
+        // Credit fields
+        if (acc.type === 'CREDIT') {
+            setCardNetwork(acc.network || 'VISA');
+            setLastFour(acc.last_four || '');
+            setCutoffDay(acc.cutoff_day || '');
+            setPayDay(acc.pay_day || '');
+            setCreditLimit(acc.credit_limit || '');
+            setAvailableCredit(acc.available_credit || '');
+            setAutoBilling(acc.auto_pay || false);
+        }
+
+        setIsModalOpen(true);
+    };
+
+    const handleDeleteClick = (acc: any) => {
+        setAccountToDelete(acc);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (accountToDelete) {
+            await deleteAccount(accountToDelete.id);
+            setIsDeleteModalOpen(false);
+            setAccountToDelete(null);
+        }
+    };
+
+    const handleSaveAccount = async () => {
+        if (!accountName) return;
+
+        const accountData: any = {
+            name: accountName,
+            balance: parseFloat(initialBalance) || 0,
+            type: accountType.toUpperCase(),
+            currency: selectedCurrency,
+            isDefault,
+            network: cardNetwork,
+            cutoffDay: parseInt(cutoffDay),
+            payDay: parseInt(payDay),
+            creditLimit: parseFloat(creditLimit),
+            availableCredit: parseFloat(availableCredit),
+            autoPay: autoBilling,
+            lastFour: accountType === 'credit' ? lastFour : undefined
+        };
+
+        if (editingId) {
+            await updateAccount(editingId, accountData);
+        } else {
+            await addAccount(accountData);
+        }
+
+        setIsModalOpen(false);
+        resetForm();
+    };
+
+    // Dropdown Component Helper
+    const AccountActions = ({ account }: { account: any }) => {
+        const [isOpen, setIsOpen] = useState(false);
+        return (
+            <div className="relative z-50">
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsOpen(!isOpen);
+                    }}
+                    onBlur={() => setTimeout(() => setIsOpen(false), 200)}
+                    className="text-slate-300 hover:text-slate-500 transition-colors p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                    <span className="material-symbols-outlined">more_horiz</span>
+                </button>
+                {isOpen && (
+                    <div className="absolute right-0 top-8 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden z-[100] animate-scale-in origin-top-right">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(account);
+                                setIsOpen(false);
+                            }}
+                            className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2"
+                        >
+                            <span className="material-symbols-outlined text-[16px]">edit</span>
+                            Editar
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteClick(account);
+                                setIsOpen(false);
+                            }}
+                            className="w-full text-left px-4 py-2.5 text-xs font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 border-t border-slate-100 dark:border-slate-700"
+                        >
+                            <span className="material-symbols-outlined text-[16px]">delete</span>
+                            Eliminar
+                        </button>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    const currencySymbol = useMemo(() => {
+        return ledgers.find(l => l.id === activeBookId)?.currency || '$';
+    }, [ledgers, activeBookId]);
+
     // Calcular métricas para el resumen
     const totalAssets = accounts
-        .filter(acc => acc.balance > 0)
-        .reduce((sum, acc) => sum + acc.balance, 0) + 20050; // Mocking investments to match image
+        .filter(acc => acc.type !== 'CREDIT')
+        .reduce((sum, acc) => sum + acc.balance, 0);
 
     const totalLiabilities = accounts
         .filter(acc => acc.type === 'CREDIT')
-        .reduce((sum, acc) => sum + acc.balance, 0) + 2730; // Adjustment to match image total (-4,580)
+        .reduce((sum, acc) => sum + acc.balance, 0);
 
     const netWorth = totalAssets - Math.abs(totalLiabilities);
 
@@ -44,216 +199,426 @@ export default function Accounts() {
         { id: 'gray', hex: '#6b7280' },
     ];
 
+    // Mock data for sparklines
+    const mockTrendData = [
+        { value: 100 }, { value: 110 }, { value: 105 }, { value: 125 }, { value: 120 }, { value: 140 }, { value: 135 }
+    ];
+    const mockTrendDataStable = [
+        { value: 100 }, { value: 102 }, { value: 101 }, { value: 103 }, { value: 102 }, { value: 104 }, { value: 103 }
+    ];
+
+    const assetsList = accounts.filter(acc => acc.type !== 'CREDIT');
+    const liabilitiesList = accounts.filter(acc => acc.type === 'CREDIT');
+
     return (
         <div className="flex-1 h-full overflow-y-auto relative z-10 scrollbar-hide pb-24">
-            {/* Background blobs for depth */}
-            <div className="fixed top-[-20%] left-[-10%] w-[500px] h-[500px] bg-blue-200/40 dark:bg-blue-900/20 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
-            <div className="fixed bottom-[-20%] right-[-5%] w-[600px] h-[600px] bg-purple-200/40 dark:bg-purple-900/20 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
-
-            <div className="max-w-6xl mx-auto p-6 md:p-8 lg:p-12">
-                <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 animate-fade-in">
-                    <div className="flex flex-col gap-2">
-                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Mis Cuentas</h2>
-                        <p className="text-gray-500 dark:text-gray-400 text-lg font-light">Gestiona tus activos y pasivos en un solo lugar</p>
+            <div className="max-w-[1200px] mx-auto p-6 md:p-8 flex flex-col gap-8">
+                <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 animate-fade-in">
+                    <div className="flex flex-col gap-1">
+                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Mis Cuentas</h2>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Visión general de tu liquidez y patrimonio.</p>
                     </div>
                     <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-xl shadow-lg shadow-primary/30 transition-all active:scale-95 group"
+                        onClick={openCreateModal}
+                        className="btn-interact bg-primary hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2"
                     >
-                        <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform">add</span>
-                        <span className="font-semibold text-sm tracking-wide">Nueva Cuenta</span>
+                        <span className="material-symbols-outlined text-[18px]">add_circle</span>
+                        Nueva Cuenta
                     </button>
                 </header>
 
                 {/* Summary Metrics */}
-                <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                    <div className="glass-card p-6 rounded-2xl flex flex-col gap-1 relative overflow-hidden group border border-white/40 dark:border-white/5">
-                        <div className="absolute right-[-10px] top-[-10px] size-24 bg-green-500/10 rounded-full blur-2xl group-hover:bg-green-500/20 transition-colors"></div>
-                        <p className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-[0.2em] z-10">Patrimonio Neto</p>
-                        <div className="flex items-baseline gap-2 z-10">
-                            <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter">${netWorth.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
-                            <span className="text-xs font-black text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400 px-2 py-0.5 rounded-md flex items-center">
-                                <span className="material-symbols-outlined text-[14px] mr-0.5">trending_up</span>
-                                2.5%
-                            </span>
+                <section className="grid grid-cols-1 md:grid-cols-3 gap-5 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                    {/* Patrimonio Neto */}
+                    <div className="glass-card p-5 rounded-3xl flex flex-col justify-between relative overflow-hidden group border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 min-h-[140px]">
+                        <div className="flex flex-col gap-1 z-10">
+                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Patrimonio Neto Total</p>
+                            <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{currencySymbol}{netWorth.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
+                        </div>
+                        <div className="flex items-center gap-2 mt-3 z-10">
+                            <div className="bg-emerald-50 dark:bg-emerald-900/20 px-2.5 py-1 rounded-full flex items-center gap-1">
+                                <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-[14px]">trending_up</span>
+                                <span className="text-emerald-700 dark:text-emerald-400 text-[11px] font-bold">+2.5%</span>
+                            </div>
+                            <span className="text-slate-400 dark:text-slate-500 text-[11px] font-medium">vs mes anterior</span>
+                        </div>
+                        {/* Decorative Icon */}
+                        <div className="absolute top-3 right-3 opacity-5 dark:opacity-10 scale-100">
+                            <span className="material-symbols-outlined text-7xl text-indigo-500">account_balance</span>
                         </div>
                     </div>
 
-                    <div className="glass-card p-6 rounded-2xl flex flex-col gap-1 relative overflow-hidden border border-white/40 dark:border-white/5">
-                        <div className="absolute right-[-10px] top-[-10px] size-24 bg-blue-500/10 rounded-full blur-2xl"></div>
-                        <p className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-[0.2em] z-10">Activos Totales</p>
-                        <h3 className="text-2xl font-black text-gray-800 dark:text-gray-200 tracking-tight z-10">${totalAssets.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
+                    {/* Cambio Mensual */}
+                    <div className="glass-card p-5 rounded-3xl flex flex-col justify-between relative overflow-hidden group border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 min-h-[140px]">
+                        <div className="flex flex-col gap-1 z-10">
+                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Cambio Mensual</p>
+                            <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">+{currencySymbol}1,200.00</h3>
+                        </div>
+                        <div className="h-10 w-full mt-2">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={mockTrendData}>
+                                    <Line type="monotone" dataKey="value" stroke="#10b981" strokeWidth={2} dot={false} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
 
-                    <div className="glass-card p-6 rounded-2xl flex flex-col gap-1 relative overflow-hidden border border-white/40 dark:border-white/5">
-                        <div className="absolute right-[-10px] top-[-10px] size-24 bg-danger/10 rounded-full blur-2xl"></div>
-                        <p className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-[0.2em] z-10">Pasivos (Deudas)</p>
-                        <h3 className="text-2xl font-black text-gray-800 dark:text-gray-200 tracking-tight z-10">-${Math.abs(totalLiabilities).toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
+                    {/* Deuda Total */}
+                    <div className="glass-card p-5 rounded-3xl flex flex-col justify-between relative overflow-hidden group border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 min-h-[140px]">
+                        <div className="flex flex-col gap-1 z-10">
+                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Deuda Total</p>
+                            <div className="flex items-center gap-3">
+                                <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{currencySymbol}{Math.abs(totalLiabilities).toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 mt-3 z-10">
+                            <span className="material-symbols-outlined text-slate-400 text-[16px]">check_circle</span>
+                            <span className="text-slate-500 dark:text-slate-400 text-xs font-medium">Pagos al día</span>
+                        </div>
                     </div>
                 </section>
 
-                <div className="flex flex-col gap-10">
-                    {/* Bank Accounts Section */}
-                    <section className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                        <div className="flex items-center justify-between mb-6 px-2">
-                            <h3 className="text-lg font-black text-gray-800 dark:text-gray-200 flex items-center gap-3">
-                                <span className="material-symbols-outlined text-text-muted">account_balance</span>
-                                Cuentas Bancarias & Efectivo
-                            </h3>
-                            <span className="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest bg-white/50 dark:bg-slate-800/50 px-4 py-1.5 rounded-full border border-white/40 dark:border-white/5">$18,450.00</span>
-                        </div>
+                {/* Assets Section */}
+                <section className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                    <div className="flex items-center justify-between mb-4 px-1">
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            <div className="size-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+                            </div>
+                            Efectivo y Bancos
+                        </h3>
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tabular-nums bg-slate-100 dark:bg-slate-800/50 px-3 py-1 rounded-full">
+                            {currencySymbol}{totalAssets.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        </span>
+                    </div>
 
-                        <div className="flex flex-col gap-4">
-                            <div className="glass-card p-5 rounded-[1.5rem] flex items-center justify-between group cursor-pointer border border-white/40 dark:border-white/5">
-                                <div className="flex items-center gap-5">
-                                    <div className="size-12 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center shrink-0 border border-gray-100 dark:border-slate-700 overflow-hidden">
-                                        <img className="size-8 object-contain" src="https://logo.clearbit.com/santander.com" alt="Santander" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {assetsList.map((acc, idx) => (
+                            <div key={acc.id} onClick={() => router.push(`/accounts?id=${acc.id}`)} className="glass-card p-5 rounded-3xl flex flex-col gap-5 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 group">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="size-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200">
+                                            <span className="material-symbols-outlined text-[20px]">
+                                                {acc.type === 'CASH' ? 'payments' : 'account_balance'}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold text-slate-900 dark:text-white">{acc.name}</h4>
+                                            <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mt-0.5">**** {acc.lastFour || '----'}</p>
+                                        </div>
                                     </div>
-                                    <div className="flex flex-col">
-                                        <span className="font-black text-gray-900 dark:text-white text-base">Santander Nómina</span>
-                                        <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5 uppercase tracking-widest mt-0.5">
-                                            <span className="size-2 rounded-full bg-success"></span> Activa • **** 4829
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-8">
-                                    <div className="text-right">
-                                        <p className="font-black text-gray-900 dark:text-white text-xl tabular-nums tracking-tighter">$2,450.00</p>
-                                        <p className="text-[10px] text-green-600 dark:text-green-400 font-black uppercase tracking-widest">+ $1,200 este mes</p>
-                                    </div>
-                                    <button className="size-10 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center justify-center text-gray-400 transition-all">
-                                        <span className="material-symbols-outlined">more_vert</span>
+                                    <button className="text-slate-300 hover:text-slate-500 transition-colors">
+                                        <span className="material-symbols-outlined text-[18px]">more_horiz</span>
                                     </button>
                                 </div>
-                            </div>
 
-                            {/* ... other items remain same ... */}
-                            <div className="glass-card p-5 rounded-[1.5rem] flex items-center justify-between group cursor-pointer border border-white/40 dark:border-white/5">
-                                <div className="flex items-center gap-5">
-                                    <div className="size-12 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center shrink-0 border border-gray-100 dark:border-slate-700">
-                                        <span className="material-symbols-outlined text-purple-500 text-2xl">savings</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="font-black text-gray-900 dark:text-white text-base">Ahorros Emergencia</span>
-                                        <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5 uppercase tracking-widest mt-0.5">
-                                            <span className="size-2 rounded-full bg-success"></span> Activa • BBVA
-                                        </span>
-                                    </div>
+                                <div>
+                                    <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{currencySymbol}{acc.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
                                 </div>
-                                <div className="flex items-center gap-8">
-                                    <div className="text-right">
-                                        <p className="font-black text-gray-900 dark:text-white text-xl tabular-nums tracking-tighter">$15,880.00</p>
-                                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Sin movimientos recientes</p>
+
+                                <div className="flex items-end justify-between mt-auto">
+                                    <div className="w-20 h-8">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <LineChart data={idx % 2 === 0 ? mockTrendData : mockTrendDataStable}>
+                                                <Line type="monotone" dataKey="value" stroke={idx % 2 === 0 ? "#10b981" : "#94a3b8"} strokeWidth={2} dot={false} />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">7 Días</p>
                                     </div>
-                                    <button className="size-10 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center justify-center text-gray-400 transition-all">
-                                        <span className="material-symbols-outlined">more_vert</span>
+                                    <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${idx % 2 === 0 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
+                                        {idx % 2 === 0 ? 'Estable' : 'Sin cambios'}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* Liabilities Section */}
+                <section className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                    <div className="flex items-center justify-between mb-4 px-1">
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            <div className="size-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-[20px]">credit_card</span>
+                            </div>
+                            Tarjetas de Crédito
+                        </h3>
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tabular-nums bg-slate-100 dark:bg-slate-800/50 px-3 py-1 rounded-full">
+                            -{currencySymbol}{Math.abs(totalLiabilities).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {liabilitiesList.map((acc) => (
+                            <div key={acc.id} className="glass-card p-5 rounded-3xl flex flex-col gap-5 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 group">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="size-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                                            <span className="font-black text-[8px] tracking-tighter">VISA</span>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold text-slate-900 dark:text-white">{acc.name}</h4>
+                                            <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mt-0.5">**** {acc.lastFour || '----'}</p>
+                                        </div>
+                                    </div>
+                                    <button className="text-slate-300 hover:text-slate-500 transition-colors">
+                                        <span className="material-symbols-outlined text-[18px]">more_horiz</span>
                                     </button>
                                 </div>
+
+                                <div>
+                                    <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">-{currencySymbol}{Math.abs(acc.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                                    <p className="text-[11px] text-slate-400 font-medium mt-1">Límite disponible: {currencySymbol}4,550.00</p>
+                                </div>
+
+                                <div className="mt-auto pt-2">
+                                    <div className="flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                                        <span>Uso del crédito</span>
+                                        <span>9%</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <div className="h-full bg-indigo-500 w-[9%] rounded-full"></div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </section>
-
-                    {/* ... other sections remain same ... */}
-                </div>
-
-                <div className="h-10"></div>
+                        ))}
+                    </div>
+                </section>
             </div>
 
             {/* ACCOUNT DETAILS MODAL */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-8 bg-slate-900/40 backdrop-blur-md animate-fade-in">
-                    <main className="w-full max-w-4xl h-auto max-h-[95vh] glass-card rounded-[2.5rem] flex flex-col overflow-hidden animate-slide-up border border-white/80 dark:border-slate-700 shadow-premium">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in group/modal">
+                    {/* Modal Container: Centered in visible area (approx) */}
+                    <main className="w-full max-w-2xl bg-white dark:bg-[#1e293b] rounded-[2rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-scale-in relative border border-slate-200 dark:border-slate-700">
+
                         {/* Modal Header */}
-                        <header className="flex-none px-8 py-8 border-b border-gray-200/60 dark:border-gray-700/50 flex justify-between items-start bg-white/40 dark:bg-black/20">
+                        <header className="flex-none px-8 py-6 flex justify-between items-start border-b border-slate-100 dark:border-slate-800">
                             <div className="flex flex-col gap-1">
-                                <h1 className="text-2xl md:text-3xl font-black tracking-tight text-[#111418] dark:text-white uppercase tracking-widest">Detalles de la Cuenta</h1>
-                                <p className="text-[#637288] dark:text-gray-400 text-sm font-medium">Configura el nombre, el tipo y el saldo inicial para comenzar a rastrear.</p>
+                                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{editingId ? 'Editar Cuenta' : 'Detalles de la Cuenta'}</h2>
+                                <p className="text-slate-500 dark:text-slate-400 text-sm">{editingId ? 'Modifica los datos de la cuenta.' : 'Configura los detalles de tu nueva cuenta.'}</p>
                             </div>
                             <button
                                 onClick={() => setIsModalOpen(false)}
-                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-all p-2 rounded-2xl hover:bg-black/5 dark:hover:bg-white/10 group"
+                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors bg-slate-50 dark:bg-slate-800 p-2 rounded-full"
                             >
-                                <span className="material-symbols-outlined text-2xl group-hover:rotate-90 transition-transform duration-300">close</span>
+                                <span className="material-symbols-outlined text-xl">close</span>
                             </button>
                         </header>
 
-                        {/* Scrollable Modal Content */}
-                        <div className="flex-1 overflow-y-auto px-8 py-8 space-y-10 scrollbar-hide">
-                            {/* Section 1: Basic Info */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                {/* Account Name */}
-                                <div className="flex flex-col gap-3">
-                                    <label className="text-xs font-black uppercase tracking-widest text-[#111418] dark:text-gray-200 ml-1" htmlFor="account-name">Nombre de la Cuenta</label>
-                                    <div className="flex items-center rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 h-14 overflow-hidden focus-within:ring-4 focus-within:ring-primary/10 focus-within:border-primary transition-all">
-                                        <span className="pl-5 pr-3 text-[#637288] dark:text-gray-400 flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-[20px]">badge</span>
+                        {/* Modal Content */}
+                        <div className="flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-8 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+
+                            {/* Account Type Selection */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+                                {accountTypes.map(type => (
+                                    <button
+                                        key={type.id}
+                                        onClick={() => setAccountType(type.id)}
+                                        className={`p-3 flex flex-col items-center justify-center gap-2 rounded-2xl border transition-all duration-200 min-h-[80px] ${accountType === type.id
+                                            ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                                            : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800'
+                                            }`}
+                                    >
+                                        <span className={`material-symbols-outlined text-2xl ${accountType === type.id ? 'text-primary' : 'text-slate-500'}`}>
+                                            {type.icon}
                                         </span>
+                                        <span className={`text-[10px] font-bold uppercase tracking-tight ${accountType === type.id ? 'text-primary' : 'text-slate-600 dark:text-slate-400'}`}>
+                                            {type.label}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Main Info */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">Nombre</label>
+                                    <div className="flex items-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 h-12 px-4 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
                                         <input
                                             value={accountName}
                                             onChange={(e) => setAccountName(e.target.value)}
-                                            className="w-full h-full bg-transparent border-none focus:ring-0 text-[#111418] dark:text-white placeholder:text-[#9CA3AF] text-base font-bold"
-                                            id="account-name"
-                                            placeholder="Ej. Banco Principal, Ahorros"
-                                            type="text"
+                                            className="w-full bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder:text-slate-400 text-sm font-semibold"
+                                            placeholder="Ej. BCP Ahorros"
                                         />
                                     </div>
                                 </div>
-                                {/* Initial Balance */}
-                                <div className="flex flex-col gap-3">
-                                    <label className="text-xs font-black uppercase tracking-widest text-[#111418] dark:text-gray-200 ml-1" htmlFor="initial-balance">Saldo Inicial</label>
-                                    <div className="flex items-center rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 h-14 overflow-hidden focus-within:ring-4 focus-within:ring-primary/10 focus-within:border-primary transition-all">
-                                        <span className="pl-5 pr-3 text-[#637288] dark:text-gray-400 flex items-center justify-center">
-                                            <span className="material-symbols-outlined text-[20px]">attach_money</span>
-                                        </span>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">Divisa</label>
+                                    <div className="flex gap-2">
+                                        {['PEN', 'USD', 'MXN', 'EUR'].map(curr => (
+                                            <button
+                                                key={curr}
+                                                onClick={() => setSelectedCurrency(curr)}
+                                                className={`flex-1 h-12 rounded-xl border text-xs font-bold transition-all ${selectedCurrency === curr
+                                                    ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900'
+                                                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 hover:border-slate-300'}`}
+                                            >
+                                                {curr}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Balance & Default */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">Saldo Inicial</label>
+                                    <div className="flex items-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 h-12 px-4 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
+                                        <span className="text-slate-400 font-bold mr-2 text-xs">{selectedCurrency}</span>
                                         <input
                                             value={initialBalance}
                                             onChange={(e) => setInitialBalance(e.target.value)}
-                                            className="w-full h-full bg-transparent border-none focus:ring-0 text-[#111418] dark:text-white placeholder:text-[#9CA3AF] text-base font-bold"
-                                            id="initial-balance"
+                                            className="w-full bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder:text-slate-400 text-lg font-bold"
                                             placeholder="0.00"
                                             type="number"
                                         />
-                                        <span className="pr-6 text-[10px] font-black uppercase tracking-widest text-[#637288] dark:text-gray-400">USD</span>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Section 2: Account Type */}
-                            <div className="flex flex-col gap-4">
-                                <label className="text-xs font-black uppercase tracking-widest text-[#111418] dark:text-gray-200 ml-1">Tipo de Cuenta</label>
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                                    {accountTypes.map(type => (
-                                        <button
-                                            key={type.id}
-                                            onClick={() => setAccountType(type.id)}
-                                            className={`h-32 flex flex-col items-center justify-center gap-3 rounded-[2rem] border transition-all duration-300 ${accountType === type.id
-                                                ? 'border-primary bg-primary/5 dark:bg-primary/10 ring-4 ring-primary/5'
-                                                : 'border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/30 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-300'
-                                                }`}
-                                        >
-                                            <span className={`material-symbols-outlined text-3xl transition-transform duration-500 ${accountType === type.id ? 'text-primary scale-110' : 'text-slate-400'}`}>
-                                                {type.icon}
-                                            </span>
-                                            <span className={`text-xs font-black uppercase tracking-widest ${accountType === type.id ? 'text-primary' : 'text-slate-500'}`}>
-                                                {type.label}
-                                            </span>
-                                        </button>
-                                    ))}
+                                <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 mt-6">
+                                    <div
+                                        onClick={() => setIsDefault(!isDefault)}
+                                        className={`w-10 h-6 rounded-full p-1 cursor-pointer transition-colors ${isDefault ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'}`}
+                                    >
+                                        <div className={`size-4 bg-white rounded-full shadow-sm transition-transform ${isDefault ? 'translate-x-4' : ''}`} />
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-600 dark:text-slate-300 select-none cursor-pointer" onClick={() => setIsDefault(!isDefault)}>Cuenta Predeterminada</span>
                                 </div>
                             </div>
 
-                            {/* Section 3: Color Selection */}
-                            <div className="flex flex-col gap-4">
-                                <label className="text-xs font-black uppercase tracking-widest text-[#111418] dark:text-gray-200 ml-1">Color de Etiqueta</label>
-                                <div className="flex flex-wrap gap-5 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 shadow-inner">
+                            {/* CREDIT CARD SPECIFIC FIELDS */}
+                            {accountType === 'credit' && (
+                                <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-800 animate-slide-down">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <span className="material-symbols-outlined text-indigo-500">credit_card_gear</span>
+                                        <h3 className="text-sm font-bold text-slate-900 dark:text-white">Configuración de Tarjeta</h3>
+                                    </div>
+
+                                    {/* Card Network & Last 4 */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-3">
+                                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Red de Tarjeta</label>
+                                            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                                                {['VISA', 'MASTERCARD', 'AMEX', 'DINERS'].map(net => (
+                                                    <button
+                                                        key={net}
+                                                        onClick={() => setCardNetwork(net)}
+                                                        className={`px-4 py-2 rounded-lg border text-xs font-bold whitespace-nowrap transition-all ${cardNetwork === net
+                                                            ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-800 dark:text-indigo-400'
+                                                            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'}`}
+                                                    >
+                                                        {net}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Últimos 4 Dígitos</label>
+                                            <div className="flex items-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 h-10">
+                                                <span className="text-slate-400 text-sm mr-2">•••• •••• ••••</span>
+                                                <input
+                                                    value={lastFour}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                                                        setLastFour(val);
+                                                    }}
+                                                    className="w-full bg-transparent border-none outline-none text-sm font-semibold text-slate-900 dark:text-white"
+                                                    placeholder="4679"
+                                                    type="text"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Credit Lines */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Línea Total</label>
+                                            <div className="flex items-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 h-10">
+                                                <span className="text-slate-500 text-xs font-bold mr-2">{selectedCurrency}</span>
+                                                <input
+                                                    value={creditLimit}
+                                                    onChange={(e) => setCreditLimit(e.target.value)}
+                                                    className="w-full bg-transparent border-none outline-none text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400"
+                                                    placeholder="0.00"
+                                                    type="number"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Línea Disponible</label>
+                                            <div className="flex items-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 h-10">
+                                                <span className="text-slate-500 text-xs font-bold mr-2">{selectedCurrency}</span>
+                                                <input
+                                                    value={availableCredit}
+                                                    onChange={(e) => setAvailableCredit(e.target.value)}
+                                                    className="w-full bg-transparent border-none outline-none text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400"
+                                                    placeholder="0.00"
+                                                    type="number"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Dates */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Día de Cierre</label>
+                                            <select
+                                                value={cutoffDay}
+                                                onChange={(e) => setCutoffDay(e.target.value)}
+                                                className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800 border-none text-xs font-medium appearance-none cursor-pointer"
+                                            >
+                                                <option value="">Seleccionar día</option>
+                                                {[...Array(31)].map((_, i) => (
+                                                    <option key={i} value={i + 1}>Día {i + 1}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Día de Pago</label>
+                                            <select
+                                                value={payDay}
+                                                onChange={(e) => setPayDay(e.target.value)}
+                                                className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800 border-none text-xs font-medium appearance-none cursor-pointer"
+                                            >
+                                                <option value="">Seleccionar día</option>
+                                                {[...Array(31)].map((_, i) => (
+                                                    <option key={i} value={i + 1}>Día {i + 1}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Auto Billing */}
+                                    <div className="flex items-center justify-between p-3 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30">
+                                        <div className="flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-indigo-500 text-lg">autorenew</span>
+                                            <span className="text-xs font-bold text-indigo-900 dark:text-indigo-300">Facturación Automática</span>
+                                        </div>
+                                        <div
+                                            onClick={() => setAutoBilling(!autoBilling)}
+                                            className={`w-9 h-5 rounded-full p-0.5 cursor-pointer transition-colors ${autoBilling ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-600'}`}
+                                        >
+                                            <div className={`size-4 bg-white rounded-full shadow-sm transition-transform ${autoBilling ? 'translate-x-4' : ''}`} />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Color Selection */}
+                            <div className="space-y-3">
+                                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">Color de Etiqueta</label>
+                                <div className="flex flex-wrap gap-3">
                                     {colors.map(color => (
                                         <button
                                             key={color.id}
                                             onClick={() => setLabelColor(color.id)}
                                             style={{ backgroundColor: color.hex }}
-                                            className={`w-12 h-12 rounded-full transition-all hover:scale-110 active:scale-95 ${labelColor === color.id
-                                                ? 'ring-4 ring-offset-4 ring-primary dark:ring-offset-slate-900 shadow-lg'
-                                                : 'hover:opacity-80'
+                                            className={`size-8 rounded-full transition-transform hover:scale-110 ${labelColor === color.id
+                                                ? 'ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-slate-900 scale-110'
+                                                : ''
                                                 }`}
                                         />
                                     ))}
@@ -262,19 +627,19 @@ export default function Accounts() {
                         </div>
 
                         {/* Modal Footer */}
-                        <footer className="flex-none p-8 border-t border-gray-200/60 dark:border-gray-700/50 bg-white/40 dark:bg-black/20 flex flex-col-reverse sm:flex-row justify-end gap-4 backdrop-blur-md">
+                        <footer className="flex-none px-8 py-5 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
                             <button
                                 onClick={() => setIsModalOpen(false)}
-                                className="px-8 h-14 rounded-2xl text-[#637288] dark:text-gray-300 font-black text-xs uppercase tracking-[0.2em] hover:bg-black/5 dark:hover:bg-white/10 transition-all"
+                                className="px-5 py-2.5 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors"
                             >
                                 Cancelar
                             </button>
                             <button
-                                onClick={() => setIsModalOpen(false)}
-                                className="px-10 h-14 rounded-2xl bg-primary text-white font-black text-xs uppercase tracking-[0.2em] hover:bg-primary-hover shadow-xl shadow-primary/25 active:translate-y-0.5 transition-all flex items-center justify-center gap-3"
+                                onClick={handleSaveAccount}
+                                className="px-6 py-2.5 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-sm shadow-md shadow-blue-500/20 transition-all flex items-center gap-2 active:scale-95"
                             >
-                                <span className="material-symbols-outlined text-[20px]">check</span>
-                                Guardar Cuenta
+                                <span className="material-symbols-outlined text-[18px]">check</span>
+                                {editingId ? 'Actualizar Cuenta' : 'Guardar Cuenta'}
                             </button>
                         </footer>
                     </main>

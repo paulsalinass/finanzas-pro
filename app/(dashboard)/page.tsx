@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import { DateRangeModal } from '@/components/DateRangeModal';
 import { NotificationsModal } from '@/components/NotificationsModal';
+import { CategoryIcon } from '@/components/CategoryIcon';
 import { useFinance } from '@/context/FinanceContext';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { startOfMonth, endOfMonth, differenceInCalendarDays, addDays, startOfDay, format } from 'date-fns';
@@ -13,24 +14,30 @@ import { es } from 'date-fns/locale';
 
 
 
-const HEX_ALPHA = (hex: string, alpha: number) => {
-    if (!hex) return `rgba(148, 163, 184, ${alpha})`;
-    let normalized = hex.trim();
-    if (normalized.startsWith('#')) normalized = normalized.slice(1);
-    if (normalized.length === 3) {
-        normalized = normalized.split('').map(ch => ch + ch).join('');
-    }
-    const int = parseInt(normalized, 16);
-    if (Number.isNaN(int)) return `rgba(148, 163, 184, ${alpha})`;
-    const r = (int >> 16) & 255;
-    const g = (int >> 8) & 255;
-    const b = int & 255;
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+const COLOR_MAP: Record<string, { bg: string, text: string, ring: string, border: string, solid: string }> = {
+    red: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400', ring: 'ring-red-500/10', border: 'border-red-200', solid: 'bg-red-500' },
+    orange: { bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-600 dark:text-orange-400', ring: 'ring-orange-500/10', border: 'border-orange-200', solid: 'bg-orange-500' },
+    amber: { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-600 dark:text-amber-400', ring: 'ring-amber-500/10', border: 'border-amber-200', solid: 'bg-amber-500' },
+    yellow: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-600 dark:text-yellow-400', ring: 'ring-yellow-500/10', border: 'border-yellow-200', solid: 'bg-yellow-500' },
+    lime: { bg: 'bg-lime-100 dark:bg-lime-900/30', text: 'text-lime-600 dark:text-lime-400', ring: 'ring-lime-500/10', border: 'border-lime-200', solid: 'bg-lime-500' },
+    green: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-600 dark:text-green-400', ring: 'ring-green-500/10', border: 'border-green-200', solid: 'bg-green-500' },
+    emerald: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-600 dark:text-emerald-400', ring: 'ring-emerald-500/10', border: 'border-emerald-200', solid: 'bg-emerald-500' },
+    teal: { bg: 'bg-teal-100 dark:bg-teal-900/30', text: 'text-teal-600 dark:text-teal-400', ring: 'ring-teal-500/10', border: 'border-teal-200', solid: 'bg-teal-500' },
+    cyan: { bg: 'bg-cyan-100 dark:bg-cyan-900/30', text: 'text-cyan-600 dark:text-cyan-400', ring: 'ring-cyan-500/10', border: 'border-cyan-200', solid: 'bg-cyan-500' },
+    sky: { bg: 'bg-sky-100 dark:bg-sky-900/30', text: 'text-sky-600 dark:text-sky-400', ring: 'ring-sky-500/10', border: 'border-sky-200', solid: 'bg-sky-500' },
+    blue: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-600 dark:text-blue-400', ring: 'ring-blue-500/10', border: 'border-blue-200', solid: 'bg-blue-500' },
+    indigo: { bg: 'bg-indigo-100 dark:bg-indigo-900/30', text: 'text-indigo-600 dark:text-indigo-400', ring: 'ring-indigo-500/10', border: 'border-indigo-200', solid: 'bg-indigo-500' },
+    violet: { bg: 'bg-violet-100 dark:bg-violet-900/30', text: 'text-violet-600 dark:text-violet-400', ring: 'ring-violet-500/10', border: 'border-violet-200', solid: 'bg-violet-500' },
+    purple: { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-600 dark:text-purple-400', ring: 'ring-purple-500/10', border: 'border-purple-200', solid: 'bg-purple-500' },
+    fuchsia: { bg: 'bg-fuchsia-100 dark:bg-fuchsia-900/30', text: 'text-fuchsia-600 dark:text-fuchsia-400', ring: 'ring-fuchsia-500/10', border: 'border-fuchsia-200', solid: 'bg-fuchsia-500' },
+    pink: { bg: 'bg-pink-100 dark:bg-pink-900/30', text: 'text-pink-600 dark:text-pink-400', ring: 'ring-pink-500/10', border: 'border-pink-200', solid: 'bg-pink-500' },
+    rose: { bg: 'bg-rose-100 dark:bg-rose-900/30', text: 'text-rose-600 dark:text-rose-400', ring: 'ring-rose-500/10', border: 'border-rose-200', solid: 'bg-rose-500' },
+    slate: { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-600 dark:text-slate-400', ring: 'ring-slate-500/10', border: 'border-slate-200', solid: 'bg-slate-500' },
 };
 
 export default function Dashboard() {
     const router = useRouter();
-    const { transactions, accounts, totalBalance, budgets, commitments, recurringRules, categories, openTransactionModal, formatAmount } = useFinance();
+    const { transactions, accounts, totalBalance, budgets, commitments, recurringRules, categories, openTransactionModal, formatAmount, ledgers, activeBookId } = useFinance();
     const [showBalance, setShowBalance] = useState(true);
     const [activeTab, setActiveTab] = useState('Este mes');
     const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({
@@ -81,25 +88,9 @@ export default function Dashboard() {
         return null;
     }, [today]);
 
-    const categoryVisualMap = React.useMemo(() => {
-        const map = new Map<string, { name: string; color: string; icon: string }>();
-        categories.forEach(cat => {
-            map.set(cat.id, { name: cat.name, color: cat.color || '#2563eb', icon: cat.icon || 'category' });
-            map.set(cat.name.toLowerCase(), { name: cat.name, color: cat.color || '#2563eb', icon: cat.icon || 'category' });
-        });
-        return map;
-    }, [categories]);
-
-    const getCategoryVisuals = useCallback((transaction: typeof transactions[number]) => {
-        const key = transaction.category_id && categoryVisualMap.get(transaction.category_id);
-        const fallback = categoryVisualMap.get(transaction.category?.toLowerCase?.() || '');
-        const info = key || fallback;
-        return {
-            name: info?.name || transaction.category || 'General',
-            color: info?.color || '#cbd5f5',
-            icon: info?.icon || transaction.icon || 'payments'
-        };
-    }, [categoryVisualMap]);
+    const currencySymbol = React.useMemo(() => {
+        return ledgers.find(l => l.id === activeBookId)?.currency || '$';
+    }, [ledgers, activeBookId]);
 
     const handleTabClick = (tab: string) => {
         if (tab === 'Personalizado') {
@@ -362,7 +353,7 @@ export default function Dashboard() {
                             <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Saldo Total</p>
                             <div className="flex items-center gap-2">
                                 <p className={`text-text-main dark:text-white text-3xl font-bold tracking-tight transition-all duration-300 ${!showBalance && 'blur-md select-none'}`}>
-                                    ${balanceAtEndOfRange.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                    {currencySymbol}{balanceAtEndOfRange.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                 </p>
                                 <button
                                     onClick={() => setShowBalance(!showBalance)}
@@ -387,7 +378,7 @@ export default function Dashboard() {
                             </div>
                             <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Ingresos</p>
                         </div>
-                        <p className="text-text-main dark:text-white text-3xl font-bold tracking-tight">${monthlyIncome.toLocaleString()}</p>
+                        <p className="text-text-main dark:text-white text-3xl font-bold tracking-tight">{currencySymbol}{monthlyIncome.toLocaleString()}</p>
                         <div className="flex items-center gap-2 mt-4">
                             <span className="text-success text-sm font-medium">+12%</span>
                             <p className="text-text-light dark:text-dark-muted/60 text-xs font-medium shrink-0">que lo habitual</p>
@@ -403,7 +394,7 @@ export default function Dashboard() {
                             </div>
                             <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Gastos</p>
                         </div>
-                        <p className="text-text-main dark:text-white text-3xl font-bold tracking-tight">${monthlyExpense.toLocaleString()}</p>
+                        <p className="text-text-main dark:text-white text-3xl font-bold tracking-tight">{currencySymbol}{monthlyExpense.toLocaleString()}</p>
                         <div className="flex items-center gap-2 mt-4">
                             <span className="text-danger text-sm font-medium">-5%</span>
                             <p className="text-text-light dark:text-dark-muted/60 text-xs font-medium shrink-0">ahorro vs promedio</p>
@@ -467,23 +458,24 @@ export default function Dashboard() {
                         <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
                             <div className="flex flex-col gap-1">
                                 {filteredTransactions.slice(0, 8).map((t) => {
-                                    const visuals = getCategoryVisuals(t);
-                                    const badgeBg = HEX_ALPHA(visuals.color, 0.12);
-                                    const badgeBorder = HEX_ALPHA(visuals.color, 0.3);
+                                    const category = categories.find(c => c.name === t.category);
+                                    const colorKey = category?.color || 'slate';
+                                    const colors = COLOR_MAP[colorKey] || COLOR_MAP.slate;
+
                                     return (
                                         <div key={t.id} onClick={() => router.push(`/transaction/${t.id}`)} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-white/5 transition-colors cursor-pointer group">
                                             <div className="flex items-center gap-3">
-                                                <div className="size-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-105" style={{ backgroundColor: badgeBg, border: `1px solid ${badgeBorder}`, color: visuals.color }}>
-                                                    <span className="material-symbols-outlined text-[20px]">{visuals.icon}</span>
+                                                <div className={`size-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 border ${colors.bg} ${colors.text} ${colors.border}`}>
+                                                    <CategoryIcon icon={t.icon || 'payments'} className="text-[20px]" />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <p className="text-text-main dark:text-white text-sm font-medium group-hover:text-primary transition-colors">{t.description || visuals.name}</p>
-                                                    <p className="text-[11px] font-semibold" style={{ color: visuals.color }}>{visuals.name}</p>
+                                                    <p className="text-text-main dark:text-white text-sm font-medium group-hover:text-primary transition-colors">{t.description || t.category}</p>
+                                                    <p className={`text-[11px] font-semibold ${colors.text}`}>{t.category || 'General'}</p>
                                                 </div>
                                             </div>
                                             <div className="flex flex-col items-end">
                                                 <p className={`text-sm font-bold ${t.type === 'INCOME' ? 'text-success' : 'text-text-main dark:text-white'}`}>
-                                                    {t.type === 'EXPENSE' ? '-' : '+'}${t.amount.toFixed(2)}
+                                                    {t.type === 'EXPENSE' ? '-' : '+'}{currencySymbol}{t.amount.toFixed(2)}
                                                 </p>
                                                 <p className="text-text-light dark:text-dark-muted text-[10px] font-medium">Hoy</p>
                                             </div>
@@ -504,25 +496,25 @@ export default function Dashboard() {
                             </div>
                             <div className="text-right">
                                 <p className="text-sm font-semibold text-text-muted dark:text-dark-muted/70">Gastado</p>
-                                <p className="text-2xl font-bold text-primary">${currentMonthExpenses.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                                <p className="text-2xl font-bold text-primary">{currencySymbol}{currentMonthExpenses.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
                             </div>
                         </div>
                         <div>
                             <div className="flex items-center justify-between text-xs font-semibold text-text-muted dark:text-dark-muted mb-2">
                                 <span>{monthlyProgress.toFixed(0)}% utilizado</span>
-                                <span>Te quedan ${monthlyRemaining.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                                <span>Te quedan {currencySymbol}{monthlyRemaining.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
                             </div>
                             <div className="h-3 w-full bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
                                 <div className={`h-full ${monthlyProgress > 95 ? 'bg-danger' : monthlyProgress > 80 ? 'bg-warning' : 'bg-primary'} transition-all duration-700`} style={{ width: `${Math.min(monthlyProgress, 130)}%` }}></div>
                             </div>
                             <div className="mt-2 text-xs text-text-muted dark:text-dark-muted flex items-center justify-between">
-                                <span>Límite: ${monthlyLimit.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-                                <span>Promedio diario permitido: ${dailyAllowance.toFixed(2)}</span>
+                                <span>Límite: {currencySymbol}{monthlyLimit.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                                <span>Promedio diario permitido: {currencySymbol}{dailyAllowance.toFixed(2)}</span>
                             </div>
                         </div>
                         <div className={`px-4 py-3 rounded-2xl border ${dailyTrendPositive ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-900/20' : 'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900/50 dark:bg-orange-900/20'}`}>
                             <p className="text-sm font-semibold">{dailyTrendMessage}</p>
-                            <p className="text-xs opacity-80">Diferencia diaria de ${dailyTrendDelta.toFixed(2)} ({dailyTrendPositive ? 'por debajo' : 'por encima'} del ritmo).</p>
+                            <p className="text-xs opacity-80">Diferencia diaria de {currencySymbol}{dailyTrendDelta.toFixed(2)} ({dailyTrendPositive ? 'por debajo' : 'por encima'} del ritmo).</p>
                         </div>
                         <div className="h-40">
                             <ResponsiveContainer width="100%" height="100%">
@@ -536,7 +528,7 @@ export default function Dashboard() {
                                     <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#94a3b8' }} interval={Math.ceil(dailyExpensesData.length / 6)} />
                                     <YAxis hide />
                                     <Tooltip
-                                        formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Gasto']}
+                                        formatter={(value: any) => [`${currencySymbol}${Number(value).toFixed(2)}`, 'Gasto']}
                                         labelFormatter={(label) => label}
                                         contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.15)' }}
                                     />
@@ -565,7 +557,7 @@ export default function Dashboard() {
                                             <p className="text-xs text-text-muted dark:text-dark-muted">{bill.dueDateObj ? format(bill.dueDateObj, "EEE d 'de' MMM", { locale: es }) : 'Sin fecha'}</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-base font-bold text-text-main dark:text-white">${bill.amount.toFixed(2)}</p>
+                                            <p className="text-base font-bold text-text-main dark:text-white">{currencySymbol}{bill.amount.toFixed(2)}</p>
                                             <p className="text-[10px] text-primary font-semibold uppercase tracking-widest">{bill.frequency}</p>
                                         </div>
                                     </div>
@@ -586,7 +578,7 @@ export default function Dashboard() {
                                     <p className="text-sm text-text-muted dark:text-dark-muted/70">para {nextIncomeInfo.rule.name}</p>
                                 </div>
                                 <div className="bg-primary/10 text-primary rounded-2xl px-4 py-3">
-                                    <p className="text-sm font-semibold">${nextIncomeInfo.rule.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })} entrarán a {nextIncomeInfo.rule.account}</p>
+                                    <p className="text-sm font-semibold">{currencySymbol}{nextIncomeInfo.rule.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })} entrarán a {nextIncomeInfo.rule.account}</p>
                                     <p className="text-xs opacity-80">Fecha estimada: {format(nextIncomeInfo.date, "EEEE d 'de' MMMM", { locale: es })}</p>
                                 </div>
                             </>
@@ -619,7 +611,7 @@ export default function Dashboard() {
                                 <div>
                                     <p className="text-text-muted dark:text-dark-muted text-xs mb-1 font-medium">{acc.name}</p>
                                     <p className="text-text-main dark:text-white text-xl font-bold tracking-tight">**** {acc.lastFour}</p>
-                                    <p className="text-text-main dark:text-white text-lg font-medium mt-2">${acc.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                                    <p className="text-text-main dark:text-white text-lg font-medium mt-2">{currencySymbol}{acc.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
                                 </div>
                             </div>
                         ))}

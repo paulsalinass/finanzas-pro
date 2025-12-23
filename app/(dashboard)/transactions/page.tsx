@@ -88,7 +88,7 @@ export default function Transactions() {
 
             return matchesSearch && matchesType && matchesCategory && matchesDate;
         });
-    }, [transactions, search, activeType, selectedCategories]);
+    }, [transactions, search, activeType, selectedCategories, dateRange]);
 
     // Agrupación por fechas
     const groupedTransactions = useMemo(() => {
