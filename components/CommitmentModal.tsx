@@ -34,41 +34,53 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
 
     // Populate form on open
     useEffect(() => {
-        if (isOpen) {
-            if (commitmentToEdit) {
-                setName(commitmentToEdit.name);
-                setAmount(commitmentToEdit.amount.toString());
-                setFrequency(commitmentToEdit.frequency);
-                setType(commitmentToEdit.type || 'FIXED');
-                setStatus(commitmentToEdit.status || 'PENDING');
-                setTransactionType(commitmentToEdit.transaction_type || 'EXPENSE');
+        if (!isOpen) return; // Only run when opening
 
-                // Format date for input type="date"
-                const dueDate = commitmentToEdit.nextDueDate ? new Date(commitmentToEdit.nextDueDate).toISOString().split('T')[0] : '';
-                setNextDueDate(dueDate);
+        if (commitmentToEdit) {
+            setName(commitmentToEdit.name);
+            setAmount(commitmentToEdit.amount.toString());
+            setFrequency(commitmentToEdit.frequency);
+            setType(commitmentToEdit.type || 'FIXED');
+            setStatus(commitmentToEdit.status || 'PENDING');
+            setTransactionType(commitmentToEdit.transaction_type || 'EXPENSE');
 
-                const endD = commitmentToEdit.endDate ? new Date(commitmentToEdit.endDate).toISOString().split('T')[0] : '';
-                setEndDate(endD);
+            // Format date for input type="date"
+            const dueDate = commitmentToEdit.nextDueDate ? new Date(commitmentToEdit.nextDueDate).toISOString().split('T')[0] : '';
+            setNextDueDate(dueDate);
 
-                setCategoryId(commitmentToEdit.categoryId || categories.find(c => c.name === commitmentToEdit.category)?.id || '');
-                setAccountId(commitmentToEdit.accountId || accounts.find(a => a.name === commitmentToEdit.account)?.id || '');
-                setIsActive(commitmentToEdit.isActive ?? true);
-            } else {
-                // Reset for new
-                setName('');
-                setAmount('');
-                setFrequency('MONTHLY');
-                setType('FIXED');
-                setStatus('PENDING');
-                setTransactionType('EXPENSE');
-                setNextDueDate(new Date().toISOString().split('T')[0]);
-                setEndDate('');
-                setCategoryId('');
-                setAccountId(accounts[0]?.id || '');
-                setIsActive(true);
-            }
+            const endD = commitmentToEdit.endDate ? new Date(commitmentToEdit.endDate).toISOString().split('T')[0] : '';
+            setEndDate(endD);
+
+            setCategoryId(commitmentToEdit.categoryId || categories.find(c => c.name === commitmentToEdit.category)?.id || '');
+            setAccountId(commitmentToEdit.accountId || accounts.find(a => a.name === commitmentToEdit.account)?.id || '');
+            setIsActive(commitmentToEdit.isActive ?? true);
+        } else {
+            // Only reset if we are NOT already editing (prevent clearing on minor re-renders if logic was flaky, but mostly focus on open)
+            // Actually, we just want to set defaults for NEW.
+            // Problem: If I type, and this effect runs again, it wipes it.
+            // Solution: This effect should ONLY run when `isOpen` changes.
+            // But we need `commitmentToEdit` in deps.
+            // We can check if we have already initialized? No, simpler to trust dependencies but ensure parent doesn't unstable-ref `commitmentToEdit`.
+            // Better: Only reset if `name` is empty? No.
+            // Best: Split into two effects or use a ref tracking previous `isOpen`. 
+            // OR simply remove `accounts` and `categories` from deps? 
+            // If they load late, we might miss setting initial IDs.
+            // But for 'New', we set defaults.
+
+            // Let's go with the standard pattern:
+            setName('');
+            setAmount('');
+            setFrequency('MONTHLY');
+            setType('FIXED');
+            setStatus('PENDING');
+            setTransactionType('EXPENSE');
+            setNextDueDate(new Date().toISOString().split('T')[0]);
+            setEndDate('');
+            setCategoryId('');
+            setAccountId(accounts[0]?.id || '');
+            setIsActive(true);
         }
-    }, [isOpen, commitmentToEdit, accounts, categories]);
+    }, [isOpen, commitmentToEdit]); // Removed accounts/categories to prevent reset on background fetch
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -149,7 +161,7 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
 
     return (
         <div
-            className="fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in transition-[left] duration-300"
+            className="fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in transition-[left] duration-300"
             onClick={onClose}
         >
             <div
@@ -202,7 +214,6 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                                 onChange={(e) => setName(e.target.value)}
                                 className="w-full bg-white dark:bg-[#252b36] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/50 transition-all dark:text-white"
                                 placeholder="Ej. Netflix Premium"
-                                autoFocus
                             />
                         </div>
 

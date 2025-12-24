@@ -89,7 +89,8 @@ export default function Dashboard() {
     }, [today]);
 
     const currencySymbol = React.useMemo(() => {
-        return ledgers.find(l => l.id === activeBookId)?.currency || '$';
+        const curr = ledgers.find(l => l.id === activeBookId)?.currency || 'PEN';
+        return curr === 'PEN' ? 'S/' : (curr === 'USD' ? '$' : curr);
     }, [ledgers, activeBookId]);
 
     const handleTabClick = (tab: string) => {
@@ -147,6 +148,22 @@ export default function Dashboard() {
             return sum;
         }, 0);
     }, [transactions, currentMonthStart, currentMonthEnd]);
+
+    // Calculate "Total Planeado" (Budgeted) to match Budgets Page
+    const totalPlannedBudget = React.useMemo(() => {
+        // Just sum the limits of active budgets. 
+        // This matches the "Total Planned" on the Budgets page.
+        // We do typically assume these are Monthly limits.
+        // If the date range is multiple months, the Budgets page currently shows just the single month limit,
+        // so we mirror that behavior here to ensure consistency as requested ("jalar el dato de la pagina Presupuestos").
+        return budgets
+            .filter(b => b.period === 'MONTHLY')
+            .reduce((sum, b) => sum + b.limit, 0);
+    }, [budgets]);
+
+    const calculatedSaldo = totalPlannedBudget - monthlyExpense;
+    // Determine trend (positive if under budget / positive saldo)
+    const saldoTrendPositive = calculatedSaldo >= 0;
 
     const currentMonthIncome = React.useMemo(() => {
         return transactions.reduce((sum, t) => {
@@ -350,10 +367,11 @@ export default function Dashboard() {
                             <span className="material-symbols-outlined text-7xl">account_balance_wallet</span>
                         </div>
                         <div className="flex flex-col gap-1 z-10">
-                            <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Saldo Total</p>
+                            <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Saldo Total (Presupuesto Restante)</p>
                             <div className="flex items-center gap-2">
                                 <p className={`text-text-main dark:text-white text-3xl font-bold tracking-tight transition-all duration-300 ${!showBalance && 'blur-md select-none'}`}>
-                                    {currencySymbol}{balanceAtEndOfRange.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                    <span className="text-lg align-baseline mr-0.5">{currencySymbol}</span>
+                                    {calculatedSaldo.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </p>
                                 <button
                                     onClick={() => setShowBalance(!showBalance)}
@@ -364,11 +382,11 @@ export default function Dashboard() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2 mt-4 z-10">
-                            <div className="bg-success/10 px-2 py-0.5 rounded-md border border-success/20 flex items-center gap-1">
-                                <span className="material-symbols-outlined text-success text-[14px]">trending_up</span>
-                                <span className="text-success text-xs font-bold">+2.5%</span>
+                            <div className={`${saldoTrendPositive ? 'bg-success/10 border-success/20 text-success' : 'bg-danger/10 border-danger/20 text-danger'} px-2 py-0.5 rounded-md border flex items-center gap-1`}>
+                                <span className="material-symbols-outlined text-[14px]">trending_up</span>
+                                <span className="text-xs font-bold">{saldoTrendPositive ? 'En presupuesto' : 'Sobrepasado'}</span>
                             </div>
-                            <p className="text-text-light dark:text-dark-muted/60 text-xs font-medium">vs mes anterior</p>
+                            <p className="text-text-light dark:text-dark-muted/60 text-xs font-medium">vs periodo anterior</p>
                         </div>
                     </div>
                     <div className="glass-card rounded-3xl p-6 flex flex-col justify-between min-h-[160px] relative group hover:shadow-soft transition-all duration-300">
@@ -378,7 +396,10 @@ export default function Dashboard() {
                             </div>
                             <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Ingresos</p>
                         </div>
-                        <p className="text-text-main dark:text-white text-3xl font-bold tracking-tight">{currencySymbol}{monthlyIncome.toLocaleString()}</p>
+                        <p className="text-text-main dark:text-white text-3xl font-bold tracking-tight">
+                            <span className="text-lg align-baseline mr-0.5">{currencySymbol}</span>
+                            {monthlyIncome.toLocaleString()}
+                        </p>
                         <div className="flex items-center gap-2 mt-4">
                             <span className="text-success text-sm font-medium">+12%</span>
                             <p className="text-text-light dark:text-dark-muted/60 text-xs font-medium shrink-0">que lo habitual</p>
@@ -394,7 +415,10 @@ export default function Dashboard() {
                             </div>
                             <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Gastos</p>
                         </div>
-                        <p className="text-text-main dark:text-white text-3xl font-bold tracking-tight">{currencySymbol}{monthlyExpense.toLocaleString()}</p>
+                        <p className="text-text-main dark:text-white text-3xl font-bold tracking-tight">
+                            <span className="text-lg align-baseline mr-0.5">{currencySymbol}</span>
+                            {monthlyExpense.toLocaleString()}
+                        </p>
                         <div className="flex items-center gap-2 mt-4">
                             <span className="text-danger text-sm font-medium">-5%</span>
                             <p className="text-text-light dark:text-dark-muted/60 text-xs font-medium shrink-0">ahorro vs promedio</p>
@@ -475,7 +499,9 @@ export default function Dashboard() {
                                             </div>
                                             <div className="flex flex-col items-end">
                                                 <p className={`text-sm font-bold ${t.type === 'INCOME' ? 'text-success' : 'text-text-main dark:text-white'}`}>
-                                                    {t.type === 'EXPENSE' ? '-' : '+'}{currencySymbol}{t.amount.toFixed(2)}
+                                                    {t.type === 'EXPENSE' ? '-' : '+'}
+                                                    <span className="text-xs align-baseline mr-0.5">{currencySymbol}</span>
+                                                    {t.amount.toFixed(2)}
                                                 </p>
                                                 <p className="text-text-light dark:text-dark-muted text-[10px] font-medium">Hoy</p>
                                             </div>
@@ -496,7 +522,10 @@ export default function Dashboard() {
                             </div>
                             <div className="text-right">
                                 <p className="text-sm font-semibold text-text-muted dark:text-dark-muted/70">Gastado</p>
-                                <p className="text-2xl font-bold text-primary">{currencySymbol}{currentMonthExpenses.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
+                                <p className="text-2xl font-bold text-primary">
+                                    <span className="text-lg align-baseline mr-0.5">{currencySymbol}</span>
+                                    {currentMonthExpenses.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                </p>
                             </div>
                         </div>
                         <div>
@@ -557,7 +586,10 @@ export default function Dashboard() {
                                             <p className="text-xs text-text-muted dark:text-dark-muted">{bill.dueDateObj ? format(bill.dueDateObj, "EEE d 'de' MMM", { locale: es }) : 'Sin fecha'}</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-base font-bold text-text-main dark:text-white">{currencySymbol}{bill.amount.toFixed(2)}</p>
+                                            <p className="text-base font-bold text-text-main dark:text-white">
+                                                <span className="text-xs align-baseline mr-0.5">{currencySymbol}</span>
+                                                {bill.amount.toFixed(2)}
+                                            </p>
                                             <p className="text-[10px] text-primary font-semibold uppercase tracking-widest">{bill.frequency}</p>
                                         </div>
                                     </div>
@@ -611,7 +643,10 @@ export default function Dashboard() {
                                 <div>
                                     <p className="text-text-muted dark:text-dark-muted text-xs mb-1 font-medium">{acc.name}</p>
                                     <p className="text-text-main dark:text-white text-xl font-bold tracking-tight">**** {acc.lastFour}</p>
-                                    <p className="text-text-main dark:text-white text-lg font-medium mt-2">{currencySymbol}{acc.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                                    <p className="text-text-main dark:text-white text-lg font-medium mt-2">
+                                        <span className="text-sm align-baseline mr-0.5">{currencySymbol}</span>
+                                        {acc.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                    </p>
                                 </div>
                             </div>
                         ))}

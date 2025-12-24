@@ -416,13 +416,33 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       location_text: t.location,
       notes: t.notes,
       beneficiary: t.beneficiary,
-      frequency: t.frequency // Save frequency to transaction
+      frequency: t.frequency, // Save frequency to transaction
+      commitment_id: t.commitment_id // Save commitment link
     }).select().single();
 
     if (error) {
       console.error("Error creating transaction:", error);
       alert("Error al guardar: " + error.message);
       return;
+    }
+
+    // Update Account Balance manually since no triggers exist
+    if (account) {
+      let newBalance = Number(account.balance);
+      if (t.type === 'INCOME') {
+        newBalance += Number(t.amount);
+      } else {
+        newBalance -= Number(t.amount);
+      }
+
+      const { error: accError } = await supabase
+        .from('accounts')
+        .update({ balance: newBalance })
+        .eq('id', accountId);
+
+      if (accError) {
+        console.error("Error updating account balance:", accError);
+      }
     }
 
     // Create Recurring Rule if needed
@@ -643,12 +663,55 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
   };
 
   const deleteTransaction = async (id: string) => {
+    // 1. Fetch transaction details to revert balance
+    const { data: transaction } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('id', id)
+      .single();
+
     const { error } = await supabase.from('transactions').delete().eq('id', id);
     if (error) {
       console.error("Error deleting transaction:", error);
       alert("Error deleting transaction: " + error.message);
       return;
     }
+
+    // 2. Revert Balance
+    if (transaction && transaction.account_id) {
+      const { data: account } = await supabase
+        .from('accounts')
+        .select('balance')
+        .eq('id', transaction.account_id)
+        .single();
+
+      if (account) {
+        let newBalance = Number(account.balance);
+        // Inverse logic: Deleting Income -> Remove money (Subtract)
+        // Inverse logic: Deleting Expense -> Give back money (Add)
+        if (transaction.type === 'INCOME') {
+          newBalance -= Number(transaction.amount);
+        } else {
+          newBalance += Number(transaction.amount);
+        }
+
+        await supabase
+          .from('accounts')
+          .update({ balance: newBalance })
+          .eq('id', transaction.account_id);
+      }
+    }
+
+    // 3. Update Commitment Status if linked
+    if (transaction && transaction.commitment_id) {
+      await supabase
+        .from('commitments')
+        .update({ status: 'PENDING' })
+        .eq('id', transaction.commitment_id);
+
+      fetchCommitments(activeBookId);
+    }
+
     if (activeBookId) {
       fetchTransactions(activeBookId);
       fetchAccounts(activeBookId);
@@ -709,7 +772,76 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const toggleCommitmentStatus = async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === 'PAID' ? 'PENDING' : 'PAID';
+
+    // Optimistic update
     await updateCommitment(id, { status: newStatus as any });
+
+    // If marking as PAID, generate the transaction
+    if (newStatus === 'PAID') {
+      const commitment = commitments.find(c => c.id === id);
+      if (commitment) {
+        const transactionData: any = {
+          book_id: activeBookId,
+          amount: commitment.amount,
+          type: commitment.transaction_type || 'EXPENSE', // Fallback to expense if not set
+          account: commitment.account, // Name is used by addTransaction
+          account_id: commitment.accountId, // Pass ID if available for precision
+          category: commitment.category,
+          category_id: commitment.categoryId,
+          description: `[Compromiso] ${commitment.name}`,
+          date: new Date().toISOString(),
+          notes: 'Generado automáticamente desde Compromisos',
+          commitment_id: id // Link back to commitment
+        };
+
+        await addTransaction(transactionData);
+        // Toast or feedback could go here
+
+        // Generate Next Occurrence for Recurring Commitments
+        if (commitment.frequency) {
+          const currentDate = new Date(commitment.nextDueDate);
+          // Ensure valid date
+          if (!isNaN(currentDate.getTime())) {
+            const nextDate = new Date(currentDate);
+
+            // Add time based on frequency (using UTC-safe or local logic? standard JS methods use local)
+            // Just basic iteration:
+            switch (commitment.frequency) {
+              case 'DAILY': nextDate.setDate(nextDate.getDate() + 1); break;
+              case 'WEEKLY': nextDate.setDate(nextDate.getDate() + 7); break;
+              case 'BIWEEKLY': nextDate.setDate(nextDate.getDate() + 14); break;
+              case 'MONTHLY': nextDate.setMonth(nextDate.getMonth() + 1); break;
+              case 'QUARTERLY': nextDate.setMonth(nextDate.getMonth() + 3); break;
+              case 'SEMIANNUAL': nextDate.setMonth(nextDate.getMonth() + 6); break;
+              case 'ANNUAL': nextDate.setFullYear(nextDate.getFullYear() + 1); break;
+            }
+
+            // Check End Date
+            const hasEndDate = commitment.endDate && commitment.endDate.trim() !== '';
+            const isAfterEnd = hasEndDate && new Date(commitment.endDate!) < nextDate;
+
+            if (!isAfterEnd) {
+              // Create the next commitment
+              // We omit 'id' effectively by constructing a new object.
+              // We pass the new calculated date.
+              const nextCommitment = {
+                ...commitment,
+                // Reset status to PENDING for the new one
+                status: 'PENDING' as const,
+                nextDueDate: nextDate.toISOString(),
+                // Keep the rest (name, amount, etc)
+              };
+
+              // Remove IDs from the spread object to avoid TS issues if possible, 
+              // but addCommitment accepts Omit<Commitment, 'id'>. 
+              // We can cast or just rely on addCommitment implementation ignoring them.
+              // Let's rely on addCommitment implementation which constructs payload explicitly.
+              await addCommitment(nextCommitment);
+            }
+          }
+        }
+      }
+    }
   };
 
   const toggleRuleStatus = (id: string) => {

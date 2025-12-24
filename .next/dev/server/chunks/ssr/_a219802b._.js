@@ -28,43 +28,51 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
     const [isActive, setIsActive] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
     // Populate form on open
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        if (isOpen) {
-            if (commitmentToEdit) {
-                setName(commitmentToEdit.name);
-                setAmount(commitmentToEdit.amount.toString());
-                setFrequency(commitmentToEdit.frequency);
-                setType(commitmentToEdit.type || 'FIXED');
-                setStatus(commitmentToEdit.status || 'PENDING');
-                setTransactionType(commitmentToEdit.transaction_type || 'EXPENSE');
-                // Format date for input type="date"
-                const dueDate = commitmentToEdit.nextDueDate ? new Date(commitmentToEdit.nextDueDate).toISOString().split('T')[0] : '';
-                setNextDueDate(dueDate);
-                const endD = commitmentToEdit.endDate ? new Date(commitmentToEdit.endDate).toISOString().split('T')[0] : '';
-                setEndDate(endD);
-                setCategoryId(commitmentToEdit.categoryId || categories.find((c)=>c.name === commitmentToEdit.category)?.id || '');
-                setAccountId(commitmentToEdit.accountId || accounts.find((a)=>a.name === commitmentToEdit.account)?.id || '');
-                setIsActive(commitmentToEdit.isActive ?? true);
-            } else {
-                // Reset for new
-                setName('');
-                setAmount('');
-                setFrequency('MONTHLY');
-                setType('FIXED');
-                setStatus('PENDING');
-                setTransactionType('EXPENSE');
-                setNextDueDate(new Date().toISOString().split('T')[0]);
-                setEndDate('');
-                setCategoryId('');
-                setAccountId(accounts[0]?.id || '');
-                setIsActive(true);
-            }
+        if (!isOpen) return; // Only run when opening
+        if (commitmentToEdit) {
+            setName(commitmentToEdit.name);
+            setAmount(commitmentToEdit.amount.toString());
+            setFrequency(commitmentToEdit.frequency);
+            setType(commitmentToEdit.type || 'FIXED');
+            setStatus(commitmentToEdit.status || 'PENDING');
+            setTransactionType(commitmentToEdit.transaction_type || 'EXPENSE');
+            // Format date for input type="date"
+            const dueDate = commitmentToEdit.nextDueDate ? new Date(commitmentToEdit.nextDueDate).toISOString().split('T')[0] : '';
+            setNextDueDate(dueDate);
+            const endD = commitmentToEdit.endDate ? new Date(commitmentToEdit.endDate).toISOString().split('T')[0] : '';
+            setEndDate(endD);
+            setCategoryId(commitmentToEdit.categoryId || categories.find((c)=>c.name === commitmentToEdit.category)?.id || '');
+            setAccountId(commitmentToEdit.accountId || accounts.find((a)=>a.name === commitmentToEdit.account)?.id || '');
+            setIsActive(commitmentToEdit.isActive ?? true);
+        } else {
+            // Only reset if we are NOT already editing (prevent clearing on minor re-renders if logic was flaky, but mostly focus on open)
+            // Actually, we just want to set defaults for NEW.
+            // Problem: If I type, and this effect runs again, it wipes it.
+            // Solution: This effect should ONLY run when `isOpen` changes.
+            // But we need `commitmentToEdit` in deps.
+            // We can check if we have already initialized? No, simpler to trust dependencies but ensure parent doesn't unstable-ref `commitmentToEdit`.
+            // Better: Only reset if `name` is empty? No.
+            // Best: Split into two effects or use a ref tracking previous `isOpen`. 
+            // OR simply remove `accounts` and `categories` from deps? 
+            // If they load late, we might miss setting initial IDs.
+            // But for 'New', we set defaults.
+            // Let's go with the standard pattern:
+            setName('');
+            setAmount('');
+            setFrequency('MONTHLY');
+            setType('FIXED');
+            setStatus('PENDING');
+            setTransactionType('EXPENSE');
+            setNextDueDate(new Date().toISOString().split('T')[0]);
+            setEndDate('');
+            setCategoryId('');
+            setAccountId(accounts[0]?.id || '');
+            setIsActive(true);
         }
     }, [
         isOpen,
-        commitmentToEdit,
-        accounts,
-        categories
-    ]);
+        commitmentToEdit
+    ]); // Removed accounts/categories to prevent reset on background fetch
     const handleSubmit = async (e)=>{
         e.preventDefault();
         const numAmount = parseFloat(amount);
@@ -137,7 +145,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
     const categoryName = categories.find((c)=>c.id === categoryId)?.name || '...';
     const startDateFormatted = nextDueDate ? new Date(nextDueDate).toLocaleDateString('es-ES') : '...';
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in transition-[left] duration-300",
+        className: "fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in transition-[left] duration-300",
         onClick: onClose,
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "bg-white dark:bg-[#1e2530] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]",
@@ -153,7 +161,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                     children: commitmentToEdit ? 'Editar Compromiso' : 'Nuevo Compromiso'
                                 }, void 0, false, {
                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                    lineNumber: 162,
+                                    lineNumber: 174,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -161,13 +169,13 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                     children: "Configura los detalles de tus transacciones automáticas."
                                 }, void 0, false, {
                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                    lineNumber: 165,
+                                    lineNumber: 177,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/CommitmentModal.tsx",
-                            lineNumber: 161,
+                            lineNumber: 173,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -178,18 +186,18 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                 children: "close"
                             }, void 0, false, {
                                 fileName: "[project]/components/CommitmentModal.tsx",
-                                lineNumber: 168,
+                                lineNumber: 180,
                                 columnNumber: 25
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/components/CommitmentModal.tsx",
-                            lineNumber: 167,
+                            lineNumber: 179,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/CommitmentModal.tsx",
-                    lineNumber: 160,
+                    lineNumber: 172,
                     columnNumber: 17
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -208,7 +216,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                         children: "Ingreso"
                                     }, void 0, false, {
                                         fileName: "[project]/components/CommitmentModal.tsx",
-                                        lineNumber: 177,
+                                        lineNumber: 189,
                                         columnNumber: 29
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -218,18 +226,18 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                         children: "Gasto"
                                     }, void 0, false, {
                                         fileName: "[project]/components/CommitmentModal.tsx",
-                                        lineNumber: 184,
+                                        lineNumber: 196,
                                         columnNumber: 29
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/CommitmentModal.tsx",
-                                lineNumber: 176,
+                                lineNumber: 188,
                                 columnNumber: 25
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/components/CommitmentModal.tsx",
-                            lineNumber: 175,
+                            lineNumber: 187,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -243,7 +251,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                             children: "Nombre del Compromiso"
                                         }, void 0, false, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 198,
+                                            lineNumber: 210,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -251,17 +259,16 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                             value: name,
                                             onChange: (e)=>setName(e.target.value),
                                             className: "w-full bg-white dark:bg-[#252b36] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/50 transition-all dark:text-white",
-                                            placeholder: "Ej. Netflix Premium",
-                                            autoFocus: true
+                                            placeholder: "Ej. Netflix Premium"
                                         }, void 0, false, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 199,
+                                            lineNumber: 211,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                    lineNumber: 197,
+                                    lineNumber: 209,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -272,7 +279,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                             children: "Monto"
                                         }, void 0, false, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 211,
+                                            lineNumber: 222,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -283,7 +290,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                     children: currencySymbol
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                    lineNumber: 213,
+                                                    lineNumber: 224,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -294,19 +301,19 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                     placeholder: "0.00"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                    lineNumber: 214,
+                                                    lineNumber: 225,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 212,
+                                            lineNumber: 223,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                    lineNumber: 210,
+                                    lineNumber: 221,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -317,7 +324,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                             children: "Frecuencia"
                                         }, void 0, false, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 226,
+                                            lineNumber: 237,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -330,7 +337,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                             children: "Repetir cada"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                            lineNumber: 231,
+                                                            lineNumber: 242,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -343,7 +350,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                     className: "w-16 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-3 text-center outline-none text-gray-500 cursor-not-allowed"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                                    lineNumber: 233,
+                                                                    lineNumber: 244,
                                                                     columnNumber: 41
                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -356,7 +363,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                             children: "Semana(s)"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                                            lineNumber: 244,
+                                                                            lineNumber: 255,
                                                                             columnNumber: 45
                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -364,7 +371,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                             children: "Quincena(s)"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                                            lineNumber: 245,
+                                                                            lineNumber: 256,
                                                                             columnNumber: 45
                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -372,7 +379,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                             children: "Mes(es)"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                                            lineNumber: 246,
+                                                                            lineNumber: 257,
                                                                             columnNumber: 45
                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -380,7 +387,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                             children: "Trimestre(s)"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                                            lineNumber: 247,
+                                                                            lineNumber: 258,
                                                                             columnNumber: 45
                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -388,7 +395,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                             children: "Semestre(s)"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                                            lineNumber: 248,
+                                                                            lineNumber: 259,
                                                                             columnNumber: 45
                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -396,25 +403,25 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                             children: "Año(s)"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                                            lineNumber: 249,
+                                                                            lineNumber: 260,
                                                                             columnNumber: 45
                                                                         }, ("TURBOPACK compile-time value", void 0))
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                                    lineNumber: 239,
+                                                                    lineNumber: 250,
                                                                     columnNumber: 41
                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                            lineNumber: 232,
+                                                            lineNumber: 243,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                    lineNumber: 230,
+                                                    lineNumber: 241,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -424,7 +431,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                             children: "Próxima ocurrencia"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                            lineNumber: 256,
+                                                            lineNumber: 267,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -437,7 +444,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                     className: "w-full bg-white dark:bg-[#252b36] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/50 transition-all dark:text-white"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                                    lineNumber: 258,
+                                                                    lineNumber: 269,
                                                                     columnNumber: 41
                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -447,30 +454,30 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                         children: "calendar_today"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/CommitmentModal.tsx",
-                                                                        lineNumber: 265,
+                                                                        lineNumber: 276,
                                                                         columnNumber: 45
                                                                     }, ("TURBOPACK compile-time value", void 0))
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                                    lineNumber: 264,
+                                                                    lineNumber: 275,
                                                                     columnNumber: 41
                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                            lineNumber: 257,
+                                                            lineNumber: 268,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                    lineNumber: 255,
+                                                    lineNumber: 266,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 228,
+                                            lineNumber: 239,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -484,12 +491,12 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                         className: `absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${endDate ? 'translate-x-5' : ''}`
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/CommitmentModal.tsx",
-                                                        lineNumber: 278,
+                                                        lineNumber: 289,
                                                         columnNumber: 37
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                    lineNumber: 273,
+                                                    lineNumber: 284,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -497,13 +504,13 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                     children: "Terminar después de una fecha"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                    lineNumber: 280,
+                                                    lineNumber: 291,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 272,
+                                            lineNumber: 283,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         endDate && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -514,7 +521,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                     children: "Fecha de Finalización"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                    lineNumber: 285,
+                                                    lineNumber: 296,
                                                     columnNumber: 37
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -524,19 +531,19 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                     className: "w-full md:w-1/2 bg-white dark:bg-[#252b36] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/50 transition-all dark:text-white"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                    lineNumber: 286,
+                                                    lineNumber: 297,
                                                     columnNumber: 37
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 284,
+                                            lineNumber: 295,
                                             columnNumber: 33
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                    lineNumber: 225,
+                                    lineNumber: 236,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -547,7 +554,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                             children: "Clasificación"
                                         }, void 0, false, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 298,
+                                            lineNumber: 309,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -560,7 +567,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                             children: "Cuenta"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                            lineNumber: 303,
+                                                            lineNumber: 314,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -571,7 +578,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                     children: "account_balance_wallet"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                                    lineNumber: 305,
+                                                                    lineNumber: 316,
                                                                     columnNumber: 41
                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -584,7 +591,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                             children: "Seleccionar Cuenta"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                                            lineNumber: 311,
+                                                                            lineNumber: 322,
                                                                             columnNumber: 45
                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                         accounts.map((acc)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -592,13 +599,13 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                                 children: acc.name
                                                                             }, acc.id, false, {
                                                                                 fileName: "[project]/components/CommitmentModal.tsx",
-                                                                                lineNumber: 313,
+                                                                                lineNumber: 324,
                                                                                 columnNumber: 49
                                                                             }, ("TURBOPACK compile-time value", void 0)))
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                                    lineNumber: 306,
+                                                                    lineNumber: 317,
                                                                     columnNumber: 41
                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -606,19 +613,19 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                     children: "expand_more"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                                    lineNumber: 316,
+                                                                    lineNumber: 327,
                                                                     columnNumber: 41
                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                            lineNumber: 304,
+                                                            lineNumber: 315,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                    lineNumber: 302,
+                                                    lineNumber: 313,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -628,7 +635,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                             children: "Categoría"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                            lineNumber: 322,
+                                                            lineNumber: 333,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -639,7 +646,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                     children: "category"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                                    lineNumber: 324,
+                                                                    lineNumber: 335,
                                                                     columnNumber: 41
                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -652,7 +659,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                             children: "Seleccionar Categoría"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                                            lineNumber: 330,
+                                                                            lineNumber: 341,
                                                                             columnNumber: 45
                                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                                         categories.map((cat)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -660,13 +667,13 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                                 children: cat.name
                                                                             }, cat.id, false, {
                                                                                 fileName: "[project]/components/CommitmentModal.tsx",
-                                                                                lineNumber: 332,
+                                                                                lineNumber: 343,
                                                                                 columnNumber: 49
                                                                             }, ("TURBOPACK compile-time value", void 0)))
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                                    lineNumber: 325,
+                                                                    lineNumber: 336,
                                                                     columnNumber: 41
                                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -674,37 +681,37 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                                                     children: "expand_more"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                                    lineNumber: 335,
+                                                                    lineNumber: 346,
                                                                     columnNumber: 41
                                                                 }, ("TURBOPACK compile-time value", void 0))
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                                            lineNumber: 323,
+                                                            lineNumber: 334,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                                    lineNumber: 321,
+                                                    lineNumber: 332,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 300,
+                                            lineNumber: 311,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                    lineNumber: 297,
+                                    lineNumber: 308,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/CommitmentModal.tsx",
-                            lineNumber: 194,
+                            lineNumber: 206,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -715,7 +722,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                     children: "info"
                                 }, void 0, false, {
                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                    lineNumber: 355,
+                                    lineNumber: 366,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -725,7 +732,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                             children: "Resumen:"
                                         }, void 0, false, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 357,
+                                            lineNumber: 368,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         " Se registrará un ",
@@ -734,7 +741,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                             children: transactionType === 'INCOME' ? 'Ingreso' : 'Gasto'
                                         }, void 0, false, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 357,
+                                            lineNumber: 368,
                                             columnNumber: 90
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         " de ",
@@ -746,7 +753,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 357,
+                                            lineNumber: 368,
                                             columnNumber: 181
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         " para ",
@@ -755,7 +762,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                             children: name || '...'
                                         }, void 0, false, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 357,
+                                            lineNumber: 368,
                                             columnNumber: 256
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         " cada ",
@@ -764,7 +771,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                             children: frequencyText
                                         }, void 0, false, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 357,
+                                            lineNumber: 368,
                                             columnNumber: 312
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         ", comenzando el ",
@@ -773,7 +780,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                             children: startDateFormatted
                                         }, void 0, false, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 357,
+                                            lineNumber: 368,
                                             columnNumber: 378
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         " en la cuenta ",
@@ -782,26 +789,26 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                                             children: accountName
                                         }, void 0, false, {
                                             fileName: "[project]/components/CommitmentModal.tsx",
-                                            lineNumber: 357,
+                                            lineNumber: 368,
                                             columnNumber: 447
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         "."
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/CommitmentModal.tsx",
-                                    lineNumber: 356,
+                                    lineNumber: 367,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/CommitmentModal.tsx",
-                            lineNumber: 354,
+                            lineNumber: 365,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/CommitmentModal.tsx",
-                    lineNumber: 172,
+                    lineNumber: 184,
                     columnNumber: 17
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -814,7 +821,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                             children: "Cancelar"
                         }, void 0, false, {
                             fileName: "[project]/components/CommitmentModal.tsx",
-                            lineNumber: 365,
+                            lineNumber: 376,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -823,24 +830,24 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
                             children: commitmentToEdit ? 'Guardar Cambios' : 'Crear Compromiso'
                         }, void 0, false, {
                             fileName: "[project]/components/CommitmentModal.tsx",
-                            lineNumber: 372,
+                            lineNumber: 383,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/CommitmentModal.tsx",
-                    lineNumber: 364,
+                    lineNumber: 375,
                     columnNumber: 17
                 }, ("TURBOPACK compile-time value", void 0))
             ]
         }, void 0, true, {
             fileName: "[project]/components/CommitmentModal.tsx",
-            lineNumber: 155,
+            lineNumber: 167,
             columnNumber: 13
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/components/CommitmentModal.tsx",
-        lineNumber: 151,
+        lineNumber: 163,
         columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };
@@ -1555,7 +1562,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$DateRangeModal
 ;
 function Commitments() {
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRouter"])();
-    const { commitments, toggleCommitmentStatus, ledgers, activeBookId } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$FinanceContext$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useFinance"])();
+    const { commitments, toggleCommitmentStatus, deleteCommitment, ledgers, activeBookId } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$FinanceContext$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useFinance"])();
     const activeLedger = ledgers.find((l)=>l.id === activeBookId);
     const currencyCode = activeLedger?.currency || 'USD';
     const currencySymbol = currencyCode === 'PEN' ? 'S/.' : currencyCode === 'EUR' ? '€' : '$';
@@ -1575,6 +1582,11 @@ function Commitments() {
     const handleEdit = (commitment)=>{
         setEditingCommitment(commitment);
         setIsModalOpen(true);
+    };
+    const handleDelete = async (id)=>{
+        if (window.confirm('¿Estás seguro de que deseas eliminar este compromiso?')) {
+            await deleteCommitment(id);
+        }
     };
     const handleDateApply = (start, end)=>{
         setDateRange({
@@ -1644,12 +1656,12 @@ function Commitments() {
                                                 children: "Compromisos y Gastos Fijos"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 101,
+                                                lineNumber: 107,
                                                 columnNumber: 33
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 100,
+                                            lineNumber: 106,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1657,13 +1669,13 @@ function Commitments() {
                                             children: "Planifica y controla tus pagos recurrentes sin estrés."
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 103,
+                                            lineNumber: 109,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 99,
+                                    lineNumber: 105,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1678,7 +1690,7 @@ function Commitments() {
                                                     children: "calendar_month"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 107,
+                                                    lineNumber: 113,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1689,7 +1701,7 @@ function Commitments() {
                                                     }) : 'Ver Calendario'
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 108,
+                                                    lineNumber: 114,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1697,13 +1709,13 @@ function Commitments() {
                                                     children: "arrow_drop_down"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 109,
+                                                    lineNumber: 115,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 106,
+                                            lineNumber: 112,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1715,32 +1727,32 @@ function Commitments() {
                                                     children: "add"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 112,
+                                                    lineNumber: 118,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                     children: "Nuevo Gasto Fijo"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 113,
+                                                    lineNumber: 119,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 111,
+                                            lineNumber: 117,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 105,
+                                    lineNumber: 111,
                                     columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                            lineNumber: 98,
+                            lineNumber: 104,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -1759,12 +1771,12 @@ function Commitments() {
                                                 children: "calendar_clock"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 122,
+                                                lineNumber: 128,
                                                 columnNumber: 33
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 121,
+                                            lineNumber: 127,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1777,12 +1789,12 @@ function Commitments() {
                                                         children: "event_upcoming"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 126,
+                                                        lineNumber: 132,
                                                         columnNumber: 37
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 125,
+                                                    lineNumber: 131,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1790,13 +1802,13 @@ function Commitments() {
                                                     children: "Próximo Pago"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 128,
+                                                    lineNumber: 134,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 124,
+                                            lineNumber: 130,
                                             columnNumber: 29
                                         }, this),
                                         nextPayment ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1813,14 +1825,14 @@ function Commitments() {
                                                                     children: currencySymbol
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 135,
+                                                                    lineNumber: 141,
                                                                     columnNumber: 45
                                                                 }, this),
                                                                 nextPayment.amount.toFixed(2)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 134,
+                                                            lineNumber: 140,
                                                             columnNumber: 41
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1828,13 +1840,13 @@ function Commitments() {
                                                             children: nextPayment.name
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 138,
+                                                            lineNumber: 144,
                                                             columnNumber: 41
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 133,
+                                                    lineNumber: 139,
                                                     columnNumber: 37
                                                 }, this),
                                                 (()=>{
@@ -1862,21 +1874,21 @@ function Commitments() {
                                                                 children: "warning"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                lineNumber: 155,
+                                                                lineNumber: 161,
                                                                 columnNumber: 49
                                                             }, this),
                                                             message
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 154,
+                                                        lineNumber: 160,
                                                         columnNumber: 45
                                                     }, this);
                                                 })()
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 132,
+                                            lineNumber: 138,
                                             columnNumber: 33
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "relative z-10",
@@ -1886,7 +1898,7 @@ function Commitments() {
                                                     children: "¡Todo al día!"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 163,
+                                                    lineNumber: 169,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1894,19 +1906,19 @@ function Commitments() {
                                                     children: "No tienes pagos pendientes próximos."
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 164,
+                                                    lineNumber: 170,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 162,
+                                            lineNumber: 168,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 120,
+                                    lineNumber: 126,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1919,12 +1931,12 @@ function Commitments() {
                                                 children: "account_balance"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 171,
+                                                lineNumber: 177,
                                                 columnNumber: 33
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 170,
+                                            lineNumber: 176,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1937,12 +1949,12 @@ function Commitments() {
                                                         children: "savings"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 175,
+                                                        lineNumber: 181,
                                                         columnNumber: 37
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 174,
+                                                    lineNumber: 180,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1950,13 +1962,13 @@ function Commitments() {
                                                     children: "Total Planificado"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 177,
+                                                    lineNumber: 183,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 173,
+                                            lineNumber: 179,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1969,7 +1981,7 @@ function Commitments() {
                                                             children: currencySymbol
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 181,
+                                                            lineNumber: 187,
                                                             columnNumber: 37
                                                         }, this),
                                                         totalPlanificado.toLocaleString('en-US', {
@@ -1978,7 +1990,7 @@ function Commitments() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 180,
+                                                    lineNumber: 186,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1986,19 +1998,19 @@ function Commitments() {
                                                     children: "Estimación mensual"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 184,
+                                                    lineNumber: 190,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 179,
+                                            lineNumber: 185,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 169,
+                                    lineNumber: 175,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2011,12 +2023,12 @@ function Commitments() {
                                                 children: "check_circle"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 190,
+                                                lineNumber: 196,
                                                 columnNumber: 33
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 189,
+                                            lineNumber: 195,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2029,12 +2041,12 @@ function Commitments() {
                                                         children: "payments"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 194,
+                                                        lineNumber: 200,
                                                         columnNumber: 37
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 193,
+                                                    lineNumber: 199,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2042,13 +2054,13 @@ function Commitments() {
                                                     children: "Ya Pagado"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 196,
+                                                    lineNumber: 202,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 192,
+                                            lineNumber: 198,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2061,7 +2073,7 @@ function Commitments() {
                                                             children: currencySymbol
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 200,
+                                                            lineNumber: 206,
                                                             columnNumber: 37
                                                         }, this),
                                                         yaPagado.toLocaleString('en-US', {
@@ -2070,7 +2082,7 @@ function Commitments() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 199,
+                                                    lineNumber: 205,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2082,12 +2094,12 @@ function Commitments() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 204,
+                                                        lineNumber: 210,
                                                         columnNumber: 37
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 203,
+                                                    lineNumber: 209,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2098,19 +2110,19 @@ function Commitments() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 206,
+                                                    lineNumber: 212,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 198,
+                                            lineNumber: 204,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 188,
+                                    lineNumber: 194,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2123,12 +2135,12 @@ function Commitments() {
                                                 children: "pending_actions"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 212,
+                                                lineNumber: 218,
                                                 columnNumber: 33
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 211,
+                                            lineNumber: 217,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2141,12 +2153,12 @@ function Commitments() {
                                                         children: "hourglass_top"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 216,
+                                                        lineNumber: 222,
                                                         columnNumber: 37
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 215,
+                                                    lineNumber: 221,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2154,13 +2166,13 @@ function Commitments() {
                                                     children: "Por Pagar"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 218,
+                                                    lineNumber: 224,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 214,
+                                            lineNumber: 220,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2173,7 +2185,7 @@ function Commitments() {
                                                             children: currencySymbol
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 222,
+                                                            lineNumber: 228,
                                                             columnNumber: 37
                                                         }, this),
                                                         porPagar.toLocaleString('en-US', {
@@ -2182,7 +2194,7 @@ function Commitments() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 221,
+                                                    lineNumber: 227,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2193,25 +2205,25 @@ function Commitments() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 225,
+                                                    lineNumber: 231,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 220,
+                                            lineNumber: 226,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 210,
+                                    lineNumber: 216,
                                     columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                            lineNumber: 118,
+                            lineNumber: 124,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -2228,7 +2240,7 @@ function Commitments() {
                                             children: "Listado de Compromisos"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 232,
+                                            lineNumber: 238,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2242,7 +2254,7 @@ function Commitments() {
                                                             children: "search"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 236,
+                                                            lineNumber: 242,
                                                             columnNumber: 37
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2253,13 +2265,13 @@ function Commitments() {
                                                             className: "pl-10 pr-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 237,
+                                                            lineNumber: 243,
                                                             columnNumber: 37
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 235,
+                                                    lineNumber: 241,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2271,7 +2283,7 @@ function Commitments() {
                                                             children: "Todos"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 247,
+                                                            lineNumber: 253,
                                                             columnNumber: 37
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2280,7 +2292,7 @@ function Commitments() {
                                                             children: "Pendientes"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 253,
+                                                            lineNumber: 259,
                                                             columnNumber: 37
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2289,25 +2301,25 @@ function Commitments() {
                                                             children: "Completados"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 259,
+                                                            lineNumber: 265,
                                                             columnNumber: 37
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 246,
+                                                    lineNumber: 252,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 234,
+                                            lineNumber: 240,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 231,
+                                    lineNumber: 237,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2324,7 +2336,7 @@ function Commitments() {
                                                             children: "Concepto"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 272,
+                                                            lineNumber: 278,
                                                             columnNumber: 41
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2332,7 +2344,7 @@ function Commitments() {
                                                             children: "Fecha Vencimiento"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 273,
+                                                            lineNumber: 279,
                                                             columnNumber: 41
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2340,7 +2352,7 @@ function Commitments() {
                                                             children: "Monto"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 274,
+                                                            lineNumber: 280,
                                                             columnNumber: 41
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2348,7 +2360,7 @@ function Commitments() {
                                                             children: "Estado"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 275,
+                                                            lineNumber: 281,
                                                             columnNumber: 41
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2356,18 +2368,18 @@ function Commitments() {
                                                             children: "Acción"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 276,
+                                                            lineNumber: 282,
                                                             columnNumber: 41
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 271,
+                                                    lineNumber: 277,
                                                     columnNumber: 37
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 270,
+                                                lineNumber: 276,
                                                 columnNumber: 33
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -2384,7 +2396,7 @@ function Commitments() {
                                                                     children: "event_busy"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 284,
+                                                                    lineNumber: 290,
                                                                     columnNumber: 53
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2392,7 +2404,7 @@ function Commitments() {
                                                                     children: "No se encontraron compromisos en este periodo."
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 285,
+                                                                    lineNumber: 291,
                                                                     columnNumber: 53
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2404,23 +2416,23 @@ function Commitments() {
                                                                     children: "Limpiar Filtros"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 286,
+                                                                    lineNumber: 292,
                                                                     columnNumber: 53
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 283,
+                                                            lineNumber: 289,
                                                             columnNumber: 49
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 282,
+                                                        lineNumber: 288,
                                                         columnNumber: 45
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 281,
+                                                    lineNumber: 287,
                                                     columnNumber: 41
                                                 }, this) : filteredCommitments.map((item)=>{
                                                     // ... existing map
@@ -2442,12 +2454,12 @@ function Commitments() {
                                                                                 children: item.name.toLowerCase().includes('internet') ? 'wifi' : item.name.toLowerCase().includes('spotify') ? 'music_note' : item.name.toLowerCase().includes('alquiler') ? 'home' : 'event_repeat'
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                lineNumber: 305,
+                                                                                lineNumber: 311,
                                                                                 columnNumber: 65
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 303,
+                                                                            lineNumber: 309,
                                                                             columnNumber: 61
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2457,7 +2469,7 @@ function Commitments() {
                                                                                     children: item.name
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                    lineNumber: 312,
+                                                                                    lineNumber: 318,
                                                                                     columnNumber: 65
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2465,24 +2477,24 @@ function Commitments() {
                                                                                     children: item.frequency
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                    lineNumber: 313,
+                                                                                    lineNumber: 319,
                                                                                     columnNumber: 65
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 311,
+                                                                            lineNumber: 317,
                                                                             columnNumber: 61
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 299,
+                                                                    lineNumber: 305,
                                                                     columnNumber: 57
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                lineNumber: 298,
+                                                                lineNumber: 304,
                                                                 columnNumber: 53
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2495,7 +2507,7 @@ function Commitments() {
                                                                             children: "warning"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 321,
+                                                                            lineNumber: 327,
                                                                             columnNumber: 86
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2503,18 +2515,18 @@ function Commitments() {
                                                                             children: item.nextDueDate
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 322,
+                                                                            lineNumber: 328,
                                                                             columnNumber: 61
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 318,
+                                                                    lineNumber: 324,
                                                                     columnNumber: 57
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                lineNumber: 317,
+                                                                lineNumber: 323,
                                                                 columnNumber: 53
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2527,43 +2539,11 @@ function Commitments() {
                                                                             children: currencySymbol
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 327,
+                                                                            lineNumber: 333,
                                                                             columnNumber: 61
                                                                         }, this),
                                                                         item.transaction_type === 'INCOME' ? '+' : '-',
                                                                         item.amount.toFixed(2)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 326,
-                                                                    columnNumber: 57
-                                                                }, this)
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                lineNumber: 325,
-                                                                columnNumber: 53
-                                                            }, this),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                                                                className: "px-6 py-4",
-                                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                    className: `inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${isPaid ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' : isOverdue ? 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' : 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'}`,
-                                                                    children: [
-                                                                        !isPaid && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: `size-1.5 rounded-full ${isOverdue ? 'bg-orange-500 animate-pulse' : 'bg-slate-400'}`
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 338,
-                                                                            columnNumber: 73
-                                                                        }, this),
-                                                                        isPaid ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "material-symbols-outlined text-[14px]",
-                                                                            children: "check"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 339,
-                                                                            columnNumber: 71
-                                                                        }, this) : '',
-                                                                        isPaid ? 'Completado' : isOverdue ? 'Urgente' : 'Pendiente'
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
@@ -2576,6 +2556,38 @@ function Commitments() {
                                                                 columnNumber: 53
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                className: "px-6 py-4",
+                                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                    className: `inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${isPaid ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' : isOverdue ? 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' : 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'}`,
+                                                                    children: [
+                                                                        !isPaid && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                            className: `size-1.5 rounded-full ${isOverdue ? 'bg-orange-500 animate-pulse' : 'bg-slate-400'}`
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/(dashboard)/commitments/page.tsx",
+                                                                            lineNumber: 344,
+                                                                            columnNumber: 73
+                                                                        }, this),
+                                                                        isPaid ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                            className: "material-symbols-outlined text-[14px]",
+                                                                            children: "check"
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/(dashboard)/commitments/page.tsx",
+                                                                            lineNumber: 345,
+                                                                            columnNumber: 71
+                                                                        }, this) : '',
+                                                                        isPaid ? 'Completado' : isOverdue ? 'Urgente' : 'Pendiente'
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/app/(dashboard)/commitments/page.tsx",
+                                                                    lineNumber: 338,
+                                                                    columnNumber: 57
+                                                                }, this)
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/(dashboard)/commitments/page.tsx",
+                                                                lineNumber: 337,
+                                                                columnNumber: 53
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                 className: "px-6 py-4 text-right",
                                                                 children: isPaid ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                     className: "flex items-center justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity",
@@ -2585,7 +2597,24 @@ function Commitments() {
                                                                             children: "Transacción Generada"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 346,
+                                                                            lineNumber: 352,
+                                                                            columnNumber: 65
+                                                                        }, this),
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                            onClick: ()=>handleDelete(item.id),
+                                                                            className: "p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-400 hover:text-red-500",
+                                                                            title: "Eliminar",
+                                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                className: "material-symbols-outlined text-[18px]",
+                                                                                children: "delete"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/(dashboard)/commitments/page.tsx",
+                                                                                lineNumber: 354,
+                                                                                columnNumber: 69
+                                                                            }, this)
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/(dashboard)/commitments/page.tsx",
+                                                                            lineNumber: 353,
                                                                             columnNumber: 65
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2597,77 +2626,96 @@ function Commitments() {
                                                                                 children: "visibility"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                lineNumber: 348,
+                                                                                lineNumber: 357,
                                                                                 columnNumber: 69
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 347,
+                                                                            lineNumber: 356,
                                                                             columnNumber: 65
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 345,
+                                                                    lineNumber: 351,
                                                                     columnNumber: 61
                                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                     className: "flex justify-end gap-2",
-                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                                                        onClick: ()=>toggleCommitmentStatus(item.id, item.status),
-                                                                        className: `group/btn relative inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-md active:scale-95 ${isOverdue ? 'bg-primary text-white hover:bg-blue-700 shadow-primary/20 hover:scale-105' : 'border border-[#dce0e5] dark:border-slate-700 bg-white dark:bg-slate-800 text-[#111418] dark:text-white hover:text-green-600 hover:border-green-200'}`,
-                                                                        children: [
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                className: "material-symbols-outlined text-[16px]",
-                                                                                children: isOverdue ? 'payments' : 'done'
+                                                                    children: [
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                            onClick: ()=>handleDelete(item.id),
+                                                                            className: "p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 transition-colors",
+                                                                            title: "Eliminar",
+                                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                className: "material-symbols-outlined text-[20px]",
+                                                                                children: "delete"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                lineNumber: 360,
-                                                                                columnNumber: 69
-                                                                            }, this),
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                children: isOverdue ? 'Pagar Ahora' : 'Marcar Pagado'
-                                                                            }, void 0, false, {
-                                                                                fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                lineNumber: 361,
+                                                                                lineNumber: 367,
                                                                                 columnNumber: 69
                                                                             }, this)
-                                                                        ]
-                                                                    }, void 0, true, {
-                                                                        fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                        lineNumber: 353,
-                                                                        columnNumber: 65
-                                                                    }, this)
-                                                                }, void 0, false, {
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/(dashboard)/commitments/page.tsx",
+                                                                            lineNumber: 362,
+                                                                            columnNumber: 65
+                                                                        }, this),
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                            onClick: ()=>toggleCommitmentStatus(item.id, item.status),
+                                                                            className: `group/btn relative inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-md active:scale-95 ${isOverdue ? 'bg-primary text-white hover:bg-blue-700 shadow-primary/20 hover:scale-105' : 'border border-[#dce0e5] dark:border-slate-700 bg-white dark:bg-slate-800 text-[#111418] dark:text-white hover:text-green-600 hover:border-green-200'}`,
+                                                                            children: [
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                    className: "material-symbols-outlined text-[16px]",
+                                                                                    children: isOverdue ? 'payments' : 'done'
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/(dashboard)/commitments/page.tsx",
+                                                                                    lineNumber: 376,
+                                                                                    columnNumber: 69
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                    children: isOverdue ? 'Pagar Ahora' : 'Marcar Pagado'
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/(dashboard)/commitments/page.tsx",
+                                                                                    lineNumber: 377,
+                                                                                    columnNumber: 69
+                                                                                }, this)
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "[project]/app/(dashboard)/commitments/page.tsx",
+                                                                            lineNumber: 369,
+                                                                            columnNumber: 65
+                                                                        }, this)
+                                                                    ]
+                                                                }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 352,
+                                                                    lineNumber: 361,
                                                                     columnNumber: 61
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                lineNumber: 343,
+                                                                lineNumber: 349,
                                                                 columnNumber: 53
                                                             }, this)
                                                         ]
                                                     }, item.id, true, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 297,
+                                                        lineNumber: 303,
                                                         columnNumber: 49
                                                     }, this);
                                                 })
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 279,
+                                                lineNumber: 285,
                                                 columnNumber: 33
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                        lineNumber: 269,
+                                        lineNumber: 275,
                                         columnNumber: 29
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 268,
+                                    lineNumber: 274,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2681,35 +2729,35 @@ function Commitments() {
                                                 children: "expand_more"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 376,
+                                                lineNumber: 392,
                                                 columnNumber: 33
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                        lineNumber: 374,
+                                        lineNumber: 390,
                                         columnNumber: 29
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 373,
+                                    lineNumber: 389,
                                     columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                            lineNumber: 230,
+                            lineNumber: 236,
                             columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                    lineNumber: 97,
+                    lineNumber: 103,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                lineNumber: 96,
+                lineNumber: 102,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$CommitmentModal$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CommitmentModal"], {
@@ -2718,7 +2766,7 @@ function Commitments() {
                 commitmentToEdit: editingCommitment
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                lineNumber: 383,
+                lineNumber: 399,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$DateRangeModal$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DateRangeModal"], {
@@ -2729,13 +2777,13 @@ function Commitments() {
                 initialEndDate: dateRange.end
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                lineNumber: 389,
+                lineNumber: 405,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-        lineNumber: 95,
+        lineNumber: 101,
         columnNumber: 9
     }, this);
 }

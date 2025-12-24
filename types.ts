@@ -37,6 +37,7 @@ export interface Transaction {
   beneficiary?: string;
   created_at?: string;
   updated_at?: string;
+  commitment_id?: string;
 }
 
 export interface Account {

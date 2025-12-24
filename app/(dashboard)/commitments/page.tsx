@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 import { useFinance } from '@/context/FinanceContext';
 import { CommitmentModal } from '@/components/CommitmentModal';
 import { DateRangeModal } from '@/components/DateRangeModal';
+import { DeleteConfirmModal } from '@/components/DeleteConfirmModal';
+import { CommitmentDetailsModal } from '@/components/CommitmentDetailsModal';
 import { Commitment } from '@/types';
 
 export default function Commitments() {
     const router = useRouter();
-    const { commitments, toggleCommitmentStatus, ledgers, activeBookId } = useFinance();
+    const { commitments, toggleCommitmentStatus, deleteCommitment, ledgers, activeBookId } = useFinance();
     const activeLedger = ledgers.find(l => l.id === activeBookId);
     const currencyCode = activeLedger?.currency || 'USD';
     const currencySymbol = currencyCode === 'PEN' ? 'S/.' : (currencyCode === 'EUR' ? '€' : '$');
@@ -23,6 +25,9 @@ export default function Commitments() {
         end: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0) // End of this month
     });
     const [editingCommitment, setEditingCommitment] = useState<Commitment | null>(null);
+    const [viewingCommitment, setViewingCommitment] = useState<Commitment | null>(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [commitmentToDelete, setCommitmentToDelete] = useState<string | null>(null);
 
     const handleCreate = () => {
         setEditingCommitment(null);
@@ -30,61 +35,87 @@ export default function Commitments() {
     };
 
     const handleEdit = (commitment: Commitment) => {
+        setViewingCommitment(null); // Close details if open
         setEditingCommitment(commitment);
         setIsModalOpen(true);
+    };
+
+    const handleViewDetails = (commitment: Commitment) => {
+        setViewingCommitment(commitment);
+    };
+
+    const handleDelete = (id: string) => {
+        setCommitmentToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (commitmentToDelete) {
+            await deleteCommitment(commitmentToDelete);
+            setIsDeleteModalOpen(false);
+            setCommitmentToDelete(null);
+        }
     };
 
     const handleDateApply = (start: Date, end: Date) => {
         setDateRange({ start, end });
     };
 
-    const expenseCommitments = commitments.filter(c => c.transaction_type !== 'INCOME');
+    // 1. First, filter by Date Range (Global for page)
+    const commitmentsInDateRange = commitments.filter(c => {
+        if (!dateRange.start || !dateRange.end) return true;
 
+        // Parse YYYY-MM-DD explicitly to Local Time
+        const parts = c.nextDueDate.split('-');
+        if (parts.length === 3) {
+            const year = parseInt(parts[0]);
+            const month = parseInt(parts[1]) - 1;
+            const day = parseInt(parts[2]);
+            const d = new Date(year, month, day);
+
+            // Normalize comparison dates
+            const start = new Date(dateRange.start);
+            start.setHours(0, 0, 0, 0);
+
+            const end = new Date(dateRange.end);
+            end.setHours(23, 59, 59, 999);
+
+            if (!isNaN(d.getTime())) {
+                return d >= start && d <= end;
+            }
+        }
+        return true;
+    });
+
+    // 2. Compute Statistics based on Date Range ONLY
+    const expenseCommitments = commitmentsInDateRange.filter(c => c.transaction_type !== 'INCOME');
     const totalPlanificado = expenseCommitments.reduce((sum, c) => sum + c.amount, 0);
     const yaPagado = expenseCommitments.filter(c => c.status === 'PAID').reduce((sum, c) => sum + c.amount, 0);
     const porPagar = totalPlanificado - yaPagado;
     const progressPercent = totalPlanificado > 0 ? (yaPagado / totalPlanificado) * 100 : 0;
     const pendingCount = expenseCommitments.filter(c => c.status === 'PENDING').length;
 
-    // Filter Logic
-    const filteredCommitments = commitments.filter(c => {
+    // 3. Compute Next Payment from Date Range (ignoring list search/tabs)
+    const nextPayment = commitmentsInDateRange
+        .filter(c => c.status === 'PENDING' && c.transaction_type !== 'INCOME')
+        .sort((a, b) => {
+            // Parse dates manually for sort stability
+            const da = new Date(a.nextDueDate + 'T00:00:00');
+            const db = new Date(b.nextDueDate + 'T00:00:00');
+            return da.getTime() - db.getTime();
+        })[0];
+
+    // 4. Finally, filter for the List (Search + Status)
+    const filteredCommitments = commitmentsInDateRange.filter(c => {
         // Search Filter
         if (searchTerm && !c.name.toLowerCase().includes(searchTerm.toLowerCase())) {
             return false;
         }
-
-        // Date Filter
-        if (dateRange.start && dateRange.end) {
-            // Fix: Parse YYYY-MM-DD explicitly to Local Time to avoid UTC timezone shifts
-            const parts = c.nextDueDate.split('-');
-            if (parts.length === 3) {
-                const year = parseInt(parts[0]);
-                const month = parseInt(parts[1]) - 1; // Months are 0-indexed
-                const day = parseInt(parts[2]);
-
-                const d = new Date(year, month, day);
-                // d is now 00:00:00 Local Time on that date.
-
-                const start = new Date(dateRange.start.getFullYear(), dateRange.start.getMonth(), dateRange.start.getDate());
-                const end = new Date(dateRange.end.getFullYear(), dateRange.end.getMonth(), dateRange.end.getDate());
-                // Set End to end of day
-                end.setHours(23, 59, 59, 999);
-
-                // Check if valid date
-                if (!isNaN(d.getTime())) {
-                    if (d < start || d > end) return false;
-                }
-            }
-        }
-
+        // Status Filter
         if (filter === 'pending') return c.status === 'PENDING';
         if (filter === 'paid') return c.status === 'PAID';
         return true;
     });
-
-    const nextPayment = commitments
-        .filter(c => c.status === 'PENDING' && c.transaction_type !== 'INCOME')
-        .sort((a, b) => new Date(a.nextDueDate).getTime() - new Date(b.nextDueDate).getTime())[0];
 
     const getDaysUntilDue = (dateStr: string) => {
         const diff = new Date(dateStr).getTime() - new Date().setHours(0, 0, 0, 0);
@@ -297,7 +328,7 @@ export default function Commitments() {
                                                 <tr key={item.id} className={`group hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors ${isPaid ? 'bg-gray-50/50 dark:bg-slate-900/50' : ''}`}>
                                                     <td className="px-6 py-4">
                                                         <div
-                                                            onClick={() => handleEdit(item)}
+                                                            onClick={() => handleViewDetails(item)}
                                                             className={`flex items-center gap-4 cursor-pointer ${isPaid ? 'opacity-60' : ''}`}
                                                         >
                                                             <div className={`size-10 rounded-full flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${isPaid ? 'bg-gray-200 dark:bg-slate-700 text-gray-500' : 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600'
@@ -344,12 +375,29 @@ export default function Commitments() {
                                                         {isPaid ? (
                                                             <div className="flex items-center justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                                                                 <span className="text-[10px] text-[#637288] dark:text-slate-500 italic bg-white/50 dark:bg-slate-800/50 px-2 py-1 rounded border border-gray-100 dark:border-slate-700">Transacción Generada</span>
-                                                                <button onClick={() => handleEdit(item)} className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 text-[#637288]" title="Ver Detalle">
+                                                                <button onClick={() => handleDelete(item.id)} className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-400 hover:text-red-500" title="Eliminar">
+                                                                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                                                                </button>
+                                                                <button onClick={() => handleViewDetails(item)} className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 text-[#637288]" title="Ver Detalle">
                                                                     <span className="material-symbols-outlined text-[18px]">visibility</span>
                                                                 </button>
                                                             </div>
                                                         ) : (
                                                             <div className="flex justify-end gap-2">
+                                                                <button
+                                                                    onClick={() => handleViewDetails(item)}
+                                                                    className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 text-[#637288]"
+                                                                    title="Ver Detalle"
+                                                                >
+                                                                    <span className="material-symbols-outlined text-[20px]">visibility</span>
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDelete(item.id)}
+                                                                    className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 transition-colors"
+                                                                    title="Eliminar"
+                                                                >
+                                                                    <span className="material-symbols-outlined text-[20px]">delete</span>
+                                                                </button>
                                                                 <button
                                                                     onClick={() => toggleCommitmentStatus(item.id, item.status)}
                                                                     className={`group/btn relative inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-md active:scale-95 ${isOverdue
@@ -386,12 +434,29 @@ export default function Commitments() {
                 commitmentToEdit={editingCommitment}
             />
 
+            <DeleteConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                title="¿Eliminar Compromiso?"
+                message="Estás a punto de eliminar este compromiso permanentemente. Esta acción no se puede deshacer."
+                itemName={commitments.find(c => c.id === commitmentToDelete)?.name}
+            />
+
             <DateRangeModal
                 isOpen={isDateModalOpen}
                 onClose={() => setIsDateModalOpen(false)}
                 onApply={handleDateApply}
                 initialStartDate={dateRange.start}
                 initialEndDate={dateRange.end}
+            />
+
+            <CommitmentDetailsModal
+                isOpen={!!viewingCommitment}
+                onClose={() => setViewingCommitment(null)}
+                commitment={viewingCommitment}
+                onEdit={handleEdit}
+                onDelete={deleteCommitment}
             />
         </div>
     );

@@ -7,7 +7,7 @@ import { LineChart, Line, ResponsiveContainer, AreaChart, Area } from 'recharts'
 
 export default function Accounts() {
     const router = useRouter();
-    const { accounts, totalBalance, ledgers, activeBookId, addAccount, updateAccount, deleteAccount } = useFinance();
+    const { accounts, totalBalance, ledgers, activeBookId, addAccount, updateAccount, deleteAccount, transactions } = useFinance();
 
     // Modal & Form State
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -167,7 +167,8 @@ export default function Accounts() {
     }
 
     const currencySymbol = useMemo(() => {
-        return ledgers.find(l => l.id === activeBookId)?.currency || '$';
+        const curr = ledgers.find(l => l.id === activeBookId)?.currency || 'PEN';
+        return curr === 'PEN' ? 'S/' : (curr === 'USD' ? '$' : curr);
     }, [ledgers, activeBookId]);
 
     // Calcular métricas para el resumen
@@ -179,7 +180,28 @@ export default function Accounts() {
         .filter(acc => acc.type === 'CREDIT')
         .reduce((sum, acc) => sum + acc.balance, 0);
 
-    const netWorth = totalAssets - Math.abs(totalLiabilities);
+    // User requested Net Worth to be ONLY Cash + Banks (Assets), ignoring debt.
+    const netWorth = totalAssets;
+
+    // Calculate Monthly Change (Income - Expenses for current month)
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+
+    const monthlyTransactions = transactions.filter(t => {
+        const d = new Date(t.date);
+        return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+    });
+
+    const monthlyIncome = monthlyTransactions
+        .filter(t => t.type === 'INCOME')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    const monthlyExpense = monthlyTransactions
+        .filter(t => t.type === 'EXPENSE')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    const monthlyChange = monthlyIncome - monthlyExpense;
+    const isPositiveChange = monthlyChange >= 0;
 
     const accountTypes = [
         { id: 'cash', label: 'Efectivo', icon: 'payments' },
@@ -233,7 +255,10 @@ export default function Accounts() {
                     <div className="glass-card p-5 rounded-3xl flex flex-col justify-between relative overflow-hidden group border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 min-h-[140px]">
                         <div className="flex flex-col gap-1 z-10">
                             <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Patrimonio Neto Total</p>
-                            <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{currencySymbol}{netWorth.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
+                            <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                <span className="text-lg align-baseline mr-0.5">{currencySymbol}</span>
+                                {netWorth.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </h3>
                         </div>
                         <div className="flex items-center gap-2 mt-3 z-10">
                             <div className="bg-emerald-50 dark:bg-emerald-900/20 px-2.5 py-1 rounded-full flex items-center gap-1">
@@ -252,12 +277,17 @@ export default function Accounts() {
                     <div className="glass-card p-5 rounded-3xl flex flex-col justify-between relative overflow-hidden group border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 min-h-[140px]">
                         <div className="flex flex-col gap-1 z-10">
                             <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Cambio Mensual</p>
-                            <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">+{currencySymbol}1,200.00</h3>
+                            <h3 className={`text-3xl font-bold tracking-tight ${isPositiveChange ? 'text-emerald-500' : 'text-slate-900 dark:text-white'}`}>
+                                {isPositiveChange ? '+' : ''}
+                                <span className="text-lg align-baseline mr-0.5">{currencySymbol}</span>
+                                {monthlyChange.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </h3>
                         </div>
                         <div className="h-10 w-full mt-2">
+                            {/* Simple visual cue or sparkline could go here, keeping existing simple line for now or removing if irrelevant */}
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={mockTrendData}>
-                                    <Line type="monotone" dataKey="value" stroke="#10b981" strokeWidth={2} dot={false} />
+                                    <Line type="monotone" dataKey="value" stroke={isPositiveChange ? "#10b981" : "#f59e0b"} strokeWidth={2} dot={false} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
@@ -268,7 +298,10 @@ export default function Accounts() {
                         <div className="flex flex-col gap-1 z-10">
                             <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Deuda Total</p>
                             <div className="flex items-center gap-3">
-                                <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{currencySymbol}{Math.abs(totalLiabilities).toLocaleString('en-US', { minimumFractionDigits: 2 })}</h3>
+                                <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                    <span className="text-lg align-baseline mr-0.5">{currencySymbol}</span>
+                                    {Math.abs(totalLiabilities).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                </h3>
                             </div>
                         </div>
                         <div className="flex items-center gap-2 mt-3 z-10">
@@ -313,7 +346,10 @@ export default function Accounts() {
                                 </div>
 
                                 <div>
-                                    <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{currencySymbol}{acc.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                                    <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                        <span className="text-sm align-baseline mr-0.5">{currencySymbol}</span>
+                                        {acc.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                    </p>
                                 </div>
 
                                 <div className="flex items-end justify-between mt-auto">
@@ -367,7 +403,10 @@ export default function Accounts() {
                                 </div>
 
                                 <div>
-                                    <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">-{currencySymbol}{Math.abs(acc.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                                    <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                        -<span className="text-sm align-baseline mr-0.5">{currencySymbol}</span>
+                                        {Math.abs(acc.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                    </p>
                                     <p className="text-[11px] text-slate-400 font-medium mt-1">Límite disponible: {currencySymbol}4,550.00</p>
                                 </div>
 
