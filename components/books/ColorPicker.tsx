@@ -1,6 +1,7 @@
-'use client'
-
-import { Check } from "lucide-react"
+import { useRef, useState, useEffect } from "react"
+import { createPortal } from "react-dom"
+import { Check, Pipette } from "lucide-react"
+import { CustomColorPicker } from "./CustomColorPicker"
 
 export const BOOK_COLORS = {
     Classic: [
@@ -26,6 +27,45 @@ export const BOOK_COLORS = {
 }
 
 export function ColorPicker({ value, onChange }: { value: string, onChange: (color: string) => void }) {
+    const [isCustomOpen, setIsCustomOpen] = useState(false)
+    const buttonRef = useRef<HTMLButtonElement>(null)
+    const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0 })
+
+    const togglePicker = () => {
+        if (!isCustomOpen && buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect()
+            // Check if it would go off-screen bottom
+            const wouldOverflowBottom = rect.bottom + 320 > window.innerHeight
+
+            setPopoverPos({
+                top: wouldOverflowBottom ? rect.top - 8 : rect.bottom + 8, // Flip up if needed, roughly
+                left: rect.left
+            })
+        }
+        setIsCustomOpen(!isCustomOpen)
+    }
+
+    // Update position on scroll/resize if open (optional but good)
+    useEffect(() => {
+        if (!isCustomOpen) return
+        const updatePos = () => {
+            if (buttonRef.current) {
+                const rect = buttonRef.current.getBoundingClientRect()
+                const wouldOverflowBottom = rect.bottom + 320 > window.innerHeight
+                setPopoverPos({
+                    top: wouldOverflowBottom ? rect.top - 8 : rect.bottom + 8,
+                    left: rect.left
+                })
+            }
+        }
+        window.addEventListener('scroll', updatePos, true)
+        window.addEventListener('resize', updatePos)
+        return () => {
+            window.removeEventListener('scroll', updatePos, true)
+            window.removeEventListener('resize', updatePos)
+        }
+    }, [isCustomOpen])
+
     return (
         <div className="space-y-3">
             <label className="text-sm font-medium text-text-main">Color</label>
@@ -48,6 +88,52 @@ export function ColorPicker({ value, onChange }: { value: string, onChange: (col
                         </button>
                     )
                 })}
+
+                {/* Custom Color Rainbow Button */}
+                <div className="relative">
+                    <button
+                        ref={buttonRef}
+                        type="button"
+                        onClick={togglePicker}
+                        className={`
+                            w-10 h-10 rounded-full flex items-center justify-center transition-all overflow-hidden
+                            bg-gradient-to-tr from-rose-500 via-purple-500 to-blue-500
+                            ${!BOOK_COLORS.Classic.some(c => c.value === value) ? 'ring-2 ring-offset-2 ring-primary dark:ring-offset-gray-900 scale-110' : 'hover:scale-105'}
+                        `}
+                        title="Color personalizado"
+                    >
+                        {!BOOK_COLORS.Classic.some(c => c.value === value) && value ? (
+                            <Check size={18} className="text-white drop-shadow-md" />
+                        ) : (
+                            <Pipette size={18} className="text-white drop-shadow-md" />
+                        )}
+                    </button>
+
+                    {isCustomOpen && typeof document !== 'undefined' && createPortal(
+                        <div className="fixed inset-0 z-[9999] isolate">
+                            {/* Backdrop */}
+                            <div
+                                className="absolute inset-0 bg-transparent"
+                                onClick={() => setIsCustomOpen(false)}
+                            />
+                            {/* Popover */}
+                            <div
+                                className="absolute animate-scale-in origin-top-left"
+                                style={{
+                                    top: popoverPos.top,
+                                    left: popoverPos.left,
+                                    transform: popoverPos.top < (buttonRef.current?.getBoundingClientRect().top || 0) ? 'translateY(-100%)' : 'none'
+                                }}
+                            >
+                                <CustomColorPicker
+                                    color={!BOOK_COLORS.Classic.some(c => c.value === value) ? value : '#ffffff'}
+                                    onChange={onChange}
+                                />
+                            </div>
+                        </div>,
+                        document.body
+                    )}
+                </div>
             </div>
             <input type="hidden" name="color" value={value} />
         </div>

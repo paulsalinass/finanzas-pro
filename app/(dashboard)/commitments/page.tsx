@@ -8,13 +8,14 @@ import { DateRangeModal } from '@/components/DateRangeModal';
 import { DeleteConfirmModal } from '@/components/DeleteConfirmModal';
 import { CommitmentDetailsModal } from '@/components/CommitmentDetailsModal';
 import { Commitment } from '@/types';
+import { MoneyDisplay } from '@/components/MoneyDisplay';
 
 export default function Commitments() {
     const router = useRouter();
     const { commitments, toggleCommitmentStatus, deleteCommitment, ledgers, activeBookId } = useFinance();
     const activeLedger = ledgers.find(l => l.id === activeBookId);
     const currencyCode = activeLedger?.currency || 'USD';
-    const currencySymbol = currencyCode === 'PEN' ? 'S/.' : (currencyCode === 'EUR' ? '€' : '$');
+    const currencySymbol = currencyCode === 'PEN' ? 'S/' : (currencyCode === 'EUR' ? '€' : '$');
 
     const [filter, setFilter] = useState<'all' | 'pending' | 'paid'>('all');
     const [searchTerm, setSearchTerm] = useState('');
@@ -162,10 +163,7 @@ export default function Commitments() {
                             {nextPayment ? (
                                 <div className="relative z-10">
                                     <div className="flex items-center gap-1 mb-1">
-                                        <p className="text-[#111418] dark:text-white text-3xl font-black tracking-tight">
-                                            <span className="text-lg font-bold mr-1 align-middle text-gray-400 dark:text-gray-500">{currencySymbol}</span>
-                                            {nextPayment.amount.toFixed(2)}
-                                        </p>
+                                        <MoneyDisplay amount={nextPayment.amount} currency={currencySymbol} size="5xl" weight="font-bold" color="text-[#111418] dark:text-white" />
                                         <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 truncate max-w-[80px]">
                                             {nextPayment.name}
                                         </span>
@@ -208,10 +206,7 @@ export default function Commitments() {
                                 <p className="text-[#637288] dark:text-slate-400 text-sm font-medium">Total Planificado</p>
                             </div>
                             <div>
-                                <p className="text-[#111418] dark:text-white text-3xl font-bold tracking-tight">
-                                    <span className="text-lg font-bold mr-1 align-middle text-gray-400 dark:text-gray-500">{currencySymbol}</span>
-                                    {totalPlanificado.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                                </p>
+                                <MoneyDisplay amount={totalPlanificado} currency={currencySymbol} size="5xl" weight="font-bold" color="text-[#111418] dark:text-white" />
                                 <p className="text-[#637288] dark:text-slate-500 text-xs mt-1">Estimación mensual</p>
                             </div>
                         </div>
@@ -227,10 +222,7 @@ export default function Commitments() {
                                 <p className="text-[#637288] dark:text-slate-400 text-sm font-medium">Ya Pagado</p>
                             </div>
                             <div>
-                                <p className="text-[#111418] dark:text-white text-3xl font-bold tracking-tight">
-                                    <span className="text-lg font-bold mr-1 align-middle text-gray-400 dark:text-gray-500">{currencySymbol}</span>
-                                    {yaPagado.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                                </p>
+                                <MoneyDisplay amount={yaPagado} currency={currencySymbol} size="5xl" weight="font-bold" color="text-[#111418] dark:text-white" />
                                 <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
                                     <div className="bg-success h-full rounded-full transition-all duration-1000" style={{ width: `${progressPercent}%` }}></div>
                                 </div>
@@ -249,10 +241,7 @@ export default function Commitments() {
                                 <p className="text-[#637288] dark:text-slate-400 text-sm font-medium">Por Pagar</p>
                             </div>
                             <div>
-                                <p className="text-[#111418] dark:text-white text-3xl font-bold tracking-tight">
-                                    <span className="text-lg font-bold mr-1 align-middle text-gray-400 dark:text-gray-500">{currencySymbol}</span>
-                                    {porPagar.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                                </p>
+                                <MoneyDisplay amount={porPagar} currency={currencySymbol} size="5xl" weight="font-bold" color="text-[#111418] dark:text-white" />
                                 <p className="text-[#637288] dark:text-slate-500 text-xs mt-1">{pendingCount} compromisos pendientes</p>
                             </div>
                         </div>
@@ -354,9 +343,16 @@ export default function Commitments() {
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        <span className={`text-base font-bold ${isPaid ? 'text-[#637288] opacity-60' : item.transaction_type === 'INCOME' ? 'text-green-600 dark:text-green-400' : 'text-[#111418] dark:text-white'}`}>
-                                                            <span className="text-xs font-bold mr-0.5 opacity-70">{currencySymbol}</span>
-                                                            {item.transaction_type === 'INCOME' ? '+' : '-'}{item.amount.toFixed(2)}
+                                                        <span className={`flex items-center text-base font-bold ${isPaid ? 'text-[#637288] opacity-60' : item.transaction_type === 'INCOME' ? 'text-green-600 dark:text-green-400' : 'text-[#111418] dark:text-white'}`}>
+                                                            {item.transaction_type === 'INCOME' && <span className="mr-0.5">+</span>}
+                                                            <MoneyDisplay
+                                                                amount={item.transaction_type === 'INCOME' ? item.amount : -item.amount}
+                                                                currency={currencySymbol}
+                                                                size="lg"
+                                                                weight="font-bold"
+                                                                color=""
+                                                                autoColor={false}
+                                                            />
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4">

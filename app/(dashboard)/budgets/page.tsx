@@ -6,14 +6,23 @@ import { useFinance } from '@/context/FinanceContext';
 import { Budget, Transaction } from '@/types';
 import CreateBudgetModal from '@/components/CreateBudgetModal';
 import { DateRangeModal } from '@/components/DateRangeModal';
-import { startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
+import { startOfMonth, endOfMonth, isWithinInterval, format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { MoneyDisplay } from '@/components/MoneyDisplay';
+
+import BudgetDetailsModal from '@/components/BudgetDetailsModal';
 
 export default function Budgets() {
     const router = useRouter();
-    const { budgets, categories, transactions, formatAmount } = useFinance();
+    const { budgets, categories, transactions, formatAmount, checkRecurringBudgets, ledgers, activeBookId } = useFinance();
     const [filter, setFilter] = useState<'all' | 'danger' | 'exceeded' | 'healthy'>('all');
     const [sortBy, setSortBy] = useState('amount_desc');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+    // Initial check for recurring budgets
+    React.useEffect(() => {
+        checkRecurringBudgets();
+    }, [checkRecurringBudgets]);
 
     // Date Range State
     const [isDateModalOpen, setIsDateModalOpen] = useState(false);
@@ -22,30 +31,74 @@ export default function Budgets() {
         end: endOfMonth(new Date())
     });
 
-    // Calculate real spent for each budget based on transactions
+    const currencySymbol = useMemo(() => {
+        const curr = ledgers.find(l => l.id === activeBookId)?.currency || 'PEN';
+        return curr === 'PEN' ? 'S/' : (curr === 'USD' ? '$' : curr);
+    }, [ledgers, activeBookId]);
+
+    const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
+    const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+
+    // Calculate real spent and aggregate budgets by category for the selected range
     const calculatedBudgets = useMemo(() => {
-        return budgets.map(budget => {
-            const budgetSpent = transactions
+        const aggregated: Record<string, Budget & { spent: number; originalIds: string[] }> = {};
+
+        budgets.forEach(budget => {
+            // 1. Check if budget overlaps with selected Date Range
+            const budgetStart = new Date(budget.start_date || '');
+            // If invalid date, default to today? Or skip? 
+            // Better to handle gracefully.
+            if (isNaN(budgetStart.getTime())) return;
+
+            const budgetEnd = budget.end_date ? new Date(budget.end_date) : new Date('9999-12-31');
+
+            const overlaps = (
+                (budgetStart <= dateRange.end) &&
+                (budgetEnd >= dateRange.start)
+            );
+
+            if (!overlaps) return;
+
+            // 2. Group by Category
+            const key = budget.category_id || budget.category; // fallback to name if no ID
+
+            if (!aggregated[key]) {
+                aggregated[key] = {
+                    ...budget,
+                    limit: 0,
+                    spent: 0,
+                    originalIds: []
+                };
+            }
+
+            // 3. Aggregate Limit (Sum limits of all valid instances in this range)
+            aggregated[key].limit += budget.limit;
+            aggregated[key].originalIds.push(budget.id);
+        });
+
+        // 4. Calculate Spent for each aggregated category within the global Date Range
+        // We calculate spent based on the GLOBAL selected range, not the specific budget instance range,
+        // because the user wants to see "Consumption for the selected filtered period" against "Total Limit for that period".
+        return Object.values(aggregated).map(virtualBudget => {
+            const categorySpent = transactions
                 .filter(t => {
                     if (t.type !== 'EXPENSE') return false;
-                    // Filter by category
-                    // If budget has category_id, match it. 
-                    // If not, match by name (legacy support)
-                    const matchesCategory = budget.category_id
-                        ? t.category_id === budget.category_id
-                        : t.category === budget.category; // fallback
+
+                    const matchesCategory = virtualBudget.category_id
+                        ? t.category_id === virtualBudget.category_id
+                        : t.category === virtualBudget.category;
 
                     if (!matchesCategory) return false;
 
-                    // Filter by Date Range
                     const txDate = new Date(t.date);
                     return isWithinInterval(txDate, { start: dateRange.start, end: dateRange.end });
                 })
                 .reduce((sum, t) => sum + t.amount, 0);
 
             return {
-                ...budget,
-                spent: budgetSpent
+                ...virtualBudget,
+                spent: categorySpent
             };
         });
     }, [budgets, transactions, dateRange]);
@@ -57,7 +110,7 @@ export default function Budgets() {
     const availablePercent = totalPlanned > 0 ? (totalAvailable / totalPlanned) * 100 : 0;
 
     // Categorías cerca del límite (alertas)
-    const alertsCount = useMemo(() => calculatedBudgets.filter(b => (b.spent / b.limit) >= 0.9 && (b.spent / b.limit) < 1).length, [calculatedBudgets]);
+    const alertsCount = useMemo(() => calculatedBudgets.filter(b => (b.spent / b.limit) >= 0.9).length, [calculatedBudgets]);
 
     // Lógica de filtrado y ordenación
     const filteredBudgets = useMemo(() => {
@@ -102,6 +155,11 @@ export default function Budgets() {
         if (cat.includes('restaurante')) return 'restaurant';
         if (cat.includes('mascota')) return 'pets';
         return 'payments';
+    };
+
+    const handleBudgetClick = (budget: Budget) => {
+        setSelectedBudget(budget);
+        setIsDetailsModalOpen(true);
     };
 
     return (
@@ -150,7 +208,9 @@ export default function Budgets() {
                             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Planeado</span>
                         </div>
                         <div>
-                            <h3 className="text-3xl font-bold text-[#111418] dark:text-white tracking-tight">{formatAmount(totalPlanned)}</h3>
+                            <div className="h-9 flex items-center">
+                                <MoneyDisplay amount={totalPlanned} currency={currencySymbol} size="3xl" color="text-[#111418] dark:text-white" />
+                            </div>
                             <p className="text-sm text-gray-500 mt-1">Suma de todas las categorías</p>
                         </div>
                     </div>
@@ -163,7 +223,9 @@ export default function Budgets() {
                             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Disponible</span>
                         </div>
                         <div>
-                            <h3 className="text-3xl font-bold text-[#111418] dark:text-white tracking-tight">{formatAmount(totalAvailable)}</h3>
+                            <div className="h-9 flex items-center">
+                                <MoneyDisplay amount={totalAvailable} currency={currencySymbol} size="3xl" color="text-[#111418] dark:text-white" />
+                            </div>
                             <p className="text-sm text-emerald-600 mt-1 font-medium flex items-center gap-1">
                                 <span className="material-symbols-outlined text-sm">trending_up</span>
                                 {availablePercent.toFixed(0)}% Restante del mes
@@ -181,7 +243,7 @@ export default function Budgets() {
                         </div>
                         <div className="relative z-10">
                             <h3 className="text-3xl font-bold text-[#111418] dark:text-white tracking-tight">{alertsCount}</h3>
-                            <p className="text-sm text-gray-500 mt-1">Categorías cerca del límite</p>
+                            <p className="text-sm text-gray-500 mt-1">Categorías en alerta</p>
                         </div>
                     </div>
                 </section>
@@ -236,12 +298,12 @@ export default function Budgets() {
                         return (
                             <div
                                 key={budget.id}
-                                onClick={() => router.push(`/budget/${budget.id}`)}
+                                onClick={() => handleBudgetClick(budget)}
                                 className={`glass-panel rounded-2xl p-5 shadow-glass hover:shadow-xl transition-all duration-300 group cursor-pointer border-l-4 border-l-transparent hover:${status.borderClass}`}
                             >
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="flex items-center gap-3">
-                                        <div className={`size-10 rounded-full flex items-center justify-center ${status.bgClass} ${status.colorClass}`}>
+                                        <div className={`size-10 rounded-xl flex items-center justify-center ${status.bgClass} ${status.colorClass}`}>
                                             <span className="material-symbols-outlined">{displayIcon}</span>
                                         </div>
                                         <div>
@@ -255,8 +317,11 @@ export default function Budgets() {
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <div className="flex justify-between items-end">
-                                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{formatAmount(budget.spent)}</span>
-                                        <span className="text-sm font-medium text-gray-500 mb-1">de {formatAmount(budget.limit)}</span>
+                                        <MoneyDisplay amount={budget.spent} currency={currencySymbol} size="4xl" color="text-gray-900 dark:text-white" />
+                                        <div className="text-sm font-medium text-gray-500 mb-1 flex items-baseline gap-1">
+                                            <span>de</span>
+                                            <MoneyDisplay amount={budget.limit} currency={currencySymbol} size="lg" color="text-gray-500" weight="font-medium" />
+                                        </div>
                                     </div>
                                     <div className="h-3 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden relative">
                                         {/* Background faint bar for exceeded state */}
@@ -268,8 +333,12 @@ export default function Budgets() {
                                     </div>
                                     <div className="flex justify-between text-xs text-gray-400 mt-1">
                                         <span>{percentage.toFixed(0)}% gastado</span>
-                                        <span className={`font-medium ${remaining < 0 ? 'text-danger' : remaining < (budget.limit * 0.1) ? 'text-orange-500' : ''}`}>
-                                            {remaining < 0 ? `+${formatAmount(Math.abs(remaining))} sobre límite` : `${formatAmount(remaining)} restante`}
+                                        <span className={`font-medium flex items-center gap-1 ${remaining < 0 ? 'text-danger' : remaining < (budget.limit * 0.1) ? 'text-orange-500' : ''}`}>
+                                            {remaining < 0 ? (
+                                                <>+<MoneyDisplay amount={Math.abs(remaining)} currency={currencySymbol} size="md" color="text-danger" autoColor={false} /> sobre límite</>
+                                            ) : (
+                                                <><MoneyDisplay amount={remaining} currency={currencySymbol} size="md" color={(remaining < (budget.limit * 0.1) ? 'text-orange-500' : 'text-gray-400')} autoColor={false} /> restante</>
+                                            )}
                                         </span>
                                     </div>
                                 </div>
@@ -282,16 +351,31 @@ export default function Budgets() {
                         onClick={() => setIsCreateModalOpen(true)}
                         className="w-full border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-gray-400 hover:text-primary hover:border-primary hover:bg-white/50 dark:hover:bg-slate-800/20 transition-all cursor-pointer group min-h-[160px]"
                     >
-                        <div className="size-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                        <div className="size-14 rounded-[2rem] bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
                             <span className="material-symbols-outlined text-3xl">add</span>
                         </div>
                         <p className="font-medium">Crear nuevo presupuesto</p>
                     </div>
                 </section>
 
+                <BudgetDetailsModal
+                    isOpen={isDetailsModalOpen}
+                    onClose={() => setIsDetailsModalOpen(false)}
+                    budget={selectedBudget}
+                    onEdit={(budget) => {
+                        setIsDetailsModalOpen(false);
+                        setEditingBudget(budget);
+                        setIsCreateModalOpen(true);
+                    }}
+                />
+
                 <CreateBudgetModal
                     isOpen={isCreateModalOpen}
-                    onClose={() => setIsCreateModalOpen(false)}
+                    onClose={() => {
+                        setIsCreateModalOpen(false);
+                        setEditingBudget(null);
+                    }}
+                    budgetToEdit={editingBudget}
                 />
 
                 <DateRangeModal

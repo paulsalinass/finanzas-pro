@@ -555,8 +555,8 @@ function Reports() {
                                                             children: [
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("stop", {
                                                                     offset: "5%",
-                                                                    stopColor: "#307de8",
-                                                                    stopOpacity: 0.1
+                                                                    stopColor: "#10B981",
+                                                                    stopOpacity: 0.8
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/reports/page.tsx",
                                                                     lineNumber: 139,
@@ -564,7 +564,7 @@ function Reports() {
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("stop", {
                                                                     offset: "95%",
-                                                                    stopColor: "#307de8",
+                                                                    stopColor: "#10B981",
                                                                     stopOpacity: 0
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/reports/page.tsx",
@@ -637,7 +637,7 @@ function Reports() {
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Area$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Area"], {
                                                         type: "monotone",
                                                         dataKey: "ingresos",
-                                                        stroke: "#307de8",
+                                                        stroke: "#10B981",
                                                         strokeWidth: 4,
                                                         fillOpacity: 1,
                                                         fill: "url(#incomeGradient)",

@@ -136,8 +136,8 @@ export default function Reports() {
                                 <AreaChart data={FLOW_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#307de8" stopOpacity={0.1} />
-                                            <stop offset="95%" stopColor="#307de8" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="#10B981" stopOpacity={0.8} />
+                                            <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.3} />
@@ -150,7 +150,7 @@ export default function Reports() {
                                     <Area
                                         type="monotone"
                                         dataKey="ingresos"
-                                        stroke="#307de8"
+                                        stroke="#10B981"
                                         strokeWidth={4}
                                         fillOpacity={1}
                                         fill="url(#incomeGradient)"

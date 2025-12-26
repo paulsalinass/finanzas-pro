@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { createClient } from '../utils/supabase/client';
 import { Transaction, Account, Budget, Commitment, RecurringRule, Ledger, TransactionType, Category, CategoryFolder } from '../types';
 import { useRouter } from 'next/navigation';
+import { addMonths, addWeeks, addYears, isAfter, isBefore, startOfDay, addDays, isSameDay, endOfMonth } from 'date-fns';
 
 // Database types mapping could be strictly done here, but for now we map manually
 // to match the specific "Ledger" vs "Book" terminology change requested by user logic vs DB logic.
@@ -47,6 +48,11 @@ interface FinanceContextType {
   openTransactionModal: () => void;
   closeTransactionModal: () => void;
   addBudget: (b: { amount: number; categoryId: string; recurrenceType?: string; recurrenceInterval?: number; startDate?: string; endDate?: string }) => Promise<void>;
+  updateBudget: (id: string, updates: Partial<{ amount: number; categoryId: string; recurrenceType?: string; recurrenceInterval?: number; startDate?: string; endDate?: string }>) => Promise<void>;
+  deleteBudget: (id: string) => Promise<void>;
+  checkRecurringBudgets: () => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
+  deleteCategoryFolder: (id: string) => Promise<void>;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -930,6 +936,109 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     await fetchBudgets(activeBookId);
   };
 
+  const deleteBudget = async (id: string) => {
+    if (!activeBookId) return;
+
+    const { error } = await supabase.from('budgets').delete().eq('id', id);
+
+    if (error) {
+      console.error('Error deleting budget:', error);
+      alert('Error al eliminar presupuesto: ' + error.message);
+      return;
+    }
+
+    await fetchBudgets(activeBookId);
+  };
+
+  const updateBudget = async (id: string, updates: Partial<{ amount: number; categoryId: string; recurrenceType?: string; recurrenceInterval?: number; startDate?: string; endDate?: string }>) => {
+    if (!activeBookId) return;
+
+    const payload: any = {};
+    if (updates.amount !== undefined) payload.amount = updates.amount;
+    if (updates.categoryId !== undefined) payload.category_id = updates.categoryId;
+    if (updates.recurrenceType !== undefined) payload.recurrence_type = updates.recurrenceType;
+    if (updates.recurrenceInterval !== undefined) payload.recurrence_interval = updates.recurrenceInterval;
+    if (updates.startDate !== undefined) payload.start_date = updates.startDate;
+    if (updates.endDate !== undefined) payload.end_date = updates.endDate;
+
+    const { error } = await supabase.from('budgets').update(payload).eq('id', id);
+
+    if (error) {
+      console.error('Error updating budget:', error);
+      alert('Error al actualizar presupuesto: ' + error.message);
+      return;
+    }
+
+    await fetchBudgets(activeBookId);
+  };
+
+  const checkRecurringBudgets = async () => {
+    if (!activeBookId || budgets.length === 0) return;
+
+    const today = new Date();
+    const createdBudgets: any[] = [];
+
+    for (const budget of budgets) {
+      if (!budget.recurrence_type || budget.recurrence_type === 'NONE' || !budget.start_date) continue;
+
+      const startDate = new Date(budget.start_date);
+      const endDate = budget.end_date ? new Date(budget.end_date) : null;
+
+      let nextStartDate: Date | null = null;
+      let nextEndDate: Date | null = null;
+
+      if (!endDate) continue;
+
+      if (isBefore(endDate, today)) {
+        nextStartDate = addDays(endDate, 1);
+
+        if (budget.recurrence_type === 'MONTHLY') {
+          nextStartDate = addMonths(startDate, 1);
+          nextEndDate = endOfMonth(nextStartDate);
+        } else if (budget.recurrence_type === 'WEEKLY') {
+          nextStartDate = addWeeks(startDate, 1);
+          nextEndDate = addDays(nextStartDate, 6);
+        } else if (budget.recurrence_type === 'BIWEEKLY') {
+          nextStartDate = addDays(startDate, 14);
+          nextEndDate = addDays(nextStartDate, 13);
+        } else if (budget.recurrence_type === 'ANNUAL') {
+          nextStartDate = addYears(startDate, 1);
+          nextEndDate = new Date(nextStartDate.getFullYear(), 11, 31);
+        } else {
+          continue;
+        }
+
+        const exists = budgets.some(b =>
+          b.category_id === budget.category_id &&
+          isSameDay(new Date(b.start_date), nextStartDate!)
+        );
+
+        if (!exists && nextStartDate) {
+          createdBudgets.push({
+            book_id: activeBookId,
+            category_id: budget.category_id,
+            amount: budget.limit,
+            recurrence_type: budget.recurrence_type,
+            recurrence_interval: budget.recurrence_interval,
+            start_date: nextStartDate.toISOString(),
+            end_date: nextEndDate ? nextEndDate.toISOString() : null,
+            period: 'MONTHLY'
+          });
+        }
+      }
+    }
+
+    if (createdBudgets.length > 0) {
+      console.log("Generating recurring budgets:", createdBudgets.length);
+      const { error } = await supabase.from('budgets').insert(createdBudgets);
+      if (error) {
+        console.error("Error generating recurring budgets:", error);
+      } else {
+        await fetchBudgets(activeBookId);
+      }
+    }
+  };
+
   // Modal State
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
 
@@ -946,7 +1055,30 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       toggleRuleStatus, activateLedger, generateSampleData, totalBalance,
       isDarkMode, toggleTheme, isLoading, activeBookId, refreshBooks, formatAmount,
       isTransactionModalOpen, openTransactionModal, closeTransactionModal,
-      addBudget, updateTransaction, duplicateTransaction
+      addBudget, updateTransaction, duplicateTransaction, deleteBudget, updateBudget,
+      checkRecurringBudgets,
+      deleteCategory: async (id: string) => {
+        if (!activeBookId) return;
+        const { error } = await supabase.from('categories').delete().eq('id', id);
+        if (error) {
+          console.error("Error deleting category:", error);
+          alert("Error al eliminar categoría: " + error.message);
+        } else {
+          await fetchCategories(activeBookId);
+        }
+      },
+      deleteCategoryFolder: async (id: string) => {
+        if (!activeBookId) return;
+        const { error } = await supabase.from('category_folders').delete().eq('id', id);
+        if (error) {
+          console.error("Error deleting folder:", error);
+          alert("Error al eliminar carpeta: " + error.message);
+        } else {
+          await fetchCategoryFolders(activeBookId);
+          // Also refresh categories as they might have been unlinked (if cascade set null) or deleted (if cascade delete)
+          await fetchCategories(activeBookId);
+        }
+      }
     }}>
       {children}
     </FinanceContext.Provider>

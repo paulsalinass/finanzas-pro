@@ -85,8 +85,8 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
     const [activePreset, setActivePreset] = useState<string | null>(null);
     const [leftMonth, setLeftMonth] = useState<Date>(() => startOfMonth(initialStartDate || new Date()));
     const [rightMonth, setRightMonth] = useState<Date>(() => addMonths(startOfMonth(initialStartDate || new Date()), 1));
-    const [isMounted, setIsMounted] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
 
     const syncCalendarMonths = (fromDate?: Date | null, toDate?: Date | null) => {
         const baseLeft = startOfMonth(fromDate || new Date());
@@ -100,6 +100,8 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
 
     useEffect(() => {
         if (isOpen) {
+            setIsVisible(true);
+            setIsClosing(false);
             setRange({
                 from: initialStartDate || undefined,
                 to: initialEndDate || undefined
@@ -113,26 +115,20 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
         if (!isOpen) return;
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
-                onClose();
+                handleClose();
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isOpen, onClose]);
+    }, [isOpen]);
 
-    useLayoutEffect(() => {
-        if (isOpen) {
-            setIsMounted(true);
-            const raf = requestAnimationFrame(() => setIsVisible(true));
-            return () => cancelAnimationFrame(raf);
-        }
-
-        if (isMounted) {
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(() => {
             setIsVisible(false);
-            const timeout = setTimeout(() => setIsMounted(false), 300);
-            return () => clearTimeout(timeout);
-        }
-    }, [isOpen, isMounted]);
+            onClose();
+        }, 300);
+    };
 
     const years = useMemo(() => {
         const current = new Date().getFullYear();
@@ -177,7 +173,7 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
     const handleApply = () => {
         if (range?.from && range?.to) {
             onApply(range.from, range.to);
-            onClose();
+            handleClose();
         }
     };
 
@@ -185,8 +181,6 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
         if (!range?.from || !range?.to) return 'Selecciona un rango';
         return `${format(range.from, "d MMM, yyyy", { locale: es })} - ${format(range.to, "d MMM, yyyy", { locale: es })}`;
     }, [range]);
-
-    if (!isMounted) return null;
 
     const handleLeftMonthChange = (next: Date) => {
         const normalized = startOfMonth(next);
@@ -272,26 +266,28 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
         </div>
     );
 
+    if (!isOpen && !isVisible) return null;
+
     return (
         <div
-            className={`fixed inset-0 z-[120] flex transition-opacity duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-            onClick={onClose}
+            className={`fixed inset-0 z-[120] flex transition-opacity duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
+            onClick={handleClose}
         >
             <div
                 className="hidden lg:block h-full"
                 style={{ width: 'var(--sidebar-width, 280px)' }}
             />
             <div
-                className={`flex-1 w-full relative flex items-center justify-center bg-slate-900/35 p-3 sm:p-4 transition-[opacity,backdrop-filter] duration-300 ease-out ${isVisible ? 'opacity-100 backdrop-blur-md' : 'opacity-0 backdrop-blur-none'}`}
+                className={`flex-1 w-full relative flex items-center justify-center bg-slate-900/35 p-3 sm:p-4 backdrop-blur-sm transition-all duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
             >
                 <div
-                    className={`date-range-modal w-full max-w-5xl bg-white dark:bg-[#101828] rounded-[28px] shadow-2xl border border-slate-200/80 dark:border-white/10 p-4 sm:p-5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'}`}
+                    className={`date-range-modal w-full max-w-5xl bg-white dark:bg-[#101828] rounded-[28px] shadow-2xl border border-slate-200/80 dark:border-white/10 p-4 sm:p-5 transition-all duration-300 transform ${isVisible && !isClosing ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="flex items-start justify-between gap-3 mb-4">
                         <h3 className="text-base font-black text-slate-900 dark:text-white">Seleccionar Rango</h3>
                         <button
-                            onClick={onClose}
+                            onClick={handleClose}
                             className="size-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-primary hover:bg-primary/10 transition-colors dark:bg-white/10 dark:text-white"
                         >
                             <span className="material-symbols-outlined text-lg">close</span>
@@ -308,11 +304,10 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
                                         <button
                                             key={preset.label}
                                             onClick={() => handlePresetClick(preset)}
-                                            className={`text-left px-3 py-1.5 rounded-2xl border text-[11px] font-semibold transition-all ${
-                                                isActive
-                                                    ? 'bg-primary/10 border-primary/40 text-primary'
-                                                    : 'border-slate-200 text-slate-600 hover:border-primary/30 hover:text-primary'
-                                            }`}
+                                            className={`text-left px-3 py-1.5 rounded-2xl border text-[11px] font-semibold transition-all ${isActive
+                                                ? 'bg-primary/10 border-primary/40 text-primary'
+                                                : 'border-slate-200 text-slate-600 hover:border-primary/30 hover:text-primary'
+                                                }`}
                                         >
                                             {preset.label}
                                         </button>
@@ -325,8 +320,8 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
                             <style>{`
                                 .date-range-modal .rdp {
                                     --rdp-cell-size: 30px;
-                                    --rdp-accent-color: #2563eb;
-                                    --rdp-background-color: rgba(37, 99, 235, 0.12);
+                                    --rdp-accent-color: #10B981;
+                                    --rdp-background-color: rgba(16, 185, 129, 0.12);
                                     --rdp-range_border-radius: 999px;
                                     margin: 0;
                                     color: #0f172a;
@@ -423,7 +418,7 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
                                 <p className="text-[11px] text-slate-400 dark:text-white/60">{formattedRange}</p>
                             </div>
                             <div className="flex flex-col sm:flex-row items-center gap-2 justify-end w-full sm:w-auto">
-                                <button onClick={onClose} className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-[11px] font-semibold hover:border-slate-300 dark:border-white/10 dark:text-white">
+                                <button onClick={handleClose} className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-[11px] font-semibold hover:border-slate-300 dark:border-white/10 dark:text-white">
                                     Cancelar
                                 </button>
                                 <button

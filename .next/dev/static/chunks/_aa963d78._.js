@@ -30,9 +30,17 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$supabase$2f$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/utils/supabase/client.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/addMonths.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addWeeks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/addWeeks.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addYears$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/addYears.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$isBefore$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/isBefore.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/addDays.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$isSameDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/isSameDay.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/endOfMonth.js [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
 "use client";
+;
 ;
 ;
 ;
@@ -870,6 +878,86 @@ const FinanceProvider = ({ children })=>{
         }
         await fetchBudgets(activeBookId);
     };
+    const deleteBudget = async (id)=>{
+        if (!activeBookId) return;
+        const { error } = await supabase.from('budgets').delete().eq('id', id);
+        if (error) {
+            console.error('Error deleting budget:', error);
+            alert('Error al eliminar presupuesto: ' + error.message);
+            return;
+        }
+        await fetchBudgets(activeBookId);
+    };
+    const updateBudget = async (id, updates)=>{
+        if (!activeBookId) return;
+        const payload = {};
+        if (updates.amount !== undefined) payload.amount = updates.amount;
+        if (updates.categoryId !== undefined) payload.category_id = updates.categoryId;
+        if (updates.recurrenceType !== undefined) payload.recurrence_type = updates.recurrenceType;
+        if (updates.recurrenceInterval !== undefined) payload.recurrence_interval = updates.recurrenceInterval;
+        if (updates.startDate !== undefined) payload.start_date = updates.startDate;
+        if (updates.endDate !== undefined) payload.end_date = updates.endDate;
+        const { error } = await supabase.from('budgets').update(payload).eq('id', id);
+        if (error) {
+            console.error('Error updating budget:', error);
+            alert('Error al actualizar presupuesto: ' + error.message);
+            return;
+        }
+        await fetchBudgets(activeBookId);
+    };
+    const checkRecurringBudgets = async ()=>{
+        if (!activeBookId || budgets.length === 0) return;
+        const today = new Date();
+        const createdBudgets = [];
+        for (const budget of budgets){
+            if (!budget.recurrence_type || budget.recurrence_type === 'NONE' || !budget.start_date) continue;
+            const startDate = new Date(budget.start_date);
+            const endDate = budget.end_date ? new Date(budget.end_date) : null;
+            let nextStartDate = null;
+            let nextEndDate = null;
+            if (!endDate) continue;
+            if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$isBefore$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isBefore"])(endDate, today)) {
+                nextStartDate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addDays"])(endDate, 1);
+                if (budget.recurrence_type === 'MONTHLY') {
+                    nextStartDate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addMonths"])(startDate, 1);
+                    nextEndDate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endOfMonth"])(nextStartDate);
+                } else if (budget.recurrence_type === 'WEEKLY') {
+                    nextStartDate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addWeeks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addWeeks"])(startDate, 1);
+                    nextEndDate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addDays"])(nextStartDate, 6);
+                } else if (budget.recurrence_type === 'BIWEEKLY') {
+                    nextStartDate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addDays"])(startDate, 14);
+                    nextEndDate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addDays"])(nextStartDate, 13);
+                } else if (budget.recurrence_type === 'ANNUAL') {
+                    nextStartDate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addYears$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addYears"])(startDate, 1);
+                    nextEndDate = new Date(nextStartDate.getFullYear(), 11, 31);
+                } else {
+                    continue;
+                }
+                const exists = budgets.some((b)=>b.category_id === budget.category_id && (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$isSameDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isSameDay"])(new Date(b.start_date), nextStartDate));
+                if (!exists && nextStartDate) {
+                    createdBudgets.push({
+                        book_id: activeBookId,
+                        category_id: budget.category_id,
+                        amount: budget.limit,
+                        recurrence_type: budget.recurrence_type,
+                        recurrence_interval: budget.recurrence_interval,
+                        start_date: nextStartDate.toISOString(),
+                        end_date: nextEndDate ? nextEndDate.toISOString() : null,
+                        period: 'MONTHLY'
+                    });
+                }
+            }
+        }
+        if (createdBudgets.length > 0) {
+            console.log("Generating recurring budgets:", createdBudgets.length);
+            const { error } = await supabase.from('budgets').insert(createdBudgets);
+            if (error) {
+                console.error("Error generating recurring budgets:", error);
+            } else {
+                await fetchBudgets(activeBookId);
+            }
+        }
+    };
     // Modal State
     const [isTransactionModalOpen, setIsTransactionModalOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const openTransactionModal = ()=>setIsTransactionModalOpen(true);
@@ -909,12 +997,37 @@ const FinanceProvider = ({ children })=>{
             closeTransactionModal,
             addBudget,
             updateTransaction,
-            duplicateTransaction
+            duplicateTransaction,
+            deleteBudget,
+            updateBudget,
+            checkRecurringBudgets,
+            deleteCategory: async (id)=>{
+                if (!activeBookId) return;
+                const { error } = await supabase.from('categories').delete().eq('id', id);
+                if (error) {
+                    console.error("Error deleting category:", error);
+                    alert("Error al eliminar categoría: " + error.message);
+                } else {
+                    await fetchCategories(activeBookId);
+                }
+            },
+            deleteCategoryFolder: async (id)=>{
+                if (!activeBookId) return;
+                const { error } = await supabase.from('category_folders').delete().eq('id', id);
+                if (error) {
+                    console.error("Error deleting folder:", error);
+                    alert("Error al eliminar carpeta: " + error.message);
+                } else {
+                    await fetchCategoryFolders(activeBookId);
+                    // Also refresh categories as they might have been unlinked (if cascade set null) or deleted (if cascade delete)
+                    await fetchCategories(activeBookId);
+                }
+            }
         },
         children: children
     }, void 0, false, {
         fileName: "[project]/context/FinanceContext.tsx",
-        lineNumber: 942,
+        lineNumber: 1051,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
@@ -1972,7 +2085,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
         columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(TransactionModal, "51teV4YnjKO9ANr6+BGizZsOE70=", false, function() {
+_s(TransactionModal, "sf/+bXwg+XqSwjx7UwYu2OnRfgI=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$FinanceContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useFinance"]
     ];

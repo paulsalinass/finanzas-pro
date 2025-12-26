@@ -865,7 +865,7 @@ const CommitmentModal = ({ isOpen, onClose, commitmentToEdit })=>{
         columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(CommitmentModal, "QkboOIH9A1dnX4oG+uTggOyXtOI=", false, function() {
+_s(CommitmentModal, "oG4Yp9YQsmbDBOvUlx5v1tKq+iQ=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$FinanceContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useFinance"]
     ];
@@ -991,8 +991,8 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
     const [rightMonth, setRightMonth] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
         "DateRangeModal.useState": ()=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addMonths"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])(initialStartDate || new Date()), 1)
     }["DateRangeModal.useState"]);
-    const [isMounted, setIsMounted] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [isVisible, setIsVisible] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [isClosing, setIsClosing] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const syncCalendarMonths = (fromDate, toDate)=>{
         const baseLeft = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])(fromDate || new Date());
         let baseRight = toDate ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])(toDate) : (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addMonths"])(baseLeft, 1);
@@ -1005,6 +1005,8 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "DateRangeModal.useEffect": ()=>{
             if (isOpen) {
+                setIsVisible(true);
+                setIsClosing(false);
                 setRange({
                     from: initialStartDate || undefined,
                     to: initialEndDate || undefined
@@ -1024,7 +1026,7 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
             const handleKeyDown = {
                 "DateRangeModal.useEffect.handleKeyDown": (event)=>{
                     if (event.key === 'Escape') {
-                        onClose();
+                        handleClose();
                     }
                 }
             }["DateRangeModal.useEffect.handleKeyDown"];
@@ -1034,34 +1036,15 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
             })["DateRangeModal.useEffect"];
         }
     }["DateRangeModal.useEffect"], [
-        isOpen,
-        onClose
+        isOpen
     ]);
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLayoutEffect"])({
-        "DateRangeModal.useLayoutEffect": ()=>{
-            if (isOpen) {
-                setIsMounted(true);
-                const raf = requestAnimationFrame({
-                    "DateRangeModal.useLayoutEffect.raf": ()=>setIsVisible(true)
-                }["DateRangeModal.useLayoutEffect.raf"]);
-                return ({
-                    "DateRangeModal.useLayoutEffect": ()=>cancelAnimationFrame(raf)
-                })["DateRangeModal.useLayoutEffect"];
-            }
-            if (isMounted) {
-                setIsVisible(false);
-                const timeout = setTimeout({
-                    "DateRangeModal.useLayoutEffect.timeout": ()=>setIsMounted(false)
-                }["DateRangeModal.useLayoutEffect.timeout"], 300);
-                return ({
-                    "DateRangeModal.useLayoutEffect": ()=>clearTimeout(timeout)
-                })["DateRangeModal.useLayoutEffect"];
-            }
-        }
-    }["DateRangeModal.useLayoutEffect"], [
-        isOpen,
-        isMounted
-    ]);
+    const handleClose = ()=>{
+        setIsClosing(true);
+        setTimeout(()=>{
+            setIsVisible(false);
+            onClose();
+        }, 300);
+    };
     const years = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "DateRangeModal.useMemo[years]": ()=>{
             const current = new Date().getFullYear();
@@ -1113,7 +1096,7 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
     const handleApply = ()=>{
         if (range?.from && range?.to) {
             onApply(range.from, range.to);
-            onClose();
+            handleClose();
         }
     };
     const formattedRange = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
@@ -1128,7 +1111,6 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
     }["DateRangeModal.useMemo[formattedRange]"], [
         range
     ]);
-    if (!isMounted) return null;
     const handleLeftMonthChange = (next)=>{
         const normalized = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])(next);
         setLeftMonth(normalized);
@@ -1164,12 +1146,12 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                     children: name.charAt(0).toUpperCase() + name.slice(1)
                                 }, name, false, {
                                     fileName: "[project]/components/DateRangeModal.tsx",
-                                    lineNumber: 232,
+                                    lineNumber: 226,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)))
                         }, void 0, false, {
                             fileName: "[project]/components/DateRangeModal.tsx",
-                            lineNumber: 221,
+                            lineNumber: 215,
                             columnNumber: 17
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -1186,18 +1168,18 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                     children: year
                                 }, year, false, {
                                     fileName: "[project]/components/DateRangeModal.tsx",
-                                    lineNumber: 248,
+                                    lineNumber: 242,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)))
                         }, void 0, false, {
                             fileName: "[project]/components/DateRangeModal.tsx",
-                            lineNumber: 237,
+                            lineNumber: 231,
                             columnNumber: 17
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/DateRangeModal.tsx",
-                    lineNumber: 220,
+                    lineNumber: 214,
                     columnNumber: 13
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1213,12 +1195,12 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                 children: "chevron_left"
                             }, void 0, false, {
                                 fileName: "[project]/components/DateRangeModal.tsx",
-                                lineNumber: 261,
+                                lineNumber: 255,
                                 columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/components/DateRangeModal.tsx",
-                            lineNumber: 255,
+                            lineNumber: 249,
                             columnNumber: 17
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1231,29 +1213,30 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                 children: "chevron_right"
                             }, void 0, false, {
                                 fileName: "[project]/components/DateRangeModal.tsx",
-                                lineNumber: 269,
+                                lineNumber: 263,
                                 columnNumber: 21
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/components/DateRangeModal.tsx",
-                            lineNumber: 263,
+                            lineNumber: 257,
                             columnNumber: 17
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/DateRangeModal.tsx",
-                    lineNumber: 254,
+                    lineNumber: 248,
                     columnNumber: 13
                 }, ("TURBOPACK compile-time value", void 0))
             ]
         }, void 0, true, {
             fileName: "[project]/components/DateRangeModal.tsx",
-            lineNumber: 219,
+            lineNumber: 213,
             columnNumber: 9
         }, ("TURBOPACK compile-time value", void 0));
+    if (!isOpen && !isVisible) return null;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: `fixed inset-0 z-[120] flex transition-opacity duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] ${isVisible ? 'opacity-100' : 'opacity-0'}`,
-        onClick: onClose,
+        className: `fixed inset-0 z-[120] flex transition-opacity duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`,
+        onClick: handleClose,
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "hidden lg:block h-full",
@@ -1262,13 +1245,13 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                 }
             }, void 0, false, {
                 fileName: "[project]/components/DateRangeModal.tsx",
-                lineNumber: 280,
+                lineNumber: 276,
                 columnNumber: 13
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: `flex-1 w-full relative flex items-center justify-center bg-slate-900/35 p-3 sm:p-4 transition-[opacity,backdrop-filter] duration-300 ease-out ${isVisible ? 'opacity-100 backdrop-blur-md' : 'opacity-0 backdrop-blur-none'}`,
+                className: `flex-1 w-full relative flex items-center justify-center bg-slate-900/35 p-3 sm:p-4 backdrop-blur-sm transition-all duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`,
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: `date-range-modal w-full max-w-5xl bg-white dark:bg-[#101828] rounded-[28px] shadow-2xl border border-slate-200/80 dark:border-white/10 p-4 sm:p-5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'}`,
+                    className: `date-range-modal w-full max-w-5xl bg-white dark:bg-[#101828] rounded-[28px] shadow-2xl border border-slate-200/80 dark:border-white/10 p-4 sm:p-5 transition-all duration-300 transform ${isVisible && !isClosing ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`,
                     onClick: (e)=>e.stopPropagation(),
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1279,29 +1262,29 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                     children: "Seleccionar Rango"
                                 }, void 0, false, {
                                     fileName: "[project]/components/DateRangeModal.tsx",
-                                    lineNumber: 292,
+                                    lineNumber: 288,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                    onClick: onClose,
+                                    onClick: handleClose,
                                     className: "size-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-primary hover:bg-primary/10 transition-colors dark:bg-white/10 dark:text-white",
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         className: "material-symbols-outlined text-lg",
                                         children: "close"
                                     }, void 0, false, {
                                         fileName: "[project]/components/DateRangeModal.tsx",
-                                        lineNumber: 297,
+                                        lineNumber: 293,
                                         columnNumber: 29
                                     }, ("TURBOPACK compile-time value", void 0))
                                 }, void 0, false, {
                                     fileName: "[project]/components/DateRangeModal.tsx",
-                                    lineNumber: 293,
+                                    lineNumber: 289,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/DateRangeModal.tsx",
-                            lineNumber: 291,
+                            lineNumber: 287,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1315,7 +1298,7 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                             children: "Rangos rápidos"
                                         }, void 0, false, {
                                             fileName: "[project]/components/DateRangeModal.tsx",
-                                            lineNumber: 303,
+                                            lineNumber: 299,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1328,19 +1311,19 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                                     children: preset.label
                                                 }, preset.label, false, {
                                                     fileName: "[project]/components/DateRangeModal.tsx",
-                                                    lineNumber: 308,
+                                                    lineNumber: 304,
                                                     columnNumber: 41
                                                 }, ("TURBOPACK compile-time value", void 0));
                                             })
                                         }, void 0, false, {
                                             fileName: "[project]/components/DateRangeModal.tsx",
-                                            lineNumber: 304,
+                                            lineNumber: 300,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/DateRangeModal.tsx",
-                                    lineNumber: 302,
+                                    lineNumber: 298,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1393,7 +1376,7 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                             `
                                         }, void 0, false, {
                                             fileName: "[project]/components/DateRangeModal.tsx",
-                                            lineNumber: 325,
+                                            lineNumber: 320,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1407,7 +1390,7 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                                             onChange: handleLeftMonthChange
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/DateRangeModal.tsx",
-                                                            lineNumber: 371,
+                                                            lineNumber: 366,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$day$2d$picker$2f$dist$2f$esm$2f$DayPicker$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DayPicker"], {
@@ -1420,13 +1403,13 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                                             locale: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$locale$2f$es$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["es"]
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/DateRangeModal.tsx",
-                                                            lineNumber: 375,
+                                                            lineNumber: 370,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/DateRangeModal.tsx",
-                                                    lineNumber: 370,
+                                                    lineNumber: 365,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1438,7 +1421,7 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                                             disablePrev: rightMonth <= (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addMonths"])(leftMonth, 1)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/DateRangeModal.tsx",
-                                                            lineNumber: 386,
+                                                            lineNumber: 381,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$day$2d$picker$2f$dist$2f$esm$2f$DayPicker$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DayPicker"], {
@@ -1451,31 +1434,31 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                                             locale: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$locale$2f$es$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["es"]
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/DateRangeModal.tsx",
-                                                            lineNumber: 391,
+                                                            lineNumber: 386,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/DateRangeModal.tsx",
-                                                    lineNumber: 385,
+                                                    lineNumber: 380,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/DateRangeModal.tsx",
-                                            lineNumber: 369,
+                                            lineNumber: 364,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/DateRangeModal.tsx",
-                                    lineNumber: 324,
+                                    lineNumber: 319,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/DateRangeModal.tsx",
-                            lineNumber: 301,
+                            lineNumber: 297,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1496,7 +1479,7 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                                         className: "flex-1 sm:w-32 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-700 focus:border-primary focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/DateRangeModal.tsx",
-                                                        lineNumber: 409,
+                                                        lineNumber: 404,
                                                         columnNumber: 37
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1504,7 +1487,7 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                                         children: "-"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/DateRangeModal.tsx",
-                                                        lineNumber: 415,
+                                                        lineNumber: 410,
                                                         columnNumber: 37
                                                     }, ("TURBOPACK compile-time value", void 0)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1514,13 +1497,13 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                                         className: "flex-1 sm:w-32 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-700 focus:border-primary focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/DateRangeModal.tsx",
-                                                        lineNumber: 416,
+                                                        lineNumber: 411,
                                                         columnNumber: 37
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/DateRangeModal.tsx",
-                                                lineNumber: 408,
+                                                lineNumber: 403,
                                                 columnNumber: 33
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1528,25 +1511,25 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                                 children: formattedRange
                                             }, void 0, false, {
                                                 fileName: "[project]/components/DateRangeModal.tsx",
-                                                lineNumber: 423,
+                                                lineNumber: 418,
                                                 columnNumber: 33
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/DateRangeModal.tsx",
-                                        lineNumber: 407,
+                                        lineNumber: 402,
                                         columnNumber: 29
                                     }, ("TURBOPACK compile-time value", void 0)),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex flex-col sm:flex-row items-center gap-2 justify-end w-full sm:w-auto",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                                onClick: onClose,
+                                                onClick: handleClose,
                                                 className: "px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-[11px] font-semibold hover:border-slate-300 dark:border-white/10 dark:text-white",
                                                 children: "Cancelar"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/DateRangeModal.tsx",
-                                                lineNumber: 426,
+                                                lineNumber: 421,
                                                 columnNumber: 33
                                             }, ("TURBOPACK compile-time value", void 0)),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1556,45 +1539,45 @@ const DateRangeModal = ({ isOpen, onClose, onApply, initialStartDate, initialEnd
                                                 children: "Aplicar"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/DateRangeModal.tsx",
-                                                lineNumber: 429,
+                                                lineNumber: 424,
                                                 columnNumber: 33
                                             }, ("TURBOPACK compile-time value", void 0))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/DateRangeModal.tsx",
-                                        lineNumber: 425,
+                                        lineNumber: 420,
                                         columnNumber: 29
                                     }, ("TURBOPACK compile-time value", void 0))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/DateRangeModal.tsx",
-                                lineNumber: 406,
+                                lineNumber: 401,
                                 columnNumber: 25
                             }, ("TURBOPACK compile-time value", void 0))
                         }, void 0, false, {
                             fileName: "[project]/components/DateRangeModal.tsx",
-                            lineNumber: 405,
+                            lineNumber: 400,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/DateRangeModal.tsx",
-                    lineNumber: 287,
+                    lineNumber: 283,
                     columnNumber: 17
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/components/DateRangeModal.tsx",
-                lineNumber: 284,
+                lineNumber: 280,
                 columnNumber: 13
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/components/DateRangeModal.tsx",
-        lineNumber: 276,
+        lineNumber: 272,
         columnNumber: 9
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(DateRangeModal, "MBdTiDfjSDGUzk0GBuh7Ea5zke8=");
+_s(DateRangeModal, "58mIP/h+ubLpBWCj0Rz2BB7bFF4=");
 _c = DateRangeModal;
 var _c;
 __turbopack_context__.k.register(_c, "DateRangeModal");
@@ -2492,7 +2475,7 @@ const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, onDelete 
         ]
     }, void 0, true);
 };
-_s(CommitmentDetailsModal, "JCSVTZvC02pPst99eiuhEioAMHo=", false, function() {
+_s(CommitmentDetailsModal, "2/IxCZBLx/Wgzq2QLVHOfAHrWb4=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$FinanceContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useFinance"]
     ];
@@ -2648,12 +2631,12 @@ function Commitments() {
                                                 children: "Compromisos y Gastos Fijos"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 132,
+                                                lineNumber: 133,
                                                 columnNumber: 33
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 131,
+                                            lineNumber: 132,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2661,13 +2644,13 @@ function Commitments() {
                                             children: "Planifica y controla tus pagos recurrentes sin estrés."
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 134,
+                                            lineNumber: 135,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 130,
+                                    lineNumber: 131,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2682,7 +2665,7 @@ function Commitments() {
                                                     children: "calendar_month"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 138,
+                                                    lineNumber: 139,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2693,7 +2676,7 @@ function Commitments() {
                                                     }) : 'Ver Calendario'
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 139,
+                                                    lineNumber: 140,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2701,13 +2684,13 @@ function Commitments() {
                                                     children: "arrow_drop_down"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 140,
+                                                    lineNumber: 141,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 137,
+                                            lineNumber: 138,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2719,32 +2702,32 @@ function Commitments() {
                                                     children: "add"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 143,
+                                                    lineNumber: 144,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                     children: "Nuevo Gasto Fijo"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 144,
+                                                    lineNumber: 145,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 142,
+                                            lineNumber: 143,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 136,
+                                    lineNumber: 137,
                                     columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                            lineNumber: 129,
+                            lineNumber: 130,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -2763,12 +2746,12 @@ function Commitments() {
                                                 children: "calendar_clock"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 153,
+                                                lineNumber: 154,
                                                 columnNumber: 33
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 152,
+                                            lineNumber: 153,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2781,12 +2764,12 @@ function Commitments() {
                                                         children: "event_upcoming"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 157,
+                                                        lineNumber: 158,
                                                         columnNumber: 37
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 156,
+                                                    lineNumber: 157,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2794,13 +2777,13 @@ function Commitments() {
                                                     children: "Próximo Pago"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 159,
+                                                    lineNumber: 160,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 155,
+                                            lineNumber: 156,
                                             columnNumber: 29
                                         }, this),
                                         nextPayment ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2817,14 +2800,14 @@ function Commitments() {
                                                                     children: currencySymbol
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 166,
+                                                                    lineNumber: 167,
                                                                     columnNumber: 45
                                                                 }, this),
                                                                 nextPayment.amount.toFixed(2)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 165,
+                                                            lineNumber: 166,
                                                             columnNumber: 41
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2832,13 +2815,13 @@ function Commitments() {
                                                             children: nextPayment.name
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 169,
+                                                            lineNumber: 170,
                                                             columnNumber: 41
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 164,
+                                                    lineNumber: 165,
                                                     columnNumber: 37
                                                 }, this),
                                                 (()=>{
@@ -2866,21 +2849,21 @@ function Commitments() {
                                                                 children: "warning"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                lineNumber: 186,
+                                                                lineNumber: 187,
                                                                 columnNumber: 49
                                                             }, this),
                                                             message
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 185,
+                                                        lineNumber: 186,
                                                         columnNumber: 45
                                                     }, this);
                                                 })()
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 163,
+                                            lineNumber: 164,
                                             columnNumber: 33
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "relative z-10",
@@ -2890,7 +2873,7 @@ function Commitments() {
                                                     children: "¡Todo al día!"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 194,
+                                                    lineNumber: 195,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2898,19 +2881,19 @@ function Commitments() {
                                                     children: "No tienes pagos pendientes próximos."
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 195,
+                                                    lineNumber: 196,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 193,
+                                            lineNumber: 194,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 151,
+                                    lineNumber: 152,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2923,12 +2906,12 @@ function Commitments() {
                                                 children: "account_balance"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 202,
+                                                lineNumber: 203,
                                                 columnNumber: 33
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 201,
+                                            lineNumber: 202,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2941,12 +2924,12 @@ function Commitments() {
                                                         children: "savings"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 206,
+                                                        lineNumber: 207,
                                                         columnNumber: 37
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 205,
+                                                    lineNumber: 206,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2954,13 +2937,13 @@ function Commitments() {
                                                     children: "Total Planificado"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 208,
+                                                    lineNumber: 209,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 204,
+                                            lineNumber: 205,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2973,7 +2956,7 @@ function Commitments() {
                                                             children: currencySymbol
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 212,
+                                                            lineNumber: 213,
                                                             columnNumber: 37
                                                         }, this),
                                                         totalPlanificado.toLocaleString('en-US', {
@@ -2982,7 +2965,7 @@ function Commitments() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 211,
+                                                    lineNumber: 212,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2990,19 +2973,19 @@ function Commitments() {
                                                     children: "Estimación mensual"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 215,
+                                                    lineNumber: 216,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 210,
+                                            lineNumber: 211,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 200,
+                                    lineNumber: 201,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3015,12 +2998,12 @@ function Commitments() {
                                                 children: "check_circle"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 221,
+                                                lineNumber: 222,
                                                 columnNumber: 33
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 220,
+                                            lineNumber: 221,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3033,12 +3016,12 @@ function Commitments() {
                                                         children: "payments"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 225,
+                                                        lineNumber: 226,
                                                         columnNumber: 37
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 224,
+                                                    lineNumber: 225,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3046,13 +3029,13 @@ function Commitments() {
                                                     children: "Ya Pagado"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 227,
+                                                    lineNumber: 228,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 223,
+                                            lineNumber: 224,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3065,7 +3048,7 @@ function Commitments() {
                                                             children: currencySymbol
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 231,
+                                                            lineNumber: 232,
                                                             columnNumber: 37
                                                         }, this),
                                                         yaPagado.toLocaleString('en-US', {
@@ -3074,7 +3057,7 @@ function Commitments() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 230,
+                                                    lineNumber: 231,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3086,12 +3069,12 @@ function Commitments() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 235,
+                                                        lineNumber: 236,
                                                         columnNumber: 37
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 234,
+                                                    lineNumber: 235,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3102,19 +3085,19 @@ function Commitments() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 237,
+                                                    lineNumber: 238,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 229,
+                                            lineNumber: 230,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 219,
+                                    lineNumber: 220,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3127,12 +3110,12 @@ function Commitments() {
                                                 children: "pending_actions"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 243,
+                                                lineNumber: 244,
                                                 columnNumber: 33
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 242,
+                                            lineNumber: 243,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3145,12 +3128,12 @@ function Commitments() {
                                                         children: "hourglass_top"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 247,
+                                                        lineNumber: 248,
                                                         columnNumber: 37
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 246,
+                                                    lineNumber: 247,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3158,13 +3141,13 @@ function Commitments() {
                                                     children: "Por Pagar"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 249,
+                                                    lineNumber: 250,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 245,
+                                            lineNumber: 246,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3177,7 +3160,7 @@ function Commitments() {
                                                             children: currencySymbol
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 253,
+                                                            lineNumber: 254,
                                                             columnNumber: 37
                                                         }, this),
                                                         porPagar.toLocaleString('en-US', {
@@ -3186,7 +3169,7 @@ function Commitments() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 252,
+                                                    lineNumber: 253,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3197,25 +3180,25 @@ function Commitments() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 256,
+                                                    lineNumber: 257,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 251,
+                                            lineNumber: 252,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 241,
+                                    lineNumber: 242,
                                     columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                            lineNumber: 149,
+                            lineNumber: 150,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -3232,7 +3215,7 @@ function Commitments() {
                                             children: "Listado de Compromisos"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 263,
+                                            lineNumber: 264,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3246,7 +3229,7 @@ function Commitments() {
                                                             children: "search"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 267,
+                                                            lineNumber: 268,
                                                             columnNumber: 37
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3257,13 +3240,13 @@ function Commitments() {
                                                             className: "pl-10 pr-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 268,
+                                                            lineNumber: 269,
                                                             columnNumber: 37
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 266,
+                                                    lineNumber: 267,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3275,7 +3258,7 @@ function Commitments() {
                                                             children: "Todos"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 278,
+                                                            lineNumber: 279,
                                                             columnNumber: 37
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3284,7 +3267,7 @@ function Commitments() {
                                                             children: "Pendientes"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 284,
+                                                            lineNumber: 285,
                                                             columnNumber: 37
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3293,25 +3276,25 @@ function Commitments() {
                                                             children: "Completados"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 290,
+                                                            lineNumber: 291,
                                                             columnNumber: 37
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 277,
+                                                    lineNumber: 278,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                            lineNumber: 265,
+                                            lineNumber: 266,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 262,
+                                    lineNumber: 263,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3328,7 +3311,7 @@ function Commitments() {
                                                             children: "Concepto"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 303,
+                                                            lineNumber: 304,
                                                             columnNumber: 41
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3336,7 +3319,7 @@ function Commitments() {
                                                             children: "Fecha Vencimiento"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 304,
+                                                            lineNumber: 305,
                                                             columnNumber: 41
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3344,7 +3327,7 @@ function Commitments() {
                                                             children: "Monto"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 305,
+                                                            lineNumber: 306,
                                                             columnNumber: 41
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3352,7 +3335,7 @@ function Commitments() {
                                                             children: "Estado"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 306,
+                                                            lineNumber: 307,
                                                             columnNumber: 41
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3360,18 +3343,18 @@ function Commitments() {
                                                             children: "Acción"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 307,
+                                                            lineNumber: 308,
                                                             columnNumber: 41
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 302,
+                                                    lineNumber: 303,
                                                     columnNumber: 37
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 301,
+                                                lineNumber: 302,
                                                 columnNumber: 33
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -3388,7 +3371,7 @@ function Commitments() {
                                                                     children: "event_busy"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 315,
+                                                                    lineNumber: 316,
                                                                     columnNumber: 53
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3396,7 +3379,7 @@ function Commitments() {
                                                                     children: "No se encontraron compromisos en este periodo."
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 316,
+                                                                    lineNumber: 317,
                                                                     columnNumber: 53
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3408,23 +3391,23 @@ function Commitments() {
                                                                     children: "Limpiar Filtros"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 317,
+                                                                    lineNumber: 318,
                                                                     columnNumber: 53
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                            lineNumber: 314,
+                                                            lineNumber: 315,
                                                             columnNumber: 49
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 313,
+                                                        lineNumber: 314,
                                                         columnNumber: 45
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                    lineNumber: 312,
+                                                    lineNumber: 313,
                                                     columnNumber: 41
                                                 }, this) : filteredCommitments.map((item)=>{
                                                     // ... existing map
@@ -3446,12 +3429,12 @@ function Commitments() {
                                                                                 children: item.name.toLowerCase().includes('internet') ? 'wifi' : item.name.toLowerCase().includes('spotify') ? 'music_note' : item.name.toLowerCase().includes('alquiler') ? 'home' : 'event_repeat'
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                lineNumber: 336,
+                                                                                lineNumber: 337,
                                                                                 columnNumber: 65
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 334,
+                                                                            lineNumber: 335,
                                                                             columnNumber: 61
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3461,7 +3444,7 @@ function Commitments() {
                                                                                     children: item.name
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                    lineNumber: 343,
+                                                                                    lineNumber: 344,
                                                                                     columnNumber: 65
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3469,24 +3452,24 @@ function Commitments() {
                                                                                     children: item.frequency
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                    lineNumber: 344,
+                                                                                    lineNumber: 345,
                                                                                     columnNumber: 65
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 342,
+                                                                            lineNumber: 343,
                                                                             columnNumber: 61
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 330,
+                                                                    lineNumber: 331,
                                                                     columnNumber: 57
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                lineNumber: 329,
+                                                                lineNumber: 330,
                                                                 columnNumber: 53
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3499,7 +3482,7 @@ function Commitments() {
                                                                             children: "warning"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 352,
+                                                                            lineNumber: 353,
                                                                             columnNumber: 86
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3507,18 +3490,18 @@ function Commitments() {
                                                                             children: item.nextDueDate
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 353,
+                                                                            lineNumber: 354,
                                                                             columnNumber: 61
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 349,
+                                                                    lineNumber: 350,
                                                                     columnNumber: 57
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                lineNumber: 348,
+                                                                lineNumber: 349,
                                                                 columnNumber: 53
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3531,7 +3514,7 @@ function Commitments() {
                                                                             children: currencySymbol
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 358,
+                                                                            lineNumber: 359,
                                                                             columnNumber: 61
                                                                         }, this),
                                                                         item.transaction_type === 'INCOME' ? '+' : '-',
@@ -3539,12 +3522,12 @@ function Commitments() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 357,
+                                                                    lineNumber: 358,
                                                                     columnNumber: 57
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                lineNumber: 356,
+                                                                lineNumber: 357,
                                                                 columnNumber: 53
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3556,7 +3539,7 @@ function Commitments() {
                                                                             className: `size-1.5 rounded-full ${isOverdue ? 'bg-orange-500 animate-pulse' : 'bg-slate-400'}`
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 369,
+                                                                            lineNumber: 370,
                                                                             columnNumber: 73
                                                                         }, this),
                                                                         isPaid ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3564,19 +3547,19 @@ function Commitments() {
                                                                             children: "check"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 370,
+                                                                            lineNumber: 371,
                                                                             columnNumber: 71
                                                                         }, this) : '',
                                                                         isPaid ? 'Completado' : isOverdue ? 'Urgente' : 'Pendiente'
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 363,
+                                                                    lineNumber: 364,
                                                                     columnNumber: 57
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                lineNumber: 362,
+                                                                lineNumber: 363,
                                                                 columnNumber: 53
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3589,7 +3572,7 @@ function Commitments() {
                                                                             children: "Transacción Generada"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 377,
+                                                                            lineNumber: 378,
                                                                             columnNumber: 65
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3601,12 +3584,12 @@ function Commitments() {
                                                                                 children: "delete"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                lineNumber: 379,
+                                                                                lineNumber: 380,
                                                                                 columnNumber: 69
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 378,
+                                                                            lineNumber: 379,
                                                                             columnNumber: 65
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3618,18 +3601,18 @@ function Commitments() {
                                                                                 children: "visibility"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                lineNumber: 382,
+                                                                                lineNumber: 383,
                                                                                 columnNumber: 69
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 381,
+                                                                            lineNumber: 382,
                                                                             columnNumber: 65
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 376,
+                                                                    lineNumber: 377,
                                                                     columnNumber: 61
                                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                     className: "flex justify-end gap-2",
@@ -3643,12 +3626,12 @@ function Commitments() {
                                                                                 children: "visibility"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                lineNumber: 392,
+                                                                                lineNumber: 393,
                                                                                 columnNumber: 69
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 387,
+                                                                            lineNumber: 388,
                                                                             columnNumber: 65
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3660,12 +3643,12 @@ function Commitments() {
                                                                                 children: "delete"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                lineNumber: 399,
+                                                                                lineNumber: 400,
                                                                                 columnNumber: 69
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 394,
+                                                                            lineNumber: 395,
                                                                             columnNumber: 65
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3677,54 +3660,54 @@ function Commitments() {
                                                                                     children: isOverdue ? 'payments' : 'done'
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                    lineNumber: 408,
+                                                                                    lineNumber: 409,
                                                                                     columnNumber: 69
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                     children: isOverdue ? 'Pagar Ahora' : 'Marcar Pagado'
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                                    lineNumber: 409,
+                                                                                    lineNumber: 410,
                                                                                     columnNumber: 69
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                            lineNumber: 401,
+                                                                            lineNumber: 402,
                                                                             columnNumber: 65
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                    lineNumber: 386,
+                                                                    lineNumber: 387,
                                                                     columnNumber: 61
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                                lineNumber: 374,
+                                                                lineNumber: 375,
                                                                 columnNumber: 53
                                                             }, this)
                                                         ]
                                                     }, item.id, true, {
                                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                        lineNumber: 328,
+                                                        lineNumber: 329,
                                                         columnNumber: 49
                                                     }, this);
                                                 })
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 310,
+                                                lineNumber: 311,
                                                 columnNumber: 33
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                        lineNumber: 300,
+                                        lineNumber: 301,
                                         columnNumber: 29
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 299,
+                                    lineNumber: 300,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3738,35 +3721,35 @@ function Commitments() {
                                                 children: "expand_more"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                                lineNumber: 424,
+                                                lineNumber: 425,
                                                 columnNumber: 33
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                        lineNumber: 422,
+                                        lineNumber: 423,
                                         columnNumber: 29
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                                    lineNumber: 421,
+                                    lineNumber: 422,
                                     columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                            lineNumber: 261,
+                            lineNumber: 262,
                             columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                    lineNumber: 128,
+                    lineNumber: 129,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                lineNumber: 127,
+                lineNumber: 128,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$CommitmentModal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CommitmentModal"], {
@@ -3775,7 +3758,7 @@ function Commitments() {
                 commitmentToEdit: editingCommitment
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                lineNumber: 431,
+                lineNumber: 432,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$DeleteConfirmModal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DeleteConfirmModal"], {
@@ -3787,7 +3770,7 @@ function Commitments() {
                 itemName: commitments.find((c)=>c.id === commitmentToDelete)?.name
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                lineNumber: 437,
+                lineNumber: 438,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$DateRangeModal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DateRangeModal"], {
@@ -3798,7 +3781,7 @@ function Commitments() {
                 initialEndDate: dateRange.end
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                lineNumber: 446,
+                lineNumber: 447,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$CommitmentDetailsModal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CommitmentDetailsModal"], {
@@ -3809,17 +3792,17 @@ function Commitments() {
                 onDelete: deleteCommitment
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-                lineNumber: 454,
+                lineNumber: 455,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/(dashboard)/commitments/page.tsx",
-        lineNumber: 126,
+        lineNumber: 127,
         columnNumber: 9
     }, this);
 }
-_s(Commitments, "oA3+XZZV8JiCHx7Xgh9xc/8++Pg=", false, function() {
+_s(Commitments, "tBPvJLK+Jn2cWX8N8QUsrGuXpdY=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
         __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$FinanceContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useFinance"]

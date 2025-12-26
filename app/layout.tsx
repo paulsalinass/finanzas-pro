@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { FinanceProvider } from "../context/FinanceContext";
 import { TransactionModal } from "@/components/TransactionModal";
 
 
-const inter = Inter({ subsets: ["latin"] });
+const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
     title: "Finanzas Pro",
@@ -22,7 +22,7 @@ export default function RootLayout({
             <head>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
             </head>
-            <body className={`${inter.className} font-body selection:bg-primary/20 bg-background-page dark:bg-background-dark text-text-main dark:text-white h-screen overflow-hidden`}>
+            <body className={`${plusJakarta.className} font-body selection:bg-primary/20 bg-background-page dark:bg-background-dark text-text-main dark:text-white h-screen overflow-hidden`}>
                 <FinanceProvider>
                     {children}
                     <TransactionModal />

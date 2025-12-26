@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFinance } from '@/context/FinanceContext';
 import { LineChart, Line, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { MoneyDisplay } from '@/components/MoneyDisplay';
 
 export default function Accounts() {
     const router = useRouter();
@@ -233,20 +234,31 @@ export default function Accounts() {
     const liabilitiesList = accounts.filter(acc => acc.type === 'CREDIT');
 
     return (
-        <div className="flex-1 h-full overflow-y-auto relative z-10 scrollbar-hide pb-24">
-            <div className="max-w-[1200px] mx-auto p-6 md:p-8 flex flex-col gap-8">
-                <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 animate-fade-in">
+        <div className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative scrollbar-hide pb-24">
+            {/* Background Decor */}
+            <div className="fixed inset-0 -z-10 pointer-events-none opacity-40 dark:opacity-10">
+                <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-100 rounded-full blur-[120px]"></div>
+                <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-100 rounded-full blur-[120px]"></div>
+            </div>
+
+            <div className="container mx-auto max-w-[1200px] p-6 lg:p-10 flex flex-col gap-8">
+                {/* Page Header */}
+                <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-fade-in">
                     <div className="flex flex-col gap-1">
-                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Mis Cuentas</h2>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Visión general de tu liquidez y patrimonio.</p>
+                        <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-[#111418] dark:text-white">Mis Cuentas</h1>
+                        <p className="text-gray-500 dark:text-gray-400 text-lg font-normal capitalize">
+                            Visión general de tu liquidez y patrimonio.
+                        </p>
                     </div>
-                    <button
-                        onClick={openCreateModal}
-                        className="btn-interact bg-primary hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2"
-                    >
-                        <span className="material-symbols-outlined text-[18px]">add_circle</span>
-                        Nueva Cuenta
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                        <button
+                            onClick={openCreateModal}
+                            className="flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 h-12"
+                        >
+                            <span className="material-symbols-outlined text-[20px]">add_circle</span>
+                            <span className="text-sm">Nueva Cuenta</span>
+                        </button>
+                    </div>
                 </header>
 
                 {/* Summary Metrics */}
@@ -255,10 +267,9 @@ export default function Accounts() {
                     <div className="glass-card p-5 rounded-3xl flex flex-col justify-between relative overflow-hidden group border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 min-h-[140px]">
                         <div className="flex flex-col gap-1 z-10">
                             <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Patrimonio Neto Total</p>
-                            <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                <span className="text-lg align-baseline mr-0.5">{currencySymbol}</span>
-                                {netWorth.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                            </h3>
+                            <div className="mt-1">
+                                <MoneyDisplay amount={netWorth} currency={currencySymbol} size="3xl" />
+                            </div>
                         </div>
                         <div className="flex items-center gap-2 mt-3 z-10">
                             <div className="bg-emerald-50 dark:bg-emerald-900/20 px-2.5 py-1 rounded-full flex items-center gap-1">
@@ -277,11 +288,14 @@ export default function Accounts() {
                     <div className="glass-card p-5 rounded-3xl flex flex-col justify-between relative overflow-hidden group border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 min-h-[140px]">
                         <div className="flex flex-col gap-1 z-10">
                             <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Cambio Mensual</p>
-                            <h3 className={`text-3xl font-bold tracking-tight ${isPositiveChange ? 'text-emerald-500' : 'text-slate-900 dark:text-white'}`}>
-                                {isPositiveChange ? '+' : ''}
-                                <span className="text-lg align-baseline mr-0.5">{currencySymbol}</span>
-                                {monthlyChange.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                            </h3>
+                            <div className="mt-1">
+                                <MoneyDisplay
+                                    amount={monthlyChange}
+                                    currency={currencySymbol}
+                                    size="3xl"
+                                    color={isPositiveChange ? 'text-emerald-500' : 'text-slate-900 dark:text-white'}
+                                />
+                            </div>
                         </div>
                         <div className="h-10 w-full mt-2">
                             {/* Simple visual cue or sparkline could go here, keeping existing simple line for now or removing if irrelevant */}
@@ -298,10 +312,7 @@ export default function Accounts() {
                         <div className="flex flex-col gap-1 z-10">
                             <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Deuda Total</p>
                             <div className="flex items-center gap-3">
-                                <h3 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                    <span className="text-lg align-baseline mr-0.5">{currencySymbol}</span>
-                                    {Math.abs(totalLiabilities).toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                                </h3>
+                                <MoneyDisplay amount={Math.abs(totalLiabilities)} currency={currencySymbol} size="3xl" />
                             </div>
                         </div>
                         <div className="flex items-center gap-2 mt-3 z-10">
@@ -320,8 +331,8 @@ export default function Accounts() {
                             </div>
                             Efectivo y Bancos
                         </h3>
-                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tabular-nums bg-slate-100 dark:bg-slate-800/50 px-3 py-1 rounded-full">
-                            {currencySymbol}{totalAssets.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tabular-nums bg-slate-100 dark:bg-slate-800/50 px-3 py-1 rounded-full flex items-center">
+                            <MoneyDisplay amount={totalAssets} currency={currencySymbol} size="lg" color="text-slate-500 dark:text-slate-400" />
                         </span>
                     </div>
 
@@ -346,9 +357,8 @@ export default function Accounts() {
                                 </div>
 
                                 <div>
-                                    <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                        <span className="text-sm align-baseline mr-0.5">{currencySymbol}</span>
-                                        {acc.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                    <p className="tracking-tight">
+                                        <MoneyDisplay amount={acc.balance} currency={currencySymbol} size="4xl" />
                                     </p>
                                 </div>
 
@@ -379,8 +389,8 @@ export default function Accounts() {
                             </div>
                             Tarjetas de Crédito
                         </h3>
-                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tabular-nums bg-slate-100 dark:bg-slate-800/50 px-3 py-1 rounded-full">
-                            -{currencySymbol}{Math.abs(totalLiabilities).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tabular-nums bg-slate-100 dark:bg-slate-800/50 px-3 py-1 rounded-full flex items-center">
+                            <MoneyDisplay amount={-Math.abs(totalLiabilities)} currency={currencySymbol} size="lg" color="text-slate-500 dark:text-slate-400" />
                         </span>
                     </div>
 
@@ -403,9 +413,8 @@ export default function Accounts() {
                                 </div>
 
                                 <div>
-                                    <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                        -<span className="text-sm align-baseline mr-0.5">{currencySymbol}</span>
-                                        {Math.abs(acc.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                    <p className="tracking-tight">
+                                        <MoneyDisplay amount={-Math.abs(acc.balance)} currency={currencySymbol} size="4xl" autoColor={false} />
                                     </p>
                                     <p className="text-[11px] text-slate-400 font-medium mt-1">Límite disponible: {currencySymbol}4,550.00</p>
                                 </div>

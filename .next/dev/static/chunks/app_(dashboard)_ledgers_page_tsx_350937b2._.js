@@ -175,20 +175,20 @@ function Ledgers() {
     const [searchTerm, setSearchTerm] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
     const filteredLedgers = ledgers.filter((ledger)=>ledger.name.toLowerCase().includes(searchTerm.toLowerCase()));
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "flex-1 w-full h-full overflow-y-auto scrollbar-hide relative pb-24",
+        className: "flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative scrollbar-hide pb-24",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "fixed inset-0 pointer-events-none opacity-40 dark:opacity-10 -z-10",
+                className: "fixed inset-0 -z-10 pointer-events-none opacity-40 dark:opacity-10",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "absolute top-[-10%] left-[-10%] w-[40vw] h-[40vh] bg-blue-400/20 rounded-full blur-[100px]"
+                        className: "absolute top-0 left-0 w-[500px] h-[500px] bg-blue-100 rounded-full blur-[120px]"
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
                         lineNumber: 51,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "absolute bottom-[20%] right-[10%] w-[30vw] h-[30vh] bg-purple-400/20 rounded-full blur-[100px]"
+                        className: "absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-100 rounded-full blur-[120px]"
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
                         lineNumber: 52,
@@ -201,16 +201,16 @@ function Ledgers() {
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "max-w-[1024px] mx-auto p-6 md:p-10 flex flex-col gap-8 animate-fade-in",
+                className: "container mx-auto max-w-[1200px] p-6 lg:p-10 flex flex-col gap-8",
                 children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "flex flex-col md:flex-row md:items-end justify-between gap-6",
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
+                        className: "flex flex-col md:flex-row md:items-end justify-between gap-6 animate-fade-in",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "flex flex-col gap-2",
+                                className: "flex flex-col gap-1",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                                        className: "text-slate-900 dark:text-white text-3xl md:text-4xl font-black tracking-tight uppercase",
+                                        className: "text-3xl lg:text-4xl font-black tracking-tight text-[#111418] dark:text-white",
                                         children: "Libros Contables"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
@@ -218,8 +218,8 @@ function Ledgers() {
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-slate-500 dark:text-slate-400 text-base font-medium max-w-xl",
-                                        children: "Gestiona diferentes espacios financieros. Organiza tus finanzas personales, de pareja o de negocios por separado."
+                                        className: "text-gray-500 dark:text-gray-400 text-lg font-normal capitalize",
+                                        children: "Gestiona diferentes espacios financieros"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
                                         lineNumber: 60,
@@ -231,27 +231,35 @@ function Ledgers() {
                                 lineNumber: 58,
                                 columnNumber: 21
                             }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                href: "/books/create",
-                                className: "group flex items-center justify-center gap-3 rounded-2xl h-12 px-6 bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/20 transition-all active:scale-95 font-black uppercase text-xs tracking-widest",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-500",
-                                        children: "add_circle"
-                                    }, void 0, false, {
-                                        fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                        lineNumber: 65,
-                                        columnNumber: 25
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        children: "Nuevo Libro"
-                                    }, void 0, false, {
-                                        fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                        lineNumber: 66,
-                                        columnNumber: 25
-                                    }, this)
-                                ]
-                            }, void 0, true, {
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex flex-col sm:flex-row gap-3 w-full md:w-auto",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                    href: "/books/create",
+                                    className: "flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 h-12",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            className: "material-symbols-outlined text-[20px]",
+                                            children: "add_circle"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
+                                            lineNumber: 66,
+                                            columnNumber: 29
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            className: "text-sm",
+                                            children: "Nuevo Libro"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
+                                            lineNumber: 67,
+                                            columnNumber: 29
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
+                                    lineNumber: 65,
+                                    columnNumber: 25
+                                }, this)
+                            }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
                                 lineNumber: 64,
                                 columnNumber: 21
@@ -270,7 +278,7 @@ function Ledgers() {
                                 children: "search"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                lineNumber: 72,
+                                lineNumber: 74,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -281,13 +289,13 @@ function Ledgers() {
                                 className: "w-full h-14 pl-12 pr-6 rounded-2xl border border-white/60 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all font-bold text-slate-900 dark:text-white placeholder:text-slate-400 shadow-sm"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                lineNumber: 73,
+                                lineNumber: 75,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                        lineNumber: 71,
+                        lineNumber: 73,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -318,12 +326,12 @@ function Ledgers() {
                                                         className: ledger.isActive ? "text-white" : ""
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                        lineNumber: 113,
+                                                        lineNumber: 115,
                                                         columnNumber: 41
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                    lineNumber: 109,
+                                                    lineNumber: 111,
                                                     columnNumber: 37
                                                 }, this),
                                                 ledger.isActive && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -333,7 +341,7 @@ function Ledgers() {
                                                             className: `size-2 rounded-full animate-pulse ${colors.solid.replace('bg-', 'bg-')}`
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                            lineNumber: 117,
+                                                            lineNumber: 119,
                                                             columnNumber: 45
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -341,19 +349,19 @@ function Ledgers() {
                                                             children: "Activo"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                            lineNumber: 118,
+                                                            lineNumber: 120,
                                                             columnNumber: 45
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                    lineNumber: 116,
+                                                    lineNumber: 118,
                                                     columnNumber: 41
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                            lineNumber: 108,
+                                            lineNumber: 110,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -364,7 +372,7 @@ function Ledgers() {
                                                     children: ledger.name
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                    lineNumber: 124,
+                                                    lineNumber: 126,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -372,13 +380,13 @@ function Ledgers() {
                                                     children: ledger.description
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                    lineNumber: 125,
+                                                    lineNumber: 127,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                            lineNumber: 123,
+                                            lineNumber: 125,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -392,7 +400,7 @@ function Ledgers() {
                                                             children: "Miembros"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                            lineNumber: 130,
+                                                            lineNumber: 132,
                                                             columnNumber: 41
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -404,7 +412,7 @@ function Ledgers() {
                                                                         children: member.charAt(0)
                                                                     }, i, false, {
                                                                         fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                                        lineNumber: 133,
+                                                                        lineNumber: 135,
                                                                         columnNumber: 49
                                                                     }, this)),
                                                                 ledger.members.length > 3 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -415,19 +423,19 @@ function Ledgers() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                                    lineNumber: 138,
+                                                                    lineNumber: 140,
                                                                     columnNumber: 49
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                            lineNumber: 131,
+                                                            lineNumber: 133,
                                                             columnNumber: 41
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                    lineNumber: 129,
+                                                    lineNumber: 131,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -438,7 +446,7 @@ function Ledgers() {
                                                             children: "Creado"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                            lineNumber: 145,
+                                                            lineNumber: 147,
                                                             columnNumber: 41
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -446,19 +454,19 @@ function Ledgers() {
                                                             children: new Date(ledger.lastUpdate).toLocaleDateString()
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                            lineNumber: 146,
+                                                            lineNumber: 148,
                                                             columnNumber: 41
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                    lineNumber: 144,
+                                                    lineNumber: 146,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                            lineNumber: 128,
+                                            lineNumber: 130,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -474,14 +482,14 @@ function Ledgers() {
                                                             children: "settings"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                            lineNumber: 156,
+                                                            lineNumber: 158,
                                                             columnNumber: 41
                                                         }, this),
                                                         "Configurar"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                    lineNumber: 151,
+                                                    lineNumber: 153,
                                                     columnNumber: 37
                                                 }, this),
                                                 !ledger.isActive && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -493,25 +501,25 @@ function Ledgers() {
                                                             children: "arrow_forward"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                            lineNumber: 162,
+                                                            lineNumber: 164,
                                                             columnNumber: 45
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                    lineNumber: 160,
+                                                    lineNumber: 162,
                                                     columnNumber: 41
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                            lineNumber: 150,
+                                            lineNumber: 152,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, ledger.id, true, {
                                     fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                    lineNumber: 100,
+                                    lineNumber: 102,
                                     columnNumber: 29
                                 }, this);
                             }),
@@ -526,12 +534,12 @@ function Ledgers() {
                                             children: "add"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                            lineNumber: 173,
+                                            lineNumber: 175,
                                             columnNumber: 29
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                        lineNumber: 172,
+                                        lineNumber: 174,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -542,7 +550,7 @@ function Ledgers() {
                                                 children: "Crear Libro"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                lineNumber: 176,
+                                                lineNumber: 178,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -550,25 +558,25 @@ function Ledgers() {
                                                 children: "Añade un nuevo espacio para organizar otras finanzas."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                                lineNumber: 177,
+                                                lineNumber: 179,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                        lineNumber: 175,
+                                        lineNumber: 177,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                                lineNumber: 171,
+                                lineNumber: 173,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/ledgers/page.tsx",
-                        lineNumber: 83,
+                        lineNumber: 85,
                         columnNumber: 17
                     }, this)
                 ]

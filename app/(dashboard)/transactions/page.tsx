@@ -13,6 +13,7 @@ import { TransactionDetailsModal } from '@/components/TransactionDetailsModal';
 import { TransactionModal } from '@/components/TransactionModal';
 import { startOfMonth, endOfMonth, format, startOfDay, endOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { MoneyDisplay } from '@/components/MoneyDisplay';
 
 const COLOR_MAP: Record<string, { bg: string, text: string, ring: string, border: string, solid: string }> = {
     red: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400', ring: 'ring-red-500/10', border: 'border-red-200', solid: 'bg-red-500' },
@@ -60,6 +61,11 @@ export default function Transactions() {
     });
     const [isDateModalOpen, setIsDateModalOpen] = useState(false);
     const [visibleCount, setVisibleCount] = useState(20);
+
+    const currencySymbol = useMemo(() => {
+        const curr = ledgers.find(l => l.id === activeBookId)?.currency || 'PEN';
+        return curr === 'PEN' ? 'S/' : (curr === 'USD' ? '$' : curr);
+    }, [ledgers, activeBookId]);
 
     // Modal States for Details/Edit
     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
@@ -188,19 +194,7 @@ export default function Transactions() {
         };
     }, [periodTransactions, filtered, budgets, recurringRules, selectedCategories]);
 
-    // Helper to display currency with smaller symbol
-    const CurrencyDisplay = ({ amount, className = "" }: { amount: number, className?: string }) => {
-        const activeLedger = ledgers.find(l => l.id === activeBookId);
-        const currency = activeLedger?.currency || 'USD';
-        const symbol = currency === 'PEN' ? 'S/' : (currency === 'EUR' ? '€' : '$');
 
-        return (
-            <span className={`inline-flex items-baseline ${className}`}>
-                <span className="text-[0.6em] mr-1">{symbol}</span>
-                <span>{amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
-            </span>
-        );
-    };
 
     const getProgress = (current: number, target: number) => {
         if (target === 0) return 0;
@@ -220,9 +214,7 @@ export default function Transactions() {
                 <aside className="hidden lg:flex flex-col w-72 shrink-0 gap-6 h-full overflow-y-auto pr-2 scrollbar-hide">
                     <div className="glass-card p-6 rounded-2xl border border-white/40 dark:border-slate-800">
                         <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Total Disponible</p>
-                        <h2 className="text-4xl font-black text-slate-800 dark:text-white tracking-tight">
-                            <CurrencyDisplay amount={stats.availableBudget} />
-                        </h2>
+                        <MoneyDisplay amount={stats.availableBudget} currency={currencySymbol} size="6xl" weight="font-black" color="text-slate-800 dark:text-white" />
 
                         <div className="mt-6 flex flex-col gap-4">
                             {/* Income Card */}
@@ -233,12 +225,12 @@ export default function Transactions() {
                                     </div>
                                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Ingresos</span>
                                 </div>
-                                <div className="text-xl font-black text-slate-800 dark:text-white mb-2"><CurrencyDisplay amount={stats.income} /></div>
+                                <div className="mb-2"><MoneyDisplay amount={stats.income} currency={currencySymbol} size="3xl" weight="font-black" color="text-slate-800 dark:text-white" /></div>
 
                                 <div className="space-y-1">
                                     <div className="flex justify-between text-[10px] font-medium text-slate-400">
                                         <span>Proyectado</span>
-                                        <span>{formatAmount(stats.incomeProjected)}</span>
+                                        <MoneyDisplay amount={stats.incomeProjected} currency={currencySymbol} size="sm" color="text-slate-400" weight="font-medium" />
                                     </div>
                                     <div className="h-1.5 w-full bg-emerald-100 dark:bg-emerald-950 rounded-full overflow-hidden">
                                         <div
@@ -257,12 +249,12 @@ export default function Transactions() {
                                     </div>
                                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Gastos</span>
                                 </div>
-                                <div className="text-xl font-black text-slate-800 dark:text-white mb-2"><CurrencyDisplay amount={stats.expense} /></div>
+                                <div className="mb-2"><MoneyDisplay amount={stats.expense} currency={currencySymbol} size="3xl" weight="font-black" color="text-slate-800 dark:text-white" /></div>
 
                                 <div className="space-y-1">
                                     <div className="flex justify-between text-[10px] font-medium text-slate-400">
                                         <span>Presupuesto</span>
-                                        <span>{formatAmount(stats.expenseProjected)}</span>
+                                        <MoneyDisplay amount={stats.expenseProjected} currency={currencySymbol} size="sm" color="text-slate-400" weight="font-medium" />
                                     </div>
                                     <div className="h-1.5 w-full bg-orange-100 dark:bg-orange-950 rounded-full overflow-hidden">
                                         <div
@@ -410,7 +402,7 @@ export default function Transactions() {
                                         <div className={`text-xs font-semibold px-2 py-1 rounded flex items-center gap-1 ${group.total >= 0 ? 'bg-emerald-100/50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-rose-100/50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'}`}>
                                             {group.total < 0 && <span>-</span>}
                                             {group.total >= 0 && <span>+</span>}
-                                            <CurrencyDisplay amount={Math.abs(group.total)} />
+                                            <MoneyDisplay amount={Math.abs(group.total)} currency={currencySymbol} size="md" color="" autoColor={false} weight="font-semibold" />
                                         </div>
                                     </div>
                                     <div className="flex flex-col gap-3">
@@ -432,9 +424,14 @@ export default function Transactions() {
                                                         <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate" title={t.description}>
                                                             {t.description.split(' ').slice(0, 5).join(' ')}{t.description.split(' ').length > 5 ? '...' : ''}
                                                         </p>
-                                                        <div className={`text-sm font-bold text-right flex justify-end items-center gap-0.5 ${t.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                                            {t.type === 'EXPENSE' ? '-' : '+'}
-                                                            <CurrencyDisplay amount={t.amount} />
+                                                        <div className={`text-right flex justify-end items-center gap-0.5`}>
+                                                            <MoneyDisplay
+                                                                amount={t.amount}
+                                                                currency={currencySymbol}
+                                                                size="lg"
+                                                                color={t.type === 'INCOME' ? 'text-emerald-500' : 'text-rose-500'}
+                                                                autoColor={false}
+                                                            />
                                                         </div>
                                                         <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 truncate">
                                                             <span>{t.account}</span>

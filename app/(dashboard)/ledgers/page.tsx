@@ -45,27 +45,29 @@ export default function Ledgers() {
     );
 
     return (
-        <div className="flex-1 w-full h-full overflow-y-auto scrollbar-hide relative pb-24">
-            {/* Mesh Background */}
-            <div className="fixed inset-0 pointer-events-none opacity-40 dark:opacity-10 -z-10">
-                <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vh] bg-blue-400/20 rounded-full blur-[100px]"></div>
-                <div className="absolute bottom-[20%] right-[10%] w-[30vw] h-[30vh] bg-purple-400/20 rounded-full blur-[100px]"></div>
+        <div className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative scrollbar-hide pb-24">
+            {/* Background Decor */}
+            <div className="fixed inset-0 -z-10 pointer-events-none opacity-40 dark:opacity-10">
+                <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-100 rounded-full blur-[120px]"></div>
+                <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-100 rounded-full blur-[120px]"></div>
             </div>
 
-            <div className="max-w-[1024px] mx-auto p-6 md:p-10 flex flex-col gap-8 animate-fade-in">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div className="flex flex-col gap-2">
-                        <h1 className="text-slate-900 dark:text-white text-3xl md:text-4xl font-black tracking-tight uppercase">Libros Contables</h1>
-                        <p className="text-slate-500 dark:text-slate-400 text-base font-medium max-w-xl">
-                            Gestiona diferentes espacios financieros. Organiza tus finanzas personales, de pareja o de negocios por separado.
+            <div className="container mx-auto max-w-[1200px] p-6 lg:p-10 flex flex-col gap-8">
+                {/* Page Header */}
+                <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-fade-in">
+                    <div className="flex flex-col gap-1">
+                        <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-[#111418] dark:text-white">Libros Contables</h1>
+                        <p className="text-gray-500 dark:text-gray-400 text-lg font-normal capitalize">
+                            Gestiona diferentes espacios financieros
                         </p>
                     </div>
-                    <Link href="/books/create" className="group flex items-center justify-center gap-3 rounded-2xl h-12 px-6 bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/20 transition-all active:scale-95 font-black uppercase text-xs tracking-widest">
-                        <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-500">add_circle</span>
-                        <span>Nuevo Libro</span>
-                    </Link>
-                </div>
+                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                        <Link href="/books/create" className="flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 h-12">
+                            <span className="material-symbols-outlined text-[20px]">add_circle</span>
+                            <span className="text-sm">Nuevo Libro</span>
+                        </Link>
+                    </div>
+                </header>
 
                 {/* Search */}
                 <div className="relative group">

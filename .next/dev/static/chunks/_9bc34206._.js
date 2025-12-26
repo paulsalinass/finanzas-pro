@@ -1302,7 +1302,7 @@ function Budgets() {
     // Categorías cerca del límite (alertas)
     const alertsCount = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "Budgets.useMemo[alertsCount]": ()=>calculatedBudgets.filter({
-                "Budgets.useMemo[alertsCount]": (b)=>b.spent / b.limit >= 0.9 && b.spent / b.limit < 1
+                "Budgets.useMemo[alertsCount]": (b)=>b.spent / b.limit >= 0.9
             }["Budgets.useMemo[alertsCount]"]).length
     }["Budgets.useMemo[alertsCount]"], [
         calculatedBudgets
@@ -1717,7 +1717,7 @@ function Budgets() {
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "text-sm text-gray-500 mt-1",
-                                                children: "Categorías cerca del límite"
+                                                children: "Categorías en alerta"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/budgets/page.tsx",
                                                 lineNumber: 184,
@@ -2117,7 +2117,7 @@ function Budgets() {
         columnNumber: 9
     }, this);
 }
-_s(Budgets, "bgG7KNFGA0txJ1Aet3mv4kg5zow=", false, function() {
+_s(Budgets, "apcZlXF/XKuHqYeAYut3Znivyg8=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
         __TURBOPACK__imported__module__$5b$project$5d2f$context$2f$FinanceContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useFinance"]

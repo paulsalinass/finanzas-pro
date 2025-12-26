@@ -11,7 +11,7 @@ import { useFinance } from '@/context/FinanceContext';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { startOfMonth, endOfMonth, differenceInCalendarDays, addDays, startOfDay, format } from 'date-fns';
 import { es } from 'date-fns/locale';
-
+import { MoneyDisplay } from '@/components/MoneyDisplay';
 
 
 const COLOR_MAP: Record<string, { bg: string, text: string, ring: string, border: string, solid: string }> = {
@@ -369,10 +369,9 @@ export default function Dashboard() {
                         <div className="flex flex-col gap-1 z-10">
                             <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Saldo Total (Presupuesto Restante)</p>
                             <div className="flex items-center gap-2">
-                                <p className={`text-text-main dark:text-white text-3xl font-bold tracking-tight transition-all duration-300 ${!showBalance && 'blur-md select-none'}`}>
-                                    <span className="text-lg align-baseline mr-0.5">{currencySymbol}</span>
-                                    {calculatedSaldo.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </p>
+                                <div className={`transition-all duration-300 ${!showBalance && 'blur-md select-none'}`}>
+                                    <MoneyDisplay amount={calculatedSaldo} currency={currencySymbol} size="5xl" color="text-text-main dark:text-white" />
+                                </div>
                                 <button
                                     onClick={() => setShowBalance(!showBalance)}
                                     className="btn-interact text-text-muted dark:text-dark-muted hover:text-primary transition-colors"
@@ -396,10 +395,7 @@ export default function Dashboard() {
                             </div>
                             <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Ingresos</p>
                         </div>
-                        <p className="text-text-main dark:text-white text-3xl font-bold tracking-tight">
-                            <span className="text-lg align-baseline mr-0.5">{currencySymbol}</span>
-                            {monthlyIncome.toLocaleString()}
-                        </p>
+                        <MoneyDisplay amount={monthlyIncome} currency={currencySymbol} size="5xl" color="text-text-main dark:text-white" />
                         <div className="flex items-center gap-2 mt-4">
                             <span className="text-success text-sm font-medium">+12%</span>
                             <p className="text-text-light dark:text-dark-muted/60 text-xs font-medium shrink-0">que lo habitual</p>
@@ -415,10 +411,7 @@ export default function Dashboard() {
                             </div>
                             <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Gastos</p>
                         </div>
-                        <p className="text-text-main dark:text-white text-3xl font-bold tracking-tight">
-                            <span className="text-lg align-baseline mr-0.5">{currencySymbol}</span>
-                            {monthlyExpense.toLocaleString()}
-                        </p>
+                        <MoneyDisplay amount={monthlyExpense} currency={currencySymbol} size="5xl" color="text-text-main dark:text-white" />
                         <div className="flex items-center gap-2 mt-4">
                             <span className="text-danger text-sm font-medium">-5%</span>
                             <p className="text-text-light dark:text-dark-muted/60 text-xs font-medium shrink-0">ahorro vs promedio</p>
@@ -445,8 +438,8 @@ export default function Dashboard() {
                                 <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#307de8" stopOpacity={0.2} />
-                                            <stop offset="95%" stopColor="#307de8" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="#10B981" stopOpacity={0.2} />
+                                            <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9da9b8', fontWeight: 500 }} dy={10} />
@@ -463,7 +456,7 @@ export default function Dashboard() {
                                     <Area
                                         type="monotone"
                                         dataKey="total"
-                                        stroke="#307de8"
+                                        stroke="#10B981"
                                         strokeWidth={3}
                                         fillOpacity={1}
                                         fill="url(#colorTotal)"
@@ -550,8 +543,8 @@ export default function Dashboard() {
                                 <AreaChart data={dailyExpensesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="dailyExpenseGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#94a3b8' }} interval={Math.ceil(dailyExpensesData.length / 6)} />
@@ -561,7 +554,7 @@ export default function Dashboard() {
                                         labelFormatter={(label) => label}
                                         contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.15)' }}
                                     />
-                                    <Area type="monotone" dataKey="amount" stroke="#2563eb" strokeWidth={3} fill="url(#dailyExpenseGradient)" />
+                                    <Area type="monotone" dataKey="amount" stroke="#10B981" strokeWidth={3} fill="url(#dailyExpenseGradient)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
@@ -643,9 +636,8 @@ export default function Dashboard() {
                                 <div>
                                     <p className="text-text-muted dark:text-dark-muted text-xs mb-1 font-medium">{acc.name}</p>
                                     <p className="text-text-main dark:text-white text-xl font-bold tracking-tight">**** {acc.lastFour}</p>
-                                    <p className="text-text-main dark:text-white text-lg font-medium mt-2">
-                                        <span className="text-sm align-baseline mr-0.5">{currencySymbol}</span>
-                                        {acc.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                    <p className="mt-2">
+                                        <MoneyDisplay amount={acc.balance} currency={currencySymbol} size="3xl" color="text-text-main dark:text-white" weight="font-medium" />
                                     </p>
                                 </div>
                             </div>
@@ -660,7 +652,7 @@ export default function Dashboard() {
                 </section>
             </div>
 
-            <button onClick={openTransactionModal} className="btn-interact fixed z-50 bottom-24 lg:bottom-12 right-6 md:right-12 size-14 md:size-16 bg-primary hover:bg-primary-hover text-white rounded-full shadow-[0_8px_30px_rgba(48,125,232,0.4)] flex items-center justify-center transition-all hover:scale-110 active:scale-95 group">
+            <button onClick={openTransactionModal} className="btn-interact fixed z-50 bottom-24 lg:bottom-12 right-6 md:right-12 size-14 md:size-16 bg-gradient-primary text-white rounded-full shadow-[0_8px_30px_rgba(16,185,129,0.4)] flex items-center justify-center transition-all hover:scale-110 active:scale-95 group hover:shadow-primary/50">
                 <span className="material-symbols-outlined text-3xl md:text-4xl group-hover:rotate-90 transition-transform duration-500">add</span>
             </button>
             <DateRangeModal

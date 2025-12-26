@@ -8,5 +8,14 @@ export function CategoryIcon({ icon, className }: { icon: string, className?: st
     if (LucideIcon) {
         return <LucideIcon className={className} />;
     }
-    return <span className={`material-symbols-outlined ${className} !text-[inherit]`}>{icon}</span>
+
+    // Simple check: if it contains non-alphanumeric/underscore characters, assume it's an emoji
+    // Material icons are usually snake_case words. Emojis are unicode.
+    const isEmoji = !/^[a-z0-9_]+$/.test(icon);
+
+    if (isEmoji) {
+        return <span className={`${className} inline-flex items-center justify-center leading-none grayscale-0 pb-[2px]`}>{icon}</span>
+    }
+
+    return <span className={`material-symbols-outlined ${className} !text-[inherit] inline-flex items-center justify-center leading-none pb-[2px]`}>{icon}</span>
 }

@@ -1226,7 +1226,7 @@ function Budgets() {
     const totalAvailable = totalPlanned - totalSpent;
     const availablePercent = totalPlanned > 0 ? totalAvailable / totalPlanned * 100 : 0;
     // Categorías cerca del límite (alertas)
-    const alertsCount = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>calculatedBudgets.filter((b)=>b.spent / b.limit >= 0.9 && b.spent / b.limit < 1).length, [
+    const alertsCount = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>calculatedBudgets.filter((b)=>b.spent / b.limit >= 0.9).length, [
         calculatedBudgets
     ]);
     // Lógica de filtrado y ordenación
@@ -1633,7 +1633,7 @@ function Budgets() {
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "text-sm text-gray-500 mt-1",
-                                                children: "Categorías cerca del límite"
+                                                children: "Categorías en alerta"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/budgets/page.tsx",
                                                 lineNumber: 184,

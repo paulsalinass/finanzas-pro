@@ -1,6 +1,5 @@
 {
   "/(dashboard)/accounts/page": "app/(dashboard)/accounts/page.js",
-  "/(dashboard)/budget/[id]/page": "app/(dashboard)/budget/[id]/page.js",
   "/(dashboard)/budgets/page": "app/(dashboard)/budgets/page.js",
   "/(dashboard)/cards/page": "app/(dashboard)/cards/page.js",
   "/(dashboard)/categories/page": "app/(dashboard)/categories/page.js",
@@ -9,6 +8,5 @@
   "/(dashboard)/page": "app/(dashboard)/page.js",
   "/(dashboard)/reports/page": "app/(dashboard)/reports/page.js",
   "/(dashboard)/rules/page": "app/(dashboard)/rules/page.js",
-  "/(dashboard)/transactions/page": "app/(dashboard)/transactions/page.js",
-  "/login/page": "app/login/page.js"
+  "/(dashboard)/transactions/page": "app/(dashboard)/transactions/page.js"
 }
