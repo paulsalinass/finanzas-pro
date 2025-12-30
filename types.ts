@@ -56,6 +56,8 @@ export interface Account {
   availableCredit?: number;
   cutoffDay?: number; // Day of month
   payDay?: number; // Day of month
+  closingDate?: string;
+  dueDate?: string;
   network?: 'VISA' | 'MASTERCARD' | 'AMEX' | 'DINERS';
   autoPay?: boolean;
 }
