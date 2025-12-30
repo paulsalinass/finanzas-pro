@@ -96,7 +96,9 @@ export const MOCK_COMMITMENTS: Commitment[] = [
     amount: 800,
     frequency: 'MONTHLY',
     nextDueDate: '2024-11-01',
-    status: 'PENDING'
+    status: 'PENDING',
+    type: 'FIXED',
+    isActive: true
   }
 ];
 
