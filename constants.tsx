@@ -57,7 +57,7 @@ export const MOCK_ACCOUNTS: Account[] = [
     bank: 'Santander',
     status: 'Active',
     currency: 'USD',
-    limit: 5000,
+    creditLimit: 5000,
     closingDate: 'Oct 25',
     dueDate: 'Nov 05'
   }
