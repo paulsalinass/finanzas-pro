@@ -45,7 +45,8 @@ export const MOCK_ACCOUNTS: Account[] = [
     type: 'DEBIT',
     lastFour: '4829',
     bank: 'Santander',
-    status: 'Active'
+    status: 'Active',
+    currency: 'MXN'
   },
   {
     id: 'acc2',
@@ -55,6 +56,7 @@ export const MOCK_ACCOUNTS: Account[] = [
     lastFour: '4242',
     bank: 'Santander',
     status: 'Active',
+    currency: 'USD',
     limit: 5000,
     closingDate: 'Oct 25',
     dueDate: 'Nov 05'
