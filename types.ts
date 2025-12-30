@@ -53,7 +53,6 @@ export interface Account {
   bank?: string;
   status?: 'Active' | 'Inactive';
   creditLimit?: number;
-  limit?: number;
   availableCredit?: number;
   cutoffDay?: number; // Day of month
   payDay?: number; // Day of month

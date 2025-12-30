@@ -144,12 +144,12 @@ export default function CardDetails() {
                                         </div>
                                         <div className="text-right">
                                             <p className="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1">Disponible</p>
-                                            <p className="text-sm font-black text-gray-600 dark:text-slate-300 tabular-nums">${((card.limit || 5000) - card.balance).toLocaleString()}</p>
+                                            <p className="text-sm font-black text-gray-600 dark:text-slate-300 tabular-nums">${((card.creditLimit || 5000) - card.balance).toLocaleString()}</p>
                                         </div>
                                     </div>
 
                                     <div className="h-2 w-full bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                        <div className={`h-full rounded-full transition-all duration-1000 ${i === 0 ? 'bg-primary' : 'bg-indigo-500'}`} style={{ width: `${(card.balance / (card.limit || 5000)) * 100}%` }}></div>
+                                        <div className={`h-full rounded-full transition-all duration-1000 ${i === 0 ? 'bg-primary' : 'bg-indigo-500'}`} style={{ width: `${(card.balance / (card.creditLimit || 5000)) * 100}%` }}></div>
                                     </div>
 
                                     <div className="flex justify-between pt-4 border-t border-gray-100 dark:border-slate-800">
