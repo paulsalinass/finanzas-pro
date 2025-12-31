@@ -1,54 +1,12 @@
 {
   "app": {
-    "[project]/app/(dashboard)/accounts/[id]/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
-    "[project]/app/(dashboard)/accounts/add/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
-    "[project]/app/(dashboard)/accounts/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
-    "[project]/app/(dashboard)/books/[id]/settings/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
-    "[project]/app/(dashboard)/budgets/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
-    "[project]/app/(dashboard)/cards/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
-    "[project]/app/(dashboard)/categories/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
-    "[project]/app/(dashboard)/commitments/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
     "[project]/app/(dashboard)/ledgers/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
-    "[project]/app/(dashboard)/menu/page": [
       "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
     ],
     "[project]/app/(dashboard)/page": [
       "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
     ],
     "[project]/app/(dashboard)/profile/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
-    "[project]/app/(dashboard)/rules/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
-    "[project]/app/(dashboard)/settings/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
-    "[project]/app/(dashboard)/transactions/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
-    "[project]/app/_not-found/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
-    "[project]/app/login/page": [
       "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
     ]
   },

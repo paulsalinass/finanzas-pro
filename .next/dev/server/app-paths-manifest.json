@@ -1,19 +1,5 @@
 {
-  "/(dashboard)/accounts/[id]/page": "app/(dashboard)/accounts/[id]/page.js",
-  "/(dashboard)/accounts/add/page": "app/(dashboard)/accounts/add/page.js",
-  "/(dashboard)/accounts/page": "app/(dashboard)/accounts/page.js",
-  "/(dashboard)/books/[id]/settings/page": "app/(dashboard)/books/[id]/settings/page.js",
-  "/(dashboard)/budgets/page": "app/(dashboard)/budgets/page.js",
-  "/(dashboard)/cards/page": "app/(dashboard)/cards/page.js",
-  "/(dashboard)/categories/page": "app/(dashboard)/categories/page.js",
-  "/(dashboard)/commitments/page": "app/(dashboard)/commitments/page.js",
   "/(dashboard)/ledgers/page": "app/(dashboard)/ledgers/page.js",
-  "/(dashboard)/menu/page": "app/(dashboard)/menu/page.js",
   "/(dashboard)/page": "app/(dashboard)/page.js",
-  "/(dashboard)/profile/page": "app/(dashboard)/profile/page.js",
-  "/(dashboard)/rules/page": "app/(dashboard)/rules/page.js",
-  "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js",
-  "/(dashboard)/transactions/page": "app/(dashboard)/transactions/page.js",
-  "/_not-found/page": "app/_not-found/page.js",
-  "/login/page": "app/login/page.js"
+  "/(dashboard)/profile/page": "app/(dashboard)/profile/page.js"
 }
