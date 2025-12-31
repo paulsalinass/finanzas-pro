@@ -2,7 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useFinance } from '@/context/FinanceContext';
+import { createClient } from '@/utils/supabase/client';
 import {
   LayoutDashboard,
   Receipt,
@@ -35,6 +37,8 @@ interface SidebarLinkProps {
 
 const SidebarLink: React.FC<SidebarLinkProps> = ({ to, icon: Icon, label, exact = false, fill = false, collapsed = false, onHoverChange }) => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { userProfile } = useFinance();
   const isActive = exact ? pathname === to : pathname.startsWith(to);
   const linkRef = React.useRef<HTMLAnchorElement | null>(null);
 
@@ -80,6 +84,32 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle }) => {
   const [tooltip, setTooltip] = React.useState<{ label: string; top: number } | null>(null);
+  const [showLogoutMenu, setShowLogoutMenu] = React.useState(false);
+  const { userProfile } = useFinance();
+  const router = useRouter();
+  const supabase = createClient();
+  const logoutTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.replace('/login');
+  };
+
+  const handleLogoutClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowLogoutMenu(!showLogoutMenu);
+
+    // Auto-close after 3 seconds if not interacted with
+    if (!showLogoutMenu) {
+      if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
+      logoutTimerRef.current = setTimeout(() => setShowLogoutMenu(false), 3000);
+    }
+  };
+
+  const displayName = userProfile?.full_name || userProfile?.username || 'Usuario';
+  const displayEmail = userProfile?.email || 'usuario@finanzas.com';
+  const displayAvatar = userProfile?.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=random';
 
   React.useEffect(() => {
     if (!collapsed) {
@@ -126,14 +156,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle })
         <div className="h-6"></div>
       </nav>
 
-      <div className={`p-4 border-t border-white/50 dark:border-slate-800 bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm ${collapsed ? 'flex justify-center' : ''}`}>
-        <button className={`flex items-center gap-3 w-full p-2 rounded-xl hover:bg-white/60 dark:hover:bg-slate-800 transition-colors text-left group ${collapsed ? 'justify-center' : ''}`}>
-          <div className="bg-center bg-no-repeat bg-cover rounded-full size-10 ring-2 ring-white dark:ring-slate-700 shadow-sm" style={{ backgroundImage: 'url("https://picsum.photos/100/100?random=1")' }}></div>
+      <div className={`p-4 border-t border-white/50 dark:border-slate-800 bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm ${collapsed ? 'flex justify-center' : ''} relative`}>
+        {showLogoutMenu && (
+          <div className={`absolute bottom-full mb-2 ${collapsed ? 'left-1/2 -translate-x-1/2' : 'left-4 w-[calc(100%-2rem)]'} bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 p-1.5 animate-in fade-in slide-in-from-bottom-2 z-[60]`}>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-bold transition-colors"
+            >
+              <LogOut size={16} />
+              {!collapsed && <span>Cerrar Sesión</span>}
+            </button>
+          </div>
+        )}
+        <button
+          onClick={handleLogoutClick}
+          className={`flex items-center gap-3 w-full p-2 rounded-xl hover:bg-white/60 dark:hover:bg-slate-800 transition-colors text-left group ${collapsed ? 'justify-center' : ''}`}
+        >
+          <div
+            className="bg-center bg-no-repeat bg-cover rounded-full size-10 ring-2 ring-white dark:ring-slate-700 shadow-sm"
+            style={{ backgroundImage: `url("${displayAvatar}")` }}
+          ></div>
           {!collapsed && (
             <>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-[#111418] dark:text-white truncate group-hover:text-primary transition-colors">Usuario Demo</p>
-                <p className="text-xs text-[#637288] dark:text-slate-500 truncate">demo@finanzas.com</p>
+                <p className="text-sm font-bold text-[#111418] dark:text-white truncate group-hover:text-primary transition-colors">
+                  {displayName}
+                </p>
+                <p className="text-xs text-[#637288] dark:text-slate-500 truncate">
+                  {displayEmail}
+                </p>
               </div>
               <LogOut size={20} strokeWidth={1.5} className="text-[#637288] group-hover:text-primary" />
             </>

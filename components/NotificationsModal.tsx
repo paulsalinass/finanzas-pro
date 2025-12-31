@@ -1,64 +1,18 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-
-type NotificationType = "WARNING" | "INFO" | "SUCCESS";
-
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  time: string;
-  type: NotificationType;
-  read: boolean;
-}
-
-const notificationsData: Notification[] = [
-  {
-    id: 1,
-    title: "Presupuesto excedido",
-    message: "Has superado el 80% de tu presupuesto de Comida para este mes.",
-    time: "Hace 2 horas",
-    type: "WARNING",
-    read: false
-  },
-  {
-    id: 2,
-    title: "Pago recibido",
-    message: "Se ha registrado el ingreso de Nómina por $5,000.00.",
-    time: "Ayer, 10:30 AM",
-    type: "SUCCESS",
-    read: true
-  },
-  {
-    id: 3,
-    title: "Nueva función",
-    message: "Ahora puedes crear reglas recurrentes para automatizar tus gastos.",
-    time: "20 Oct, 2023",
-    type: "INFO",
-    read: true
-  },
-  {
-    id: 4,
-    title: "Factura pendiente",
-    message: "Recuerda pagar tu servicio de Internet antes del día 25.",
-    time: "18 Oct, 2023",
-    type: "WARNING",
-    read: true
-  }
-];
+import { useFinance } from "@/context/FinanceContext";
 
 interface NotificationsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  notifications?: Notification[];
 }
 
 export const NotificationsModal: React.FC<NotificationsModalProps> = ({
   isOpen,
-  onClose,
-  notifications = notificationsData
+  onClose
 }) => {
+  const { notifications, markNotificationAsRead, markAllNotificationsAsRead } = useFinance();
   const [isVisible, setIsVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -90,6 +44,12 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
 
   if (!isMounted) return null;
 
+  // sort notifications: unread first
+  const sortedNotifications = [...(notifications || [])].sort((a, b) => {
+    if (a.read === b.read) return 0;
+    return a.read ? 1 : -1;
+  });
+
   return (
     <div
       className={`fixed inset-0 z-[140] flex justify-end p-4 sm:p-6 bg-black/20 backdrop-blur-sm transition-opacity duration-300 ease-out ${isVisible ? "opacity-100" : "opacity-0"
@@ -104,7 +64,10 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
         <div className="flex items-center justify-between px-6 pt-6">
           <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tight uppercase">Notificaciones</h2>
           <div className="flex items-center gap-2">
-            <button className="text-[10px] font-black uppercase tracking-wider text-primary hover:text-primary-hover">
+            <button
+              onClick={markAllNotificationsAsRead}
+              className="text-[10px] font-black uppercase tracking-wider text-primary hover:text-primary-hover"
+            >
               Marcar todo leído
             </button>
             <button onClick={onClose} className="size-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-primary">
@@ -114,27 +77,28 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
         </div>
 
         <div className="px-6 pb-6 pt-2 max-h-[70vh] overflow-y-auto flex flex-col gap-4 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
-          {notifications.map((notif) => (
+          {sortedNotifications.map((notif) => (
             <div
               key={notif.id}
-              className={`glass-card p-4 rounded-2xl border transition-all hover:bg-white dark:hover:bg-slate-800 ${
-                notif.read
-                  ? "border-transparent opacity-80"
-                  : "border-l-4 border-l-primary border-y-white/60 border-r-white/60 dark:border-y-slate-800 dark:border-r-slate-800 bg-white/70 dark:bg-slate-800/70 shadow-md"
-              }`}
+              onClick={() => markNotificationAsRead(notif.id)}
+              className={`glass-card p-4 rounded-2xl border transition-all hover:bg-white dark:hover:bg-slate-800 cursor-pointer ${notif.read
+                  ? "border-transparent opacity-60"
+                  : "border-l-4 border-l-primary border-y-white/60 border-r-white/60 dark:border-y-slate-800 dark:border-r-slate-800 bg-white/70 dark:bg-slate-800/70 shadow-md transform hover:-translate-y-1"
+                }`}
             >
               <div className="flex items-start gap-4">
                 <div
-                  className={`mt-1 size-10 rounded-xl flex items-center justify-center shrink-0 ${
-                    notif.type === "WARNING"
+                  className={`mt-1 size-10 rounded-xl flex items-center justify-center shrink-0 ${notif.type === "WARNING"
                       ? "bg-orange-100 text-orange-600 dark:bg-orange-900/30"
                       : notif.type === "SUCCESS"
                         ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30"
-                        : "bg-blue-100 text-blue-600 dark:bg-blue-900/30"
-                  }`}
+                        : notif.type === "ERROR"
+                          ? "bg-red-100 text-red-600 dark:bg-red-900/30"
+                          : "bg-blue-100 text-blue-600 dark:bg-blue-900/30"
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[20px]">
-                    {notif.type === "WARNING" ? "warning" : notif.type === "SUCCESS" ? "check_circle" : "info"}
+                    {notif.type === "WARNING" ? "warning" : notif.type === "SUCCESS" ? "check_circle" : notif.type === "ERROR" ? "error" : "info"}
                   </span>
                 </div>
                 <div className="flex-1">
@@ -151,7 +115,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
             </div>
           ))}
 
-          {notifications.length === 0 && (
+          {sortedNotifications.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-slate-400">
               <span className="material-symbols-outlined text-6xl mb-4 opacity-50">notifications_off</span>
               <p className="font-bold">No tienes notificaciones</p>

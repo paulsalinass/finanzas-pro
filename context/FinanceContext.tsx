@@ -3,9 +3,10 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createClient } from '../utils/supabase/client';
-import { Transaction, Account, Budget, Commitment, RecurringRule, Ledger, TransactionType, Category, CategoryFolder } from '../types';
+import { Transaction, Account, Budget, Commitment, RecurringRule, Ledger, TransactionType, Category, CategoryFolder, UserProfile, Notification } from '../types';
 import { useRouter } from 'next/navigation';
-import { addMonths, addWeeks, addYears, isAfter, isBefore, startOfDay, addDays, isSameDay, endOfMonth, subMonths, format, subDays, endOfDay, parseISO } from 'date-fns';
+import { addMonths, addWeeks, addYears, isAfter, isBefore, startOfDay, addDays, isSameDay, endOfMonth, subMonths, format, subDays, endOfDay, parseISO, startOfMonth, isWithinInterval } from 'date-fns';
+
 
 // Database types mapping could be strictly done here, but for now we map manually
 // to match the specific "Ledger" vs "Book" terminology change requested by user logic vs DB logic.
@@ -20,6 +21,10 @@ interface FinanceContextType {
   commitments: Commitment[];
   recurringRules: RecurringRule[];
   ledgers: Ledger[];
+  userProfile: UserProfile | null;
+  fetchUserProfile: () => Promise<void>;
+  updateUserProfile: (updates: Partial<UserProfile>) => Promise<void>;
+  uploadAvatar: (file: File) => Promise<string | null>;
 
   // Actions
   addTransaction: (t: Omit<Transaction, 'id'>) => Promise<void>;
@@ -53,6 +58,10 @@ interface FinanceContextType {
   checkRecurringBudgets: () => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
   deleteCategoryFolder: (id: string) => Promise<void>;
+  notifications: Notification[];
+  unreadCount: number;
+  markNotificationAsRead: (id: string) => void;
+  markAllNotificationsAsRead: () => void;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -71,6 +80,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [recurringRules, setRecurringRules] = useState<RecurringRule[]>([]); // Migration TODO: Link to commitments?
   const [ledgers, setLedgers] = useState<Ledger[]>([]); // These are 'books' now
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
 
   const [isLoading, setIsLoading] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -268,8 +280,129 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     // checkCreditCardCommitments modifies commitments ONLY if needed.
     if (!isLoading && accounts.length > 0 && transactions.length > 0) {
       checkCreditCardCommitments();
+      generateNotifications();
     }
-  }, [isLoading, accounts, transactions.length, commitments.length]); // Added commitments.length to detect load
+  }, [isLoading, accounts, transactions.length, commitments.length, budgets.length]); // Added dependencies
+
+  // Notification Logic
+  const generateNotifications = () => {
+    const newNotifications: Notification[] = [];
+    const today = new Date();
+
+    // 1. Commitments Due Soon (3 days)
+    commitments.forEach(c => {
+      if (c.status === 'PENDING' && c.isActive) {
+        const dueDate = parseISO(c.nextDueDate);
+        if (isBefore(dueDate, addDays(today, 3)) && isAfter(dueDate, subDays(today, 1))) {
+          newNotifications.push({
+            id: `comm-${c.id}`,
+            title: 'Pago Próximo',
+            message: `El compromiso "${c.name}" vence el ${format(dueDate, 'dd MMM')}.`,
+            time: format(today, 'HH:mm'), // approximated
+            type: 'WARNING',
+            read: false
+          });
+        }
+      }
+    });
+
+    // 2. Budgets (Approximate for Current Month)
+    // We recreate simplistic logic here: Filter transactions for current month & category
+    const startMonth = startOfMonth(today);
+    const endMonth = endOfMonth(today);
+
+    budgets.forEach(b => {
+      const categoryId = b.category_id;
+      if (!categoryId) return; // Skip if no ID
+
+      // Calculate spent for this budget's category in current month
+      const spent = transactions
+        .filter(t =>
+          t.type === 'EXPENSE' &&
+          t.category_id === categoryId &&
+          isWithinInterval(new Date(t.date), { start: startMonth, end: endMonth })
+        )
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const ratio = b.limit > 0 ? spent / b.limit : 0;
+
+      if (ratio >= 1) {
+        newNotifications.push({
+          id: `bud-err-${b.id}`,
+          title: 'Presupuesto Excedido',
+          message: `Has excedido tu presupuesto de ${b.category || 'Categoría'}.`,
+          time: 'Ahora',
+          type: 'ERROR',
+          read: false
+        });
+      } else if (ratio >= 0.8) {
+        newNotifications.push({
+          id: `bud-warn-${b.id}`,
+          title: 'Presupuesto al Límite',
+          message: `Estás al ${(ratio * 100).toFixed(0)}% de tu presupuesto de ${b.category || 'Categoría'}.`,
+          time: 'Ahora',
+          type: 'WARNING',
+          read: false
+        });
+      }
+    });
+
+    // 3. Credit Cards Pay Day (3 days)
+    accounts.filter(a => a.type === 'CREDIT').forEach(acc => {
+      if (acc.payDay) {
+        // Calculate next pay date (naive approach: this month's pay day)
+        let payDate = new Date(today.getFullYear(), today.getMonth(), acc.payDay);
+        if (isBefore(payDate, today)) {
+          payDate = addMonths(payDate, 1);
+        }
+
+        if (isWithinInterval(payDate, { start: today, end: addDays(today, 3) })) {
+          newNotifications.push({
+            id: `cc-${acc.id}`,
+            title: 'Tarjeta de Crédito',
+            message: `La fecha de pago de ${acc.name} es el ${format(payDate, 'dd MMM')}.`,
+            time: 'Ahora',
+            type: 'INFO',
+            read: false
+          });
+        }
+      }
+    });
+
+    // Deduplicate or Merge with existing read status?
+    // For MVP, we replace, but we lose "read" status if we just replace.
+    // Ideally we persist read status in local storage or DB. 
+    // Let's implement a simple LocalStorage check for "read ids".
+    const readIds = JSON.parse(localStorage.getItem('read_notifications') || '[]');
+
+    const finalNotifications = newNotifications.map(n => ({
+      ...n,
+      read: readIds.includes(n.id)
+    }));
+
+    // Sort?
+    setNotifications(finalNotifications);
+  };
+
+  const markNotificationAsRead = (id: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    const readIds = JSON.parse(localStorage.getItem('read_notifications') || '[]');
+    if (!readIds.includes(id)) {
+      readIds.push(id);
+      localStorage.setItem('read_notifications', JSON.stringify(readIds));
+    }
+  };
+
+  const markAllNotificationsAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    const allIds = notifications.map(n => n.id);
+    const readIds = JSON.parse(localStorage.getItem('read_notifications') || '[]');
+    const newReadIds = Array.from(new Set([...readIds, ...allIds]));
+    localStorage.setItem('read_notifications', JSON.stringify(newReadIds));
+  };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
 
   // Initial Load
   useEffect(() => {
@@ -568,6 +701,36 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       categoryId = cat?.id;
     }
 
+    // Handle Location Tracking logic
+    let lat: number | undefined = t.latitude;
+    let lng: number | undefined = t.longitude;
+
+    // If location is enabled in profile and no explicit location passed, try to fetch current
+    if (userProfile?.is_location_enabled && (!lat || !lng)) {
+      try {
+        const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+        });
+        lat = pos.coords.latitude;
+        lng = pos.coords.longitude;
+      } catch (e) {
+        console.warn("Could not fetch location for transaction:", e);
+        // Fallback to profile stored location if available? User requested "take current", but fallback is nice.
+        // lat = userProfile.location_lat || undefined;
+        // lng = userProfile.location_lng || undefined;
+      }
+    } else if (!lat && !lng && userProfile?.location_lat && userProfile?.location_lng) {
+      // Option: If tracking not enabled but profile has static location, use that?
+      // User said "tome la ubicacion ACTUAL", implies dynamic.
+      // If tracking enabled, we fetched above. If not enabled, maybe we shouldn't attach anything?
+      // Or maybe use the static "Home" location if enabled?
+      // Let's stick to dynamic fetch if enabled.
+    }
+
+    // If t already had coords, they trump everything (passed from manual input maybe)
+    t.latitude = lat;
+    t.longitude = lng;
+
     const { data, error } = await supabase.from('transactions').insert({
       book_id: activeBookId,
       account_id: accountId,
@@ -578,6 +741,8 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       category_id: categoryId,
       currency: account.currency || 'USD',
       location_text: t.location,
+      location_lat: t.latitude, // Add latitude
+      location_lng: t.longitude, // Add longitude
       notes: t.notes,
       beneficiary: t.beneficiary,
       frequency: t.frequency, // Save frequency to transaction
@@ -1265,15 +1430,139 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
 
+  const fetchUserProfile = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    let { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (error && error.code === 'PGRST116') {
+      // Profile doesn't exist, create it
+      const newProfile = {
+        id: user.id,
+        full_name: 'Paul', // Default as requested
+        email: user.email || '',
+        phone: '',
+        username: '@paul',
+        language: 'es',
+        currency: 'PEN',
+        country: 'Peru',
+        city: 'Lima',
+        notifications_enabled: true,
+        two_factor_enabled: false
+      };
+
+      const { data: createdProfile, error: createError } = await supabase
+        .from('profiles')
+        .insert(newProfile)
+        .select()
+        .single();
+
+      if (createError) {
+        console.error("Error creating default profile:", createError);
+      } else {
+        data = createdProfile;
+      }
+    }
+
+    if (data) {
+      setUserProfile(data);
+    }
+  };
+
+  const updateUserProfile = async (updates: Partial<UserProfile>) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', user.id);
+
+    if (error) {
+      console.error("Error updating profile:", error);
+      alert("Error al actualizar perfil: " + error.message);
+    } else {
+      fetchUserProfile();
+    }
+  };
+
+  const uploadAvatar = async (file: File): Promise<string | null> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+    const filePath = `${user.id}/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error('Error uploading avatar:', uploadError);
+      return null;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
+  useEffect(() => {
+    // Fetch profile on mount if authorized
+    fetchUserProfile();
+  }, []);
+
+
+
   return (
     <FinanceContext.Provider value={{
-      transactions, accounts, categories, categoryFolders, budgets, commitments, recurringRules, ledgers,
-      addTransaction, deleteTransaction, addAccount, updateAccount, deleteAccount,
-      addCommitment, updateCommitment, deleteCommitment, toggleCommitmentStatus,
-      toggleRuleStatus, activateLedger, generateSampleData, totalBalance,
-      isDarkMode, toggleTheme, isLoading, activeBookId, refreshBooks, formatAmount,
-      isTransactionModalOpen, openTransactionModal, closeTransactionModal,
-      addBudget, updateTransaction, duplicateTransaction, deleteBudget, updateBudget,
+      transactions,
+      accounts,
+      categories,
+      categoryFolders,
+      budgets,
+      commitments,
+      recurringRules,
+      ledgers,
+      userProfile, // Exposed
+      fetchUserProfile, // Exposed
+      updateUserProfile, // Exposed
+      uploadAvatar, // Exposed
+      addTransaction,
+      deleteTransaction,
+      addAccount,
+      updateAccount,
+      deleteAccount,
+      addCommitment,
+      updateCommitment,
+      deleteCommitment,
+      toggleCommitmentStatus,
+      updateTransaction,
+      duplicateTransaction,
+      toggleRuleStatus,
+      activateLedger,
+      generateSampleData,
+      totalBalance,
+      isDarkMode,
+      toggleTheme,
+      isLoading,
+      activeBookId,
+      refreshBooks,
+      formatAmount,
+      isTransactionModalOpen,
+      openTransactionModal,
+      closeTransactionModal,
+      addBudget,
+      updateBudget,
+      deleteBudget,
       checkRecurringBudgets,
       deleteCategory: async (id: string) => {
         if (!activeBookId) return;
@@ -1296,7 +1585,11 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
           // Also refresh categories as they might have been unlinked (if cascade set null) or deleted (if cascade delete)
           await fetchCategories(activeBookId);
         }
-      }
+      },
+      notifications,
+      unreadCount,
+      markNotificationAsRead,
+      markAllNotificationsAsRead
     }}>
       {children}
     </FinanceContext.Provider>

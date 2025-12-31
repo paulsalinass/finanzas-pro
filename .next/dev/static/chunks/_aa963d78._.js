@@ -33,6 +33,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navi
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/addMonths.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addWeeks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/addWeeks.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addYears$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/addYears.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$isAfter$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/isAfter.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$isBefore$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/isBefore.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/startOfDay.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/addDays.js [app-client] (ecmascript)");
@@ -42,6 +43,9 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/date-fns/format.js [app-client] (ecmascript) <locals>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$subDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/subDays.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/endOfDay.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$parseISO$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/parseISO.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/startOfMonth.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$isWithinInterval$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/isWithinInterval.js [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
 "use client";
@@ -64,6 +68,8 @@ const FinanceProvider = ({ children })=>{
     const [commitments, setCommitments] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [recurringRules, setRecurringRules] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]); // Migration TODO: Link to commitments?
     const [ledgers, setLedgers] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]); // These are 'books' now
+    const [userProfile, setUserProfile] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [notifications, setNotifications] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
     const [isDarkMode, setIsDarkMode] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     // Theme Logic
@@ -237,14 +243,129 @@ const FinanceProvider = ({ children })=>{
             // checkCreditCardCommitments modifies commitments ONLY if needed.
             if (!isLoading && accounts.length > 0 && transactions.length > 0) {
                 checkCreditCardCommitments();
+                generateNotifications();
             }
         }
     }["FinanceProvider.useEffect"], [
         isLoading,
         accounts,
         transactions.length,
-        commitments.length
-    ]); // Added commitments.length to detect load
+        commitments.length,
+        budgets.length
+    ]); // Added dependencies
+    // Notification Logic
+    const generateNotifications = ()=>{
+        const newNotifications = [];
+        const today = new Date();
+        // 1. Commitments Due Soon (3 days)
+        commitments.forEach((c)=>{
+            if (c.status === 'PENDING' && c.isActive) {
+                const dueDate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$parseISO$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["parseISO"])(c.nextDueDate);
+                if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$isBefore$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isBefore"])(dueDate, (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addDays"])(today, 3)) && (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$isAfter$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isAfter"])(dueDate, (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$subDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["subDays"])(today, 1))) {
+                    newNotifications.push({
+                        id: `comm-${c.id}`,
+                        title: 'Pago Próximo',
+                        message: `El compromiso "${c.name}" vence el ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["format"])(dueDate, 'dd MMM')}.`,
+                        time: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["format"])(today, 'HH:mm'),
+                        type: 'WARNING',
+                        read: false
+                    });
+                }
+            }
+        });
+        // 2. Budgets (Approximate for Current Month)
+        // We recreate simplistic logic here: Filter transactions for current month & category
+        const startMonth = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfMonth"])(today);
+        const endMonth = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endOfMonth"])(today);
+        budgets.forEach((b)=>{
+            const categoryId = b.category_id;
+            if (!categoryId) return; // Skip if no ID
+            // Calculate spent for this budget's category in current month
+            const spent = transactions.filter((t)=>t.type === 'EXPENSE' && t.category_id === categoryId && (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$isWithinInterval$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isWithinInterval"])(new Date(t.date), {
+                    start: startMonth,
+                    end: endMonth
+                })).reduce((sum, t)=>sum + t.amount, 0);
+            const ratio = b.limit > 0 ? spent / b.limit : 0;
+            if (ratio >= 1) {
+                newNotifications.push({
+                    id: `bud-err-${b.id}`,
+                    title: 'Presupuesto Excedido',
+                    message: `Has excedido tu presupuesto de ${b.category || 'Categoría'}.`,
+                    time: 'Ahora',
+                    type: 'ERROR',
+                    read: false
+                });
+            } else if (ratio >= 0.8) {
+                newNotifications.push({
+                    id: `bud-warn-${b.id}`,
+                    title: 'Presupuesto al Límite',
+                    message: `Estás al ${(ratio * 100).toFixed(0)}% de tu presupuesto de ${b.category || 'Categoría'}.`,
+                    time: 'Ahora',
+                    type: 'WARNING',
+                    read: false
+                });
+            }
+        });
+        // 3. Credit Cards Pay Day (3 days)
+        accounts.filter((a)=>a.type === 'CREDIT').forEach((acc)=>{
+            if (acc.payDay) {
+                // Calculate next pay date (naive approach: this month's pay day)
+                let payDate = new Date(today.getFullYear(), today.getMonth(), acc.payDay);
+                if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$isBefore$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isBefore"])(payDate, today)) {
+                    payDate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addMonths"])(payDate, 1);
+                }
+                if ((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$isWithinInterval$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isWithinInterval"])(payDate, {
+                    start: today,
+                    end: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addDays"])(today, 3)
+                })) {
+                    newNotifications.push({
+                        id: `cc-${acc.id}`,
+                        title: 'Tarjeta de Crédito',
+                        message: `La fecha de pago de ${acc.name} es el ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["format"])(payDate, 'dd MMM')}.`,
+                        time: 'Ahora',
+                        type: 'INFO',
+                        read: false
+                    });
+                }
+            }
+        });
+        // Deduplicate or Merge with existing read status?
+        // For MVP, we replace, but we lose "read" status if we just replace.
+        // Ideally we persist read status in local storage or DB. 
+        // Let's implement a simple LocalStorage check for "read ids".
+        const readIds = JSON.parse(localStorage.getItem('read_notifications') || '[]');
+        const finalNotifications = newNotifications.map((n)=>({
+                ...n,
+                read: readIds.includes(n.id)
+            }));
+        // Sort?
+        setNotifications(finalNotifications);
+    };
+    const markNotificationAsRead = (id)=>{
+        setNotifications((prev)=>prev.map((n)=>n.id === id ? {
+                    ...n,
+                    read: true
+                } : n));
+        const readIds = JSON.parse(localStorage.getItem('read_notifications') || '[]');
+        if (!readIds.includes(id)) {
+            readIds.push(id);
+            localStorage.setItem('read_notifications', JSON.stringify(readIds));
+        }
+    };
+    const markAllNotificationsAsRead = ()=>{
+        setNotifications((prev)=>prev.map((n)=>({
+                    ...n,
+                    read: true
+                })));
+        const allIds = notifications.map((n)=>n.id);
+        const readIds = JSON.parse(localStorage.getItem('read_notifications') || '[]');
+        const newReadIds = Array.from(new Set([
+            ...readIds,
+            ...allIds
+        ]));
+        localStorage.setItem('read_notifications', JSON.stringify(newReadIds));
+    };
+    const unreadCount = notifications.filter((n)=>!n.read).length;
     // Initial Load
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "FinanceProvider.useEffect": ()=>{
@@ -522,6 +643,35 @@ const FinanceProvider = ({ children })=>{
             const cat = categories.find((c)=>c.name === t.category);
             categoryId = cat?.id;
         }
+        // Handle Location Tracking logic
+        let lat = t.latitude;
+        let lng = t.longitude;
+        // If location is enabled in profile and no explicit location passed, try to fetch current
+        if (userProfile?.is_location_enabled && (!lat || !lng)) {
+            try {
+                const pos = await new Promise((resolve, reject)=>{
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        timeout: 5000
+                    });
+                });
+                lat = pos.coords.latitude;
+                lng = pos.coords.longitude;
+            } catch (e) {
+                console.warn("Could not fetch location for transaction:", e);
+            // Fallback to profile stored location if available? User requested "take current", but fallback is nice.
+            // lat = userProfile.location_lat || undefined;
+            // lng = userProfile.location_lng || undefined;
+            }
+        } else if (!lat && !lng && userProfile?.location_lat && userProfile?.location_lng) {
+        // Option: If tracking not enabled but profile has static location, use that?
+        // User said "tome la ubicacion ACTUAL", implies dynamic.
+        // If tracking enabled, we fetched above. If not enabled, maybe we shouldn't attach anything?
+        // Or maybe use the static "Home" location if enabled?
+        // Let's stick to dynamic fetch if enabled.
+        }
+        // If t already had coords, they trump everything (passed from manual input maybe)
+        t.latitude = lat;
+        t.longitude = lng;
         const { data, error } = await supabase.from('transactions').insert({
             book_id: activeBookId,
             account_id: accountId,
@@ -532,6 +682,8 @@ const FinanceProvider = ({ children })=>{
             category_id: categoryId,
             currency: account.currency || 'USD',
             location_text: t.location,
+            location_lat: t.latitude,
+            location_lng: t.longitude,
             notes: t.notes,
             beneficiary: t.beneficiary,
             frequency: t.frequency,
@@ -1169,6 +1321,67 @@ const FinanceProvider = ({ children })=>{
     const openTransactionModal = ()=>setIsTransactionModalOpen(true);
     const closeTransactionModal = ()=>setIsTransactionModalOpen(false);
     const totalBalance = accounts.reduce((sum, acc)=>sum + acc.balance, 0);
+    const fetchUserProfile = async ()=>{
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        let { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        if (error && error.code === 'PGRST116') {
+            // Profile doesn't exist, create it
+            const newProfile = {
+                id: user.id,
+                full_name: 'Paul',
+                email: user.email || '',
+                phone: '',
+                username: '@paul',
+                language: 'es',
+                currency: 'PEN',
+                country: 'Peru',
+                city: 'Lima',
+                notifications_enabled: true,
+                two_factor_enabled: false
+            };
+            const { data: createdProfile, error: createError } = await supabase.from('profiles').insert(newProfile).select().single();
+            if (createError) {
+                console.error("Error creating default profile:", createError);
+            } else {
+                data = createdProfile;
+            }
+        }
+        if (data) {
+            setUserProfile(data);
+        }
+    };
+    const updateUserProfile = async (updates)=>{
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
+        if (error) {
+            console.error("Error updating profile:", error);
+            alert("Error al actualizar perfil: " + error.message);
+        } else {
+            fetchUserProfile();
+        }
+    };
+    const uploadAvatar = async (file)=>{
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return null;
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
+        const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file);
+        if (uploadError) {
+            console.error('Error uploading avatar:', uploadError);
+            return null;
+        }
+        const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
+        return publicUrl;
+    };
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "FinanceProvider.useEffect": ()=>{
+            // Fetch profile on mount if authorized
+            fetchUserProfile();
+        }
+    }["FinanceProvider.useEffect"], []);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(FinanceContext.Provider, {
         value: {
             transactions,
@@ -1179,6 +1392,10 @@ const FinanceProvider = ({ children })=>{
             commitments,
             recurringRules,
             ledgers,
+            userProfile,
+            fetchUserProfile,
+            updateUserProfile,
+            uploadAvatar,
             addTransaction,
             deleteTransaction,
             addAccount,
@@ -1188,6 +1405,8 @@ const FinanceProvider = ({ children })=>{
             updateCommitment,
             deleteCommitment,
             toggleCommitmentStatus,
+            updateTransaction,
+            duplicateTransaction,
             toggleRuleStatus,
             activateLedger,
             generateSampleData,
@@ -1202,10 +1421,8 @@ const FinanceProvider = ({ children })=>{
             openTransactionModal,
             closeTransactionModal,
             addBudget,
-            updateTransaction,
-            duplicateTransaction,
-            deleteBudget,
             updateBudget,
+            deleteBudget,
             checkRecurringBudgets,
             deleteCategory: async (id)=>{
                 if (!activeBookId) return;
@@ -1228,16 +1445,20 @@ const FinanceProvider = ({ children })=>{
                     // Also refresh categories as they might have been unlinked (if cascade set null) or deleted (if cascade delete)
                     await fetchCategories(activeBookId);
                 }
-            }
+            },
+            notifications,
+            unreadCount,
+            markNotificationAsRead,
+            markAllNotificationsAsRead
         },
         children: children
     }, void 0, false, {
         fileName: "[project]/context/FinanceContext.tsx",
-        lineNumber: 1269,
+        lineNumber: 1526,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(FinanceProvider, "us5PCvrz+RzJ/z+te8Vu+xxn1LM=", false, function() {
+_s(FinanceProvider, "nTltCYl0c8ubDAp+bQs5/yVyzak=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"]
     ];

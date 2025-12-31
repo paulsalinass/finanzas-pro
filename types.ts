@@ -30,6 +30,8 @@ export interface Transaction {
   category_id?: string;
   status?: 'COMPLETED' | 'PENDING';
   location?: string;
+  latitude?: number;
+  longitude?: number;
   notes?: string;
   isRecurring?: boolean;
   frequency?: string;
@@ -140,4 +142,34 @@ export interface Ledger {
   type: 'SAVINGS' | 'BUSINESS' | 'PERSONAL';
   members?: string[];
   currency?: string;
+}
+
+export interface UserProfile {
+  id: string;
+  full_name: string;
+  username: string;
+  email: string;
+  phone?: string;
+  bio?: string;
+  avatar_url?: string;
+  currency?: string;
+  language?: string;
+  country?: string;
+  city?: string;
+  notifications_enabled?: boolean;
+  two_factor_enabled?: boolean;
+  updated_at?: string;
+  location_lat?: number;
+  location_lng?: number;
+  is_location_enabled?: boolean;
+}
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  type: 'WARNING' | 'INFO' | 'SUCCESS' | 'ERROR';
+  read: boolean;
+  link?: string;
 }

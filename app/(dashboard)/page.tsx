@@ -37,7 +37,7 @@ const COLOR_MAP: Record<string, { bg: string, text: string, ring: string, border
 
 export default function Dashboard() {
     const router = useRouter();
-    const { transactions, accounts, totalBalance, budgets, commitments, recurringRules, categories, openTransactionModal, formatAmount, ledgers, activeBookId } = useFinance();
+    const { transactions, accounts, totalBalance, budgets, commitments, recurringRules, categories, openTransactionModal, formatAmount, ledgers, activeBookId, unreadCount, userProfile } = useFinance();
     const [showBalance, setShowBalance] = useState(true);
     const [activeTab, setActiveTab] = useState('Este mes');
     const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({
@@ -46,6 +46,9 @@ export default function Dashboard() {
     });
     const [isDateModalOpen, setIsDateModalOpen] = useState(false);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
+    const displayName = userProfile?.full_name || userProfile?.username || 'Usuario';
+    const displayAvatar = userProfile?.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=random';
 
     const tabs = ['Este mes', 'Mes pasado', 'Últimos 3 meses', 'Personalizado'];
     const dateMeta = React.useMemo(() => {
@@ -322,7 +325,7 @@ export default function Dashboard() {
                         <p className="text-text-muted dark:text-dark-muted text-sm font-semibold tracking-wide uppercase">
                             {new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date())}
                         </p>
-                        <h2 className="text-3xl md:text-4xl font-black text-text-main dark:text-white tracking-tight">Hola, Paul <span className="text-2xl">👋</span></h2>
+                        <h2 className="text-3xl md:text-4xl font-black text-text-main dark:text-white tracking-tight">Hola, {displayName.split(' ')[0]} <span className="text-2xl">👋</span></h2>
                         <p className="text-text-muted dark:text-dark-muted/80 text-base font-normal max-w-lg">Aquí tienes el resumen de tu actividad financiera.</p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -331,12 +334,15 @@ export default function Dashboard() {
                             className="btn-interact flex items-center justify-center rounded-xl size-11 bg-white dark:bg-[#292f38] text-text-muted dark:text-white hover:text-primary transition-colors border border-gray-200 dark:border-white/5 shadow-sm relative"
                         >
                             <span className="material-symbols-outlined">notifications</span>
-                            <span className="absolute top-2.5 right-2.5 size-2 bg-danger rounded-full ring-2 ring-white dark:ring-background-dark"></span>
+                            {/* Dynamic Unread Badge */}
+                            {unreadCount > 0 && (
+                                <span className="absolute top-2.5 right-2.5 size-2 bg-danger rounded-full ring-2 ring-white dark:ring-background-dark"></span>
+                            )}
                         </button>
                         <div
-                            onClick={() => router.push('/settings')}
+                            onClick={() => router.push('/profile')}
                             className="lg:hidden btn-interact bg-center bg-no-repeat bg-cover rounded-full size-11 shadow-md border border-white dark:border-white/10 ml-2 cursor-pointer"
-                            style={{ backgroundImage: 'url("https://picsum.photos/100/100?random=1")' }}
+                            style={{ backgroundImage: `url("${displayAvatar}")` }}
                         ></div>
                     </div>
                 </header>
@@ -652,8 +658,8 @@ export default function Dashboard() {
                 </section>
             </div>
 
-            <button onClick={openTransactionModal} className="btn-interact fixed z-50 bottom-24 lg:bottom-12 right-6 md:right-12 size-14 md:size-16 bg-gradient-primary text-white rounded-full shadow-[0_8px_30px_rgba(16,185,129,0.4)] flex items-center justify-center transition-all hover:scale-110 active:scale-95 group hover:shadow-primary/50">
-                <span className="material-symbols-outlined text-3xl md:text-4xl group-hover:rotate-90 transition-transform duration-500">add</span>
+            <button onClick={openTransactionModal} className="btn-interact hidden lg:flex fixed z-50 bottom-12 right-12 size-16 bg-gradient-primary text-white rounded-full shadow-[0_8px_30px_rgba(16,185,129,0.4)] items-center justify-center transition-all hover:scale-110 active:scale-95 group hover:shadow-primary/50">
+                <span className="material-symbols-outlined text-4xl group-hover:rotate-90 transition-transform duration-500">add</span>
             </button>
             <DateRangeModal
                 isOpen={isDateModalOpen}
