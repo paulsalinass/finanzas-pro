@@ -91,15 +91,15 @@ const FinanceProvider = ({ children })=>{
     const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
     const [isDarkMode, setIsDarkMode] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     // Theme Logic
-    const toggleTheme = ()=>{
+    const toggleTheme = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(()=>{
         setIsDarkMode((prev)=>{
             const newMode = !prev;
             if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
             ;
             return newMode;
         });
-    };
-    const fetchBooks = async ()=>{
+    }, []);
+    const fetchBooks = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async ()=>{
         setIsLoading(true);
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
@@ -107,6 +107,11 @@ const FinanceProvider = ({ children })=>{
             return;
         }
         const { data: books, error } = await supabase.from('books').select('*');
+        if (error) {
+            console.error("Error fetching books:", error);
+            console.error("Supabase URL present?", !!("TURBOPACK compile-time value", "https://kddrngqmcltfwwfgmjxu.supabase.co"));
+            console.error("Supabase Key present?", !!("TURBOPACK compile-time value", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkZHJuZ3FtY2x0Znd3Zmdtanh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxNTQ5MjYsImV4cCI6MjA4MTczMDkyNn0.2g6pmDPIV_S6s3VEGzFwUdYP857_okpDR2jbJDVimEE"));
+        }
         if (books && books.length > 0) {
             const mappedLedgers = books.map((b)=>({
                     id: b.id,
@@ -129,9 +134,11 @@ const FinanceProvider = ({ children })=>{
             await createDefaultBook(user.id);
         }
         setIsLoading(false);
-    };
+    }, [
+        supabase
+    ]);
     // Check for Credit Card Commitments
-    const checkCreditCardCommitments = async ()=>{
+    const checkCreditCardCommitments = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async ()=>{
         if (accounts.length === 0 || transactions.length === 0 || isLoading) return;
         for (const account of accounts){
             if (account.type !== 'CREDIT' || !account.cutoffDay || !account.payDay) continue;
@@ -230,9 +237,15 @@ const FinanceProvider = ({ children })=>{
             });
             console.log(`Generated commitment for ${account.name}: ${cycleExpenses} due ${limitDate.toISOString()}`);
         }
-    };
+    }, [
+        accounts,
+        transactions,
+        isLoading,
+        categories,
+        commitments
+    ]); // Dependencies updated
     // Deduplicate logic helper
-    const deduplicateCommitments = async (account, periodLabel)=>{
+    const deduplicateCommitments = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (account, periodLabel)=>{
         const commitmentName = `Pago Tarjeta ${account.name} - ${periodLabel}`;
         // Find ALL matching commitments
         const matches = commitments.filter((c)=>c.name === commitmentName && c.accountId === account.id);
@@ -247,7 +260,9 @@ const FinanceProvider = ({ children })=>{
                 await deleteCommitment(c.id);
             }
         }
-    };
+    }, [
+        commitments
+    ]);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         // Ensure commitments are loaded or at least we have tried to fetch them.
         // We can check if commitments array is populated or if we have a flag.
@@ -267,7 +282,7 @@ const FinanceProvider = ({ children })=>{
         budgets.length
     ]); // Added dependencies
     // Notification Logic
-    const generateNotifications = ()=>{
+    const generateNotifications = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(()=>{
         const newNotifications = [];
         const today = new Date();
         // 1. Commitments Due Soon (3 days)
@@ -353,8 +368,13 @@ const FinanceProvider = ({ children })=>{
             }));
         // Sort?
         setNotifications(finalNotifications);
-    };
-    const markNotificationAsRead = (id)=>{
+    }, [
+        commitments,
+        budgets,
+        transactions,
+        accounts
+    ]);
+    const markNotificationAsRead = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])((id)=>{
         setNotifications((prev)=>prev.map((n)=>n.id === id ? {
                     ...n,
                     read: true
@@ -364,8 +384,8 @@ const FinanceProvider = ({ children })=>{
             readIds.push(id);
             localStorage.setItem('read_notifications', JSON.stringify(readIds));
         }
-    };
-    const markAllNotificationsAsRead = ()=>{
+    }, []);
+    const markAllNotificationsAsRead = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(()=>{
         setNotifications((prev)=>prev.map((n)=>({
                     ...n,
                     read: true
@@ -377,7 +397,9 @@ const FinanceProvider = ({ children })=>{
             ...allIds
         ]));
         localStorage.setItem('read_notifications', JSON.stringify(newReadIds));
-    };
+    }, [
+        notifications
+    ]);
     const unreadCount = notifications.filter((n)=>!n.read).length;
     // Initial Load
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
@@ -406,7 +428,7 @@ const FinanceProvider = ({ children })=>{
         activeBookId
     ]);
     // Helper to format currency based on active book
-    const formatAmount = (amount)=>{
+    const formatAmount = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])((amount)=>{
         const activeLedger = ledgers.find((l)=>l.id === activeBookId);
         const currency = activeLedger?.currency || 'MXN';
         let locale = 'es-MX';
@@ -421,65 +443,11 @@ const FinanceProvider = ({ children })=>{
             currency: currency,
             minimumFractionDigits: 2
         }).format(amount);
-    };
-    const refreshBooks = async ()=>{
-        await fetchBooks();
-        if (activeBookId) {
-            await Promise.all([
-                fetchAccounts(activeBookId),
-                fetchCategories(activeBookId),
-                fetchCategoryFolders(activeBookId),
-                fetchTransactions(activeBookId),
-                fetchCommitments(activeBookId),
-                fetchBudgets(activeBookId),
-                fetchRecurringRules(activeBookId)
-            ]);
-        }
-    };
-    const createDefaultBook = async (userId)=>{
-        const { data, error } = await supabase.from('books').insert({
-            name: 'Personal',
-            user_id: userId
-        }).select().single();
-        if (data) {
-            const newLedger = {
-                id: data.id,
-                name: data.name,
-                description: 'Mi primer libro contable',
-                balance: 0,
-                isActive: true,
-                isArchived: false,
-                lastUpdate: new Date().toISOString(),
-                icon: 'person',
-                color: 'blue',
-                type: 'PERSONAL',
-                members: []
-            };
-            setLedgers([
-                newLedger
-            ]);
-            handleChangeActiveBook(data.id);
-        }
-    };
-    const handleChangeActiveBook = async (bookId)=>{
-        setActiveBookId(bookId);
-        localStorage.setItem('finance_active_book_id', bookId); // Persist selection
-        setLedgers((prev)=>prev.map((l)=>({
-                    ...l,
-                    isActive: l.id === bookId
-                })));
-        // Fetch Data for this Book
-        await Promise.all([
-            fetchAccounts(bookId),
-            fetchCategories(bookId),
-            fetchCategoryFolders(bookId),
-            fetchTransactions(bookId),
-            fetchCommitments(bookId),
-            fetchBudgets(bookId),
-            fetchRecurringRules(bookId)
-        ]);
-    };
-    const fetchCategories = async (bookId)=>{
+    }, [
+        ledgers,
+        activeBookId
+    ]);
+    const fetchCategories = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (bookId)=>{
         const { data } = await supabase.from('categories').select('*').eq('book_id', bookId);
         if (data) {
             setCategories(data.map((cat)=>({
@@ -490,8 +458,10 @@ const FinanceProvider = ({ children })=>{
                     folder_id: cat.folder_id || null
                 })));
         }
-    };
-    const fetchCategoryFolders = async (bookId)=>{
+    }, [
+        supabase
+    ]);
+    const fetchCategoryFolders = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (bookId)=>{
         const { data } = await supabase.from('category_folders').select('*').eq('book_id', bookId);
         if (data) {
             setCategoryFolders(data.map((folder)=>({
@@ -501,8 +471,10 @@ const FinanceProvider = ({ children })=>{
                     icon: folder.icon || 'folder'
                 })));
         }
-    };
-    const fetchAccounts = async (bookId)=>{
+    }, [
+        supabase
+    ]);
+    const fetchAccounts = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (bookId)=>{
         const { data } = await supabase.from('accounts').select('*').eq('book_id', bookId);
         if (data) {
             setAccounts(data.map((a)=>({
@@ -520,8 +492,10 @@ const FinanceProvider = ({ children })=>{
                     expiryDate: a.expiry_date
                 })));
         }
-    };
-    const fetchTransactions = async (bookId)=>{
+    }, [
+        supabase
+    ]);
+    const fetchTransactions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (bookId)=>{
         const { data } = await supabase.from('transactions').select(`
         *,
         categories (name, icon, color),
@@ -549,8 +523,10 @@ const FinanceProvider = ({ children })=>{
                     updated_at: t.updated_at
                 })));
         }
-    };
-    const fetchCommitments = async (bookId)=>{
+    }, [
+        supabase
+    ]);
+    const fetchCommitments = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (bookId)=>{
         const { data, error } = await supabase.from('commitments').select(`
         *,
         categories (name),
@@ -580,8 +556,10 @@ const FinanceProvider = ({ children })=>{
                     fundingAccountId: c.funding_account_id
                 })));
         }
-    };
-    const fetchBudgets = async (bookId)=>{
+    }, [
+        supabase
+    ]);
+    const fetchBudgets = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (bookId)=>{
         // Joining handled client-side in UI to ensure robustness
         const { data, error } = await supabase.from('budgets').select('*').eq('book_id', bookId);
         if (error) {
@@ -603,8 +581,10 @@ const FinanceProvider = ({ children })=>{
                     recurrence_interval: b.recurrence_interval
                 })));
         }
-    };
-    const fetchRecurringRules = async (bookId)=>{
+    }, [
+        supabase
+    ]);
+    const fetchRecurringRules = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (bookId)=>{
         const { data, error } = await supabase.from('recurring_rules').select(`
         *,
         categories (name, icon, color),
@@ -628,9 +608,84 @@ const FinanceProvider = ({ children })=>{
                     icon: r.categories?.icon || 'autorenew'
                 })));
         }
-    };
+    }, [
+        supabase
+    ]);
+    const refreshBooks = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async ()=>{
+        await fetchBooks();
+        if (activeBookId) {
+            await Promise.all([
+                fetchAccounts(activeBookId),
+                fetchCategories(activeBookId),
+                fetchCategoryFolders(activeBookId),
+                fetchTransactions(activeBookId),
+                fetchCommitments(activeBookId),
+                fetchBudgets(activeBookId),
+                fetchRecurringRules(activeBookId)
+            ]);
+        }
+    }, [
+        activeBookId,
+        fetchBooks
+    ]);
+    const createDefaultBook = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (userId)=>{
+        const { data, error } = await supabase.from('books').insert({
+            name: 'Personal',
+            user_id: userId
+        }).select().single();
+        if (error) {
+            console.error("Error creating default book:", error);
+        }
+        if (data) {
+            const newLedger = {
+                id: data.id,
+                name: data.name,
+                description: 'Mi primer libro contable',
+                balance: 0,
+                isActive: true,
+                isArchived: false,
+                lastUpdate: new Date().toISOString(),
+                icon: 'person',
+                color: 'blue',
+                type: 'PERSONAL',
+                members: []
+            };
+            setLedgers([
+                newLedger
+            ]);
+            handleChangeActiveBook(data.id);
+        }
+    }, [
+        supabase
+    ]);
+    const handleChangeActiveBook = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (bookId)=>{
+        setActiveBookId(bookId);
+        localStorage.setItem('finance_active_book_id', bookId); // Persist selection
+        setLedgers((prev)=>prev.map((l)=>({
+                    ...l,
+                    isActive: l.id === bookId
+                })));
+        // Fetch Data for this Book
+        await Promise.all([
+            fetchAccounts(bookId),
+            fetchCategories(bookId),
+            fetchCategoryFolders(bookId),
+            fetchTransactions(bookId),
+            fetchCommitments(bookId),
+            fetchBudgets(bookId),
+            fetchRecurringRules(bookId)
+        ]);
+    }, [
+        fetchAccounts,
+        fetchCategories,
+        fetchCategoryFolders,
+        fetchTransactions,
+        fetchCommitments,
+        fetchBudgets,
+        fetchRecurringRules
+    ]);
     // ACTIONS
-    const addTransaction = async (t)=>{
+    const addTransaction = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (t)=>{
         if (!activeBookId) return;
         // Find account ID by name (current UI passes name)
         // In future UI should pass ID. For now, matching by name:
@@ -663,16 +718,7 @@ const FinanceProvider = ({ children })=>{
                 lng = pos.coords.longitude;
             } catch (e) {
                 console.warn("Could not fetch location for transaction:", e);
-            // Fallback to profile stored location if available? User requested "take current", but fallback is nice.
-            // lat = userProfile.location_lat || undefined;
-            // lng = userProfile.location_lng || undefined;
             }
-        } else if (!lat && !lng && userProfile?.location_lat && userProfile?.location_lng) {
-        // Option: If tracking not enabled but profile has static location, use that?
-        // User said "tome la ubicacion ACTUAL", implies dynamic.
-        // If tracking enabled, we fetched above. If not enabled, maybe we shouldn't attach anything?
-        // Or maybe use the static "Home" location if enabled?
-        // Let's stick to dynamic fetch if enabled.
         }
         // If t already had coords, they trump everything (passed from manual input maybe)
         t.latitude = lat;
@@ -716,10 +762,6 @@ const FinanceProvider = ({ children })=>{
         }
         // Create Recurring Rule if needed
         if (data && t.frequency) {
-            // Calculate next run? For now, we just create the rule.
-            // Logic for next run could be complex (e.g. 1 month from now). 
-            // For simplicity, we set next_run_at to the transaction date + interval (or just the date if the rule runner handles it).
-            // Let's assume we want the NEXT occurrence.
             let nextDate = new Date(t.date);
             // Simple logic for next date
             if (t.frequency === 'DAILY') nextDate.setDate(nextDate.getDate() + 1);
@@ -727,7 +769,6 @@ const FinanceProvider = ({ children })=>{
             if (t.frequency === 'BIWEEKLY') nextDate.setDate(nextDate.getDate() + 14);
             if (t.frequency === 'MONTHLY') nextDate.setMonth(nextDate.getMonth() + 1);
             if (t.frequency === 'ANNUAL') nextDate.setFullYear(nextDate.getFullYear() + 1);
-            // ... add others if strict needed, or rely on null/logic elsewhere.
             const { error: ruleError } = await supabase.from('recurring_rules').insert({
                 book_id: activeBookId,
                 name: t.description,
@@ -751,8 +792,17 @@ const FinanceProvider = ({ children })=>{
             fetchTransactions(activeBookId);
             fetchAccounts(activeBookId); // Update balances
         }
-    };
-    const addAccount = async (a)=>{
+    }, [
+        activeBookId,
+        accounts,
+        categories,
+        userProfile,
+        supabase,
+        fetchRecurringRules,
+        fetchTransactions,
+        fetchAccounts
+    ]);
+    const addAccount = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (a)=>{
         if (!activeBookId) return;
         // Prepare payload - casting to any to bypass strict database types until migration is run
         const payload = {
@@ -781,9 +831,12 @@ const FinanceProvider = ({ children })=>{
             return;
         }
         fetchAccounts(activeBookId);
-        fetchAccounts(activeBookId);
-    };
-    const updateAccount = async (id, a)=>{
+    }, [
+        activeBookId,
+        supabase,
+        fetchAccounts
+    ]);
+    const updateAccount = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (id, a)=>{
         if (!activeBookId) return;
         // Prepare payload
         const payload = {
@@ -812,8 +865,12 @@ const FinanceProvider = ({ children })=>{
             return;
         }
         fetchAccounts(activeBookId);
-    };
-    const deleteAccount = async (id)=>{
+    }, [
+        activeBookId,
+        supabase,
+        fetchAccounts
+    ]);
+    const deleteAccount = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (id)=>{
         if (!activeBookId) return;
         // Check for dependencies? Ideally transactions cascade or block. 
         // Supabase usually set to CASECADE or RESTRICT. Assuming CASCADE or user handled.
@@ -824,8 +881,12 @@ const FinanceProvider = ({ children })=>{
             return;
         }
         fetchAccounts(activeBookId);
-    };
-    const addCommitment = async (c)=>{
+    }, [
+        activeBookId,
+        supabase,
+        fetchAccounts
+    ]);
+    const addCommitment = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (c)=>{
         if (!activeBookId) return;
         const payload = {
             book_id: activeBookId,
@@ -859,8 +920,14 @@ const FinanceProvider = ({ children })=>{
             return;
         }
         fetchCommitments(activeBookId);
-    };
-    const updateCommitment = async (id, updates)=>{
+    }, [
+        activeBookId,
+        accounts,
+        categories,
+        supabase,
+        fetchCommitments
+    ]);
+    const updateCommitment = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (id, updates)=>{
         if (!activeBookId) return;
         const payload = {};
         if (updates.name !== undefined) payload.title = updates.name;
@@ -893,8 +960,14 @@ const FinanceProvider = ({ children })=>{
             return;
         }
         fetchCommitments(activeBookId);
-    };
-    const deleteCommitment = async (id)=>{
+    }, [
+        activeBookId,
+        accounts,
+        categories,
+        supabase,
+        fetchCommitments
+    ]);
+    const deleteCommitment = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (id)=>{
         const { error } = await supabase.from('commitments').delete().eq('id', id);
         if (error) {
             console.error("Error deleting commitment:", error);
@@ -902,8 +975,12 @@ const FinanceProvider = ({ children })=>{
             return;
         }
         if (activeBookId) fetchCommitments(activeBookId);
-    };
-    const deleteTransaction = async (id)=>{
+    }, [
+        activeBookId,
+        supabase,
+        fetchCommitments
+    ]);
+    const deleteTransaction = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (id)=>{
         // 1. Fetch transaction details to revert balance
         const { data: transaction } = await supabase.from('transactions').select('*').eq('id', id).single();
         const { error } = await supabase.from('transactions').delete().eq('id', id);
@@ -940,8 +1017,14 @@ const FinanceProvider = ({ children })=>{
             fetchTransactions(activeBookId);
             fetchAccounts(activeBookId);
         }
-    };
-    const updateTransaction = async (id, updates)=>{
+    }, [
+        activeBookId,
+        supabase,
+        fetchTransactions,
+        fetchAccounts,
+        fetchCommitments
+    ]);
+    const updateTransaction = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (id, updates)=>{
         // Map UI fields to DB fields
         const payload = {};
         if (updates.amount !== undefined) payload.amount = updates.amount;
@@ -973,8 +1056,14 @@ const FinanceProvider = ({ children })=>{
             fetchTransactions(activeBookId);
             fetchAccounts(activeBookId); // Balance might change
         }
-    };
-    const duplicateTransaction = async (id)=>{
+    }, [
+        activeBookId,
+        categories,
+        supabase,
+        fetchTransactions,
+        fetchAccounts
+    ]);
+    const duplicateTransaction = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (id)=>{
         const original = transactions.find((t)=>t.id === id);
         if (!original) return;
         const newTrans = {
@@ -985,8 +1074,11 @@ const FinanceProvider = ({ children })=>{
             updated_at: undefined
         };
         await addTransaction(newTrans);
-    };
-    const toggleCommitmentStatus = async (id, currentStatus)=>{
+    }, [
+        transactions,
+        addTransaction
+    ]);
+    const toggleCommitmentStatus = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (id, currentStatus)=>{
         const newStatus = currentStatus === 'PAID' ? 'PENDING' : 'PAID';
         // Optimistic update
         await updateCommitment(id, {
@@ -1091,14 +1183,23 @@ const FinanceProvider = ({ children })=>{
                 }
             }
         }
-    };
-    const toggleRuleStatus = (id)=>{
+    }, [
+        activeBookId,
+        commitments,
+        accounts,
+        updateCommitment,
+        addTransaction,
+        addCommitment
+    ]);
+    const toggleRuleStatus = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])((id)=>{
     // impl
-    };
-    const activateLedger = (id)=>{
+    }, []);
+    const activateLedger = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])((id)=>{
         handleChangeActiveBook(id);
-    };
-    const generateSampleData = async ()=>{
+    }, [
+        handleChangeActiveBook
+    ]);
+    const generateSampleData = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async ()=>{
         if (!activeBookId) return;
         setIsLoading(true);
         // 1. Create Accounts
@@ -1200,8 +1301,12 @@ const FinanceProvider = ({ children })=>{
         // Refresh all
         await handleChangeActiveBook(activeBookId);
         setIsLoading(false);
-    };
-    const addBudget = async (budgetData)=>{
+    }, [
+        activeBookId,
+        supabase,
+        handleChangeActiveBook
+    ]);
+    const addBudget = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (budgetData)=>{
         if (!activeBookId) return;
         const { error } = await supabase.from('budgets').insert({
             book_id: activeBookId,
@@ -1219,8 +1324,12 @@ const FinanceProvider = ({ children })=>{
             return;
         }
         await fetchBudgets(activeBookId);
-    };
-    const deleteBudget = async (id)=>{
+    }, [
+        activeBookId,
+        supabase,
+        fetchBudgets
+    ]);
+    const deleteBudget = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (id)=>{
         if (!activeBookId) return;
         const { error } = await supabase.from('budgets').delete().eq('id', id);
         if (error) {
@@ -1229,8 +1338,12 @@ const FinanceProvider = ({ children })=>{
             return;
         }
         await fetchBudgets(activeBookId);
-    };
-    const updateBudget = async (id, updates)=>{
+    }, [
+        activeBookId,
+        supabase,
+        fetchBudgets
+    ]);
+    const updateBudget = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (id, updates)=>{
         if (!activeBookId) return;
         const payload = {};
         if (updates.amount !== undefined) payload.amount = updates.amount;
@@ -1246,8 +1359,12 @@ const FinanceProvider = ({ children })=>{
             return;
         }
         await fetchBudgets(activeBookId);
-    };
-    const checkRecurringBudgets = async ()=>{
+    }, [
+        activeBookId,
+        supabase,
+        fetchBudgets
+    ]);
+    const checkRecurringBudgets = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async ()=>{
         if (!activeBookId || budgets.length === 0) return;
         const today = new Date();
         const createdBudgets = [];
@@ -1299,8 +1416,13 @@ const FinanceProvider = ({ children })=>{
                 await fetchBudgets(activeBookId);
             }
         }
-    };
-    const checkAutoPayCommitments = async ()=>{
+    }, [
+        activeBookId,
+        budgets,
+        supabase,
+        fetchBudgets
+    ]);
+    const checkAutoPayCommitments = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async ()=>{
         if (!activeBookId || commitments.length === 0) return;
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -1309,7 +1431,11 @@ const FinanceProvider = ({ children })=>{
             console.log(`Auto-paying commitment: ${commitment.name}`);
             await toggleCommitmentStatus(commitment.id, 'PENDING');
         }
-    };
+    }, [
+        activeBookId,
+        commitments,
+        toggleCommitmentStatus
+    ]);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         if (!isLoading && activeBookId && commitments.length > 0) {
             checkAutoPayCommitments();
@@ -1323,11 +1449,16 @@ const FinanceProvider = ({ children })=>{
     const [isTransactionModalOpen, setIsTransactionModalOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const openTransactionModal = ()=>setIsTransactionModalOpen(true);
     const closeTransactionModal = ()=>setIsTransactionModalOpen(false);
-    const totalBalance = accounts.reduce((sum, acc)=>sum + acc.balance, 0);
-    const fetchUserProfile = async ()=>{
+    const totalBalance = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>accounts.reduce((sum, acc)=>sum + acc.balance, 0), [
+        accounts
+    ]);
+    const fetchUserProfile = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async ()=>{
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
         let { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        if (error && error.code !== 'PGRST116') {
+            console.error("Error fetching user profile:", error);
+        }
         if (error && error.code === 'PGRST116') {
             // Profile doesn't exist, create it
             const newProfile = {
@@ -1353,8 +1484,10 @@ const FinanceProvider = ({ children })=>{
         if (data) {
             setUserProfile(data);
         }
-    };
-    const updateUserProfile = async (updates)=>{
+    }, [
+        supabase
+    ]);
+    const updateUserProfile = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (updates)=>{
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
         const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
@@ -1364,8 +1497,11 @@ const FinanceProvider = ({ children })=>{
         } else {
             fetchUserProfile();
         }
-    };
-    const uploadAvatar = async (file)=>{
+    }, [
+        supabase,
+        fetchUserProfile
+    ]);
+    const uploadAvatar = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (file)=>{
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return null;
         const fileExt = file.name.split('.').pop();
@@ -1378,13 +1514,14 @@ const FinanceProvider = ({ children })=>{
         }
         const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
         return publicUrl;
-    };
+    }, [
+        supabase
+    ]);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         // Fetch profile on mount if authorized
         fetchUserProfile();
     }, []);
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(FinanceContext.Provider, {
-        value: {
+    const contextValue = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>({
             transactions,
             accounts,
             categories,
@@ -1443,7 +1580,6 @@ const FinanceProvider = ({ children })=>{
                     alert("Error al eliminar carpeta: " + error.message);
                 } else {
                     await fetchCategoryFolders(activeBookId);
-                    // Also refresh categories as they might have been unlinked (if cascade set null) or deleted (if cascade delete)
                     await fetchCategories(activeBookId);
                 }
             },
@@ -1451,11 +1587,57 @@ const FinanceProvider = ({ children })=>{
             unreadCount,
             markNotificationAsRead,
             markAllNotificationsAsRead
-        },
+        }), [
+        transactions,
+        accounts,
+        categories,
+        categoryFolders,
+        budgets,
+        commitments,
+        recurringRules,
+        ledgers,
+        userProfile,
+        fetchUserProfile,
+        updateUserProfile,
+        uploadAvatar,
+        addTransaction,
+        deleteTransaction,
+        addAccount,
+        updateAccount,
+        deleteAccount,
+        addCommitment,
+        updateCommitment,
+        deleteCommitment,
+        toggleCommitmentStatus,
+        updateTransaction,
+        duplicateTransaction,
+        toggleRuleStatus,
+        activateLedger,
+        generateSampleData,
+        totalBalance,
+        isDarkMode,
+        toggleTheme,
+        isLoading,
+        activeBookId,
+        refreshBooks,
+        formatAmount,
+        isTransactionModalOpen,
+        addBudget,
+        updateBudget,
+        deleteBudget,
+        checkRecurringBudgets,
+        notifications,
+        unreadCount,
+        markNotificationAsRead,
+        markAllNotificationsAsRead,
+        supabase
+    ]);
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(FinanceContext.Provider, {
+        value: contextValue,
         children: children
     }, void 0, false, {
         fileName: "[project]/context/FinanceContext.tsx",
-        lineNumber: 1526,
+        lineNumber: 1638,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

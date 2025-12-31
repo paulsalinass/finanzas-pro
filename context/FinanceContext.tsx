@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import { createClient } from '../utils/supabase/client';
 import { Transaction, Account, Budget, Commitment, RecurringRule, Ledger, TransactionType, Category, CategoryFolder, UserProfile, Notification } from '../types';
 import { useRouter } from 'next/navigation';
@@ -88,7 +88,7 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Theme Logic
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     setIsDarkMode(prev => {
       const newMode = !prev;
       if (typeof window !== 'undefined') {
@@ -98,9 +98,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       }
       return newMode;
     });
-  };
+  }, []);
 
-  const fetchBooks = async () => {
+  const fetchBooks = useCallback(async () => {
     setIsLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -110,6 +110,12 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
 
     const { data: books, error } = await supabase.from('books').select('*');
+
+    if (error) {
+      console.error("Error fetching books:", error);
+      console.error("Supabase URL present?", !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+      console.error("Supabase Key present?", !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    }
 
     if (books && books.length > 0) {
       const mappedLedgers: Ledger[] = books.map(b => ({
@@ -135,10 +141,10 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       await createDefaultBook(user.id);
     }
     setIsLoading(false);
-  };
+  }, [supabase]);
 
   // Check for Credit Card Commitments
-  const checkCreditCardCommitments = async () => {
+  const checkCreditCardCommitments = useCallback(async () => {
     if (accounts.length === 0 || transactions.length === 0 || isLoading) return;
 
     for (const account of accounts) {
@@ -249,10 +255,10 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
 
       console.log(`Generated commitment for ${account.name}: ${cycleExpenses} due ${limitDate.toISOString()}`);
     }
-  };
+  }, [accounts, transactions, isLoading, categories, commitments]); // Dependencies updated
 
   // Deduplicate logic helper
-  const deduplicateCommitments = async (account: Account, periodLabel: string) => {
+  const deduplicateCommitments = useCallback(async (account: Account, periodLabel: string) => {
     const commitmentName = `Pago Tarjeta ${account.name} - ${periodLabel}`;
     // Find ALL matching commitments
     const matches = commitments.filter(c => c.name === commitmentName && c.accountId === account.id);
@@ -269,7 +275,7 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         await deleteCommitment(c.id);
       }
     }
-  };
+  }, [commitments]);
 
   useEffect(() => {
     // Ensure commitments are loaded or at least we have tried to fetch them.
@@ -285,7 +291,7 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
   }, [isLoading, accounts, transactions.length, commitments.length, budgets.length]); // Added dependencies
 
   // Notification Logic
-  const generateNotifications = () => {
+  const generateNotifications = useCallback(() => {
     const newNotifications: Notification[] = [];
     const today = new Date();
 
@@ -382,24 +388,24 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
 
     // Sort?
     setNotifications(finalNotifications);
-  };
+  }, [commitments, budgets, transactions, accounts]);
 
-  const markNotificationAsRead = (id: string) => {
+  const markNotificationAsRead = useCallback((id: string) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
     const readIds = JSON.parse(localStorage.getItem('read_notifications') || '[]');
     if (!readIds.includes(id)) {
       readIds.push(id);
       localStorage.setItem('read_notifications', JSON.stringify(readIds));
     }
-  };
+  }, []);
 
-  const markAllNotificationsAsRead = () => {
+  const markAllNotificationsAsRead = useCallback(() => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     const allIds = notifications.map(n => n.id);
     const readIds = JSON.parse(localStorage.getItem('read_notifications') || '[]');
     const newReadIds = Array.from(new Set([...readIds, ...allIds]));
     localStorage.setItem('read_notifications', JSON.stringify(newReadIds));
-  };
+  }, [notifications]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -430,7 +436,7 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
   }, [isLoading, ledgers, activeBookId]);
 
   // Helper to format currency based on active book
-  const formatAmount = (amount: number) => {
+  const formatAmount = useCallback((amount: number) => {
     const activeLedger = ledgers.find(l => l.id === activeBookId);
     const currency = activeLedger?.currency || 'MXN';
 
@@ -445,66 +451,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       currency: currency,
       minimumFractionDigits: 2,
     }).format(amount);
-  };
+  }, [ledgers, activeBookId]);
 
-  const refreshBooks = async () => {
-    await fetchBooks();
-    if (activeBookId) {
-      await Promise.all([
-        fetchAccounts(activeBookId),
-        fetchCategories(activeBookId),
-        fetchCategoryFolders(activeBookId),
-        fetchTransactions(activeBookId),
-        fetchCommitments(activeBookId),
-        fetchBudgets(activeBookId),
-        fetchRecurringRules(activeBookId)
-      ]);
-    }
-  };
-
-  const createDefaultBook = async (userId: string) => {
-    const { data, error } = await supabase.from('books').insert({
-      name: 'Personal',
-      user_id: userId
-    }).select().single();
-
-    if (data) {
-      const newLedger: Ledger = {
-        id: data.id,
-        name: data.name,
-        description: 'Mi primer libro contable',
-        balance: 0,
-        isActive: true,
-        isArchived: false,
-        lastUpdate: new Date().toISOString(),
-        icon: 'person',
-        color: 'blue',
-        type: 'PERSONAL',
-        members: []
-      };
-      setLedgers([newLedger]);
-      handleChangeActiveBook(data.id);
-    }
-  };
-
-  const handleChangeActiveBook = async (bookId: string) => {
-    setActiveBookId(bookId);
-    localStorage.setItem('finance_active_book_id', bookId); // Persist selection
-    setLedgers(prev => prev.map(l => ({ ...l, isActive: l.id === bookId })));
-
-    // Fetch Data for this Book
-    await Promise.all([
-      fetchAccounts(bookId),
-      fetchCategories(bookId),
-      fetchCategoryFolders(bookId),
-      fetchTransactions(bookId),
-      fetchCommitments(bookId),
-      fetchBudgets(bookId),
-      fetchRecurringRules(bookId)
-    ]);
-  };
-
-  const fetchCategories = async (bookId: string) => {
+  const fetchCategories = useCallback(async (bookId: string) => {
     const { data } = await supabase.from('categories').select('*').eq('book_id', bookId);
     if (data) {
       setCategories(data.map((cat: any) => ({
@@ -515,9 +464,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         folder_id: cat.folder_id || null
       })));
     }
-  };
+  }, [supabase]);
 
-  const fetchCategoryFolders = async (bookId: string) => {
+  const fetchCategoryFolders = useCallback(async (bookId: string) => {
     const { data } = await supabase.from('category_folders').select('*').eq('book_id', bookId);
     if (data) {
       setCategoryFolders(data.map((folder: any) => ({
@@ -527,9 +476,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         icon: folder.icon || 'folder'
       })));
     }
-  };
+  }, [supabase]);
 
-  const fetchAccounts = async (bookId: string) => {
+  const fetchAccounts = useCallback(async (bookId: string) => {
     const { data } = await supabase.from('accounts').select('*').eq('book_id', bookId);
     if (data) {
       setAccounts(data.map(a => ({
@@ -548,9 +497,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         // Keep original if needed, but UI uses camelCase
       })));
     }
-  };
+  }, [supabase]);
 
-  const fetchTransactions = async (bookId: string) => {
+  const fetchTransactions = useCallback(async (bookId: string) => {
     const { data } = await supabase
       .from('transactions')
       .select(`
@@ -581,9 +530,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         updated_at: t.updated_at
       })));
     }
-  };
+  }, [supabase]);
 
-  const fetchCommitments = async (bookId: string) => {
+  const fetchCommitments = useCallback(async (bookId: string) => {
     const { data, error } = await supabase
       .from('commitments')
       .select(`
@@ -618,9 +567,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         fundingAccountId: c.funding_account_id
       })));
     }
-  };
+  }, [supabase]);
 
-  const fetchBudgets = async (bookId: string) => {
+  const fetchBudgets = useCallback(async (bookId: string) => {
     // Joining handled client-side in UI to ensure robustness
     const { data, error } = await supabase
       .from('budgets')
@@ -646,9 +595,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         recurrence_interval: b.recurrence_interval
       })));
     }
-  };
+  }, [supabase]);
 
-  const fetchRecurringRules = async (bookId: string) => {
+  const fetchRecurringRules = useCallback(async (bookId: string) => {
     const { data, error } = await supabase
       .from('recurring_rules')
       .select(`
@@ -676,10 +625,73 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         icon: r.categories?.icon || 'autorenew'
       })));
     }
-  };
+  }, [supabase]);
+
+  const refreshBooks = useCallback(async () => {
+    await fetchBooks();
+    if (activeBookId) {
+      await Promise.all([
+        fetchAccounts(activeBookId),
+        fetchCategories(activeBookId),
+        fetchCategoryFolders(activeBookId),
+        fetchTransactions(activeBookId),
+        fetchCommitments(activeBookId),
+        fetchBudgets(activeBookId),
+        fetchRecurringRules(activeBookId)
+      ]);
+    }
+  }, [activeBookId, fetchBooks]);
+
+  const createDefaultBook = useCallback(async (userId: string) => {
+    const { data, error } = await supabase.from('books').insert({
+      name: 'Personal',
+      user_id: userId
+    }).select().single();
+
+    if (error) {
+      console.error("Error creating default book:", error);
+    }
+
+    if (data) {
+      const newLedger: Ledger = {
+        id: data.id,
+        name: data.name,
+        description: 'Mi primer libro contable',
+        balance: 0,
+        isActive: true,
+        isArchived: false,
+        lastUpdate: new Date().toISOString(),
+        icon: 'person',
+        color: 'blue',
+        type: 'PERSONAL',
+        members: []
+      };
+      setLedgers([newLedger]);
+      handleChangeActiveBook(data.id);
+    }
+  }, [supabase]);
+
+  const handleChangeActiveBook = useCallback(async (bookId: string) => {
+    setActiveBookId(bookId);
+    localStorage.setItem('finance_active_book_id', bookId); // Persist selection
+    setLedgers(prev => prev.map(l => ({ ...l, isActive: l.id === bookId })));
+
+    // Fetch Data for this Book
+    await Promise.all([
+      fetchAccounts(bookId),
+      fetchCategories(bookId),
+      fetchCategoryFolders(bookId),
+      fetchTransactions(bookId),
+      fetchCommitments(bookId),
+      fetchBudgets(bookId),
+      fetchRecurringRules(bookId)
+    ]);
+  }, [fetchAccounts, fetchCategories, fetchCategoryFolders, fetchTransactions, fetchCommitments, fetchBudgets, fetchRecurringRules]);
+
+
 
   // ACTIONS
-  const addTransaction = async (t: Omit<Transaction, 'id'>) => {
+  const addTransaction = useCallback(async (t: Omit<Transaction, 'id'>) => {
     if (!activeBookId) return;
 
     // Find account ID by name (current UI passes name)
@@ -715,16 +727,7 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         lng = pos.coords.longitude;
       } catch (e) {
         console.warn("Could not fetch location for transaction:", e);
-        // Fallback to profile stored location if available? User requested "take current", but fallback is nice.
-        // lat = userProfile.location_lat || undefined;
-        // lng = userProfile.location_lng || undefined;
       }
-    } else if (!lat && !lng && userProfile?.location_lat && userProfile?.location_lng) {
-      // Option: If tracking not enabled but profile has static location, use that?
-      // User said "tome la ubicacion ACTUAL", implies dynamic.
-      // If tracking enabled, we fetched above. If not enabled, maybe we shouldn't attach anything?
-      // Or maybe use the static "Home" location if enabled?
-      // Let's stick to dynamic fetch if enabled.
     }
 
     // If t already had coords, they trump everything (passed from manual input maybe)
@@ -776,11 +779,6 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
 
     // Create Recurring Rule if needed
     if (data && t.frequency) {
-      // Calculate next run? For now, we just create the rule.
-      // Logic for next run could be complex (e.g. 1 month from now). 
-      // For simplicity, we set next_run_at to the transaction date + interval (or just the date if the rule runner handles it).
-      // Let's assume we want the NEXT occurrence.
-
       let nextDate = new Date(t.date);
       // Simple logic for next date
       if (t.frequency === 'DAILY') nextDate.setDate(nextDate.getDate() + 1);
@@ -788,7 +786,6 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       if (t.frequency === 'BIWEEKLY') nextDate.setDate(nextDate.getDate() + 14);
       if (t.frequency === 'MONTHLY') nextDate.setMonth(nextDate.getMonth() + 1);
       if (t.frequency === 'ANNUAL') nextDate.setFullYear(nextDate.getFullYear() + 1);
-      // ... add others if strict needed, or rely on null/logic elsewhere.
 
       const { error: ruleError } = await supabase.from('recurring_rules').insert({
         book_id: activeBookId,
@@ -815,9 +812,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       fetchTransactions(activeBookId);
       fetchAccounts(activeBookId); // Update balances
     }
-  };
+  }, [activeBookId, accounts, categories, userProfile, supabase, fetchRecurringRules, fetchTransactions, fetchAccounts]);
 
-  const addAccount = async (a: Omit<Account, 'id'>) => {
+  const addAccount = useCallback(async (a: Omit<Account, 'id'>) => {
     if (!activeBookId) return;
 
     // Prepare payload - casting to any to bypass strict database types until migration is run
@@ -850,10 +847,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
 
     fetchAccounts(activeBookId);
-    fetchAccounts(activeBookId);
-  };
+  }, [activeBookId, supabase, fetchAccounts]);
 
-  const updateAccount = async (id: string, a: Partial<Account>) => {
+  const updateAccount = useCallback(async (id: string, a: Partial<Account>) => {
     if (!activeBookId) return;
 
     // Prepare payload
@@ -887,9 +883,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
 
     fetchAccounts(activeBookId);
-  };
+  }, [activeBookId, supabase, fetchAccounts]);
 
-  const deleteAccount = async (id: string) => {
+  const deleteAccount = useCallback(async (id: string) => {
     if (!activeBookId) return;
 
     // Check for dependencies? Ideally transactions cascade or block. 
@@ -903,9 +899,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
 
     fetchAccounts(activeBookId);
-  };
+  }, [activeBookId, supabase, fetchAccounts]);
 
-  const addCommitment = async (c: Omit<Commitment, 'id'>) => {
+  const addCommitment = useCallback(async (c: Omit<Commitment, 'id'>) => {
     if (!activeBookId) return;
 
     const payload: any = {
@@ -945,9 +941,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
 
     fetchCommitments(activeBookId);
-  };
+  }, [activeBookId, accounts, categories, supabase, fetchCommitments]);
 
-  const updateCommitment = async (id: string, updates: Partial<Commitment>) => {
+  const updateCommitment = useCallback(async (id: string, updates: Partial<Commitment>) => {
     if (!activeBookId) return;
 
     const payload: any = {};
@@ -986,9 +982,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
 
     fetchCommitments(activeBookId);
-  };
+  }, [activeBookId, accounts, categories, supabase, fetchCommitments]);
 
-  const deleteCommitment = async (id: string) => {
+  const deleteCommitment = useCallback(async (id: string) => {
     const { error } = await supabase.from('commitments').delete().eq('id', id);
     if (error) {
       console.error("Error deleting commitment:", error);
@@ -996,9 +992,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       return;
     }
     if (activeBookId) fetchCommitments(activeBookId);
-  };
+  }, [activeBookId, supabase, fetchCommitments]);
 
-  const deleteTransaction = async (id: string) => {
+  const deleteTransaction = useCallback(async (id: string) => {
     // 1. Fetch transaction details to revert balance
     const { data: transaction } = await supabase
       .from('transactions')
@@ -1052,9 +1048,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       fetchTransactions(activeBookId);
       fetchAccounts(activeBookId);
     }
-  };
+  }, [activeBookId, supabase, fetchTransactions, fetchAccounts, fetchCommitments]);
 
-  const updateTransaction = async (id: string, updates: Partial<Transaction>) => {
+  const updateTransaction = useCallback(async (id: string, updates: Partial<Transaction>) => {
     // Map UI fields to DB fields
     const payload: any = {};
     if (updates.amount !== undefined) payload.amount = updates.amount;
@@ -1089,9 +1085,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       fetchTransactions(activeBookId);
       fetchAccounts(activeBookId); // Balance might change
     }
-  };
+  }, [activeBookId, categories, supabase, fetchTransactions, fetchAccounts]);
 
-  const duplicateTransaction = async (id: string) => {
+  const duplicateTransaction = useCallback(async (id: string) => {
     const original = transactions.find(t => t.id === id);
     if (!original) return;
 
@@ -1104,9 +1100,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     };
 
     await addTransaction(newTrans);
-  };
+  }, [transactions, addTransaction]);
 
-  const toggleCommitmentStatus = async (id: string, currentStatus: string) => {
+  const toggleCommitmentStatus = useCallback(async (id: string, currentStatus: string) => {
     const newStatus = currentStatus === 'PAID' ? 'PENDING' : 'PAID';
 
     // Optimistic update
@@ -1206,17 +1202,17 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         }
       }
     }
-  };
+  }, [activeBookId, commitments, accounts, updateCommitment, addTransaction, addCommitment]);
 
-  const toggleRuleStatus = (id: string) => {
+  const toggleRuleStatus = useCallback((id: string) => {
     // impl
-  };
+  }, []);
 
-  const activateLedger = (id: string) => {
+  const activateLedger = useCallback((id: string) => {
     handleChangeActiveBook(id);
-  };
+  }, [handleChangeActiveBook]);
 
-  const generateSampleData = async () => {
+  const generateSampleData = useCallback(async () => {
     if (!activeBookId) return;
 
     setIsLoading(true);
@@ -1269,9 +1265,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     // Refresh all
     await handleChangeActiveBook(activeBookId);
     setIsLoading(false);
-  };
+  }, [activeBookId, supabase, handleChangeActiveBook]);
 
-  const addBudget = async (budgetData: { amount: number; categoryId: string; recurrenceType?: string; recurrenceInterval?: number; startDate?: string; endDate?: string }) => {
+  const addBudget = useCallback(async (budgetData: { amount: number; categoryId: string; recurrenceType?: string; recurrenceInterval?: number; startDate?: string; endDate?: string }) => {
     if (!activeBookId) return;
 
     const { error } = await supabase.from('budgets').insert({
@@ -1292,9 +1288,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
 
     await fetchBudgets(activeBookId);
-  };
+  }, [activeBookId, supabase, fetchBudgets]);
 
-  const deleteBudget = async (id: string) => {
+  const deleteBudget = useCallback(async (id: string) => {
     if (!activeBookId) return;
 
     const { error } = await supabase.from('budgets').delete().eq('id', id);
@@ -1306,9 +1302,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
 
     await fetchBudgets(activeBookId);
-  };
+  }, [activeBookId, supabase, fetchBudgets]);
 
-  const updateBudget = async (id: string, updates: Partial<{ amount: number; categoryId: string; recurrenceType?: string; recurrenceInterval?: number; startDate?: string; endDate?: string }>) => {
+  const updateBudget = useCallback(async (id: string, updates: Partial<{ amount: number; categoryId: string; recurrenceType?: string; recurrenceInterval?: number; startDate?: string; endDate?: string }>) => {
     if (!activeBookId) return;
 
     const payload: any = {};
@@ -1328,9 +1324,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
 
     await fetchBudgets(activeBookId);
-  };
+  }, [activeBookId, supabase, fetchBudgets]);
 
-  const checkRecurringBudgets = async () => {
+  const checkRecurringBudgets = useCallback(async () => {
     if (!activeBookId || budgets.length === 0) return;
 
     const today = new Date();
@@ -1395,9 +1391,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         await fetchBudgets(activeBookId);
       }
     }
-  };
+  }, [activeBookId, budgets, supabase, fetchBudgets]);
 
-  const checkAutoPayCommitments = async () => {
+  const checkAutoPayCommitments = useCallback(async () => {
     if (!activeBookId || commitments.length === 0) return;
 
     const today = new Date();
@@ -1414,7 +1410,7 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       console.log(`Auto-paying commitment: ${commitment.name}`);
       await toggleCommitmentStatus(commitment.id, 'PENDING');
     }
-  };
+  }, [activeBookId, commitments, toggleCommitmentStatus]);
 
   useEffect(() => {
     if (!isLoading && activeBookId && commitments.length > 0) {
@@ -1428,9 +1424,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
   const openTransactionModal = () => setIsTransactionModalOpen(true);
   const closeTransactionModal = () => setIsTransactionModalOpen(false);
 
-  const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
+  const totalBalance = useMemo(() => accounts.reduce((sum, acc) => sum + acc.balance, 0), [accounts]);
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -1439,6 +1435,10 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       .select('*')
       .eq('id', user.id)
       .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error("Error fetching user profile:", error);
+    }
 
     if (error && error.code === 'PGRST116') {
       // Profile doesn't exist, create it
@@ -1472,9 +1472,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     if (data) {
       setUserProfile(data);
     }
-  };
+  }, [supabase]);
 
-  const updateUserProfile = async (updates: Partial<UserProfile>) => {
+  const updateUserProfile = useCallback(async (updates: Partial<UserProfile>) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -1489,9 +1489,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     } else {
       fetchUserProfile();
     }
-  };
+  }, [supabase, fetchUserProfile]);
 
-  const uploadAvatar = async (file: File): Promise<string | null> => {
+  const uploadAvatar = useCallback(async (file: File): Promise<string | null> => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
 
@@ -1513,7 +1513,7 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       .getPublicUrl(filePath);
 
     return publicUrl;
-  };
+  }, [supabase]);
 
   useEffect(() => {
     // Fetch profile on mount if authorized
@@ -1522,75 +1522,120 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
 
 
 
+  const contextValue = useMemo(() => ({
+    transactions,
+    accounts,
+    categories,
+    categoryFolders,
+    budgets,
+    commitments,
+    recurringRules,
+    ledgers,
+    userProfile,
+    fetchUserProfile,
+    updateUserProfile,
+    uploadAvatar,
+    addTransaction,
+    deleteTransaction,
+    addAccount,
+    updateAccount,
+    deleteAccount,
+    addCommitment,
+    updateCommitment,
+    deleteCommitment,
+    toggleCommitmentStatus,
+    updateTransaction,
+    duplicateTransaction,
+    toggleRuleStatus,
+    activateLedger,
+    generateSampleData,
+    totalBalance,
+    isDarkMode,
+    toggleTheme,
+    isLoading,
+    activeBookId,
+    refreshBooks,
+    formatAmount,
+    isTransactionModalOpen,
+    openTransactionModal,
+    closeTransactionModal,
+    addBudget,
+    updateBudget,
+    deleteBudget,
+    checkRecurringBudgets,
+    deleteCategory: async (id: string) => {
+      if (!activeBookId) return;
+      const { error } = await supabase.from('categories').delete().eq('id', id);
+      if (error) {
+        console.error("Error deleting category:", error);
+        alert("Error al eliminar categoría: " + error.message);
+      } else {
+        await fetchCategories(activeBookId);
+      }
+    },
+    deleteCategoryFolder: async (id: string) => {
+      if (!activeBookId) return;
+      const { error } = await supabase.from('category_folders').delete().eq('id', id);
+      if (error) {
+        console.error("Error deleting folder:", error);
+        alert("Error al eliminar carpeta: " + error.message);
+      } else {
+        await fetchCategoryFolders(activeBookId);
+        await fetchCategories(activeBookId);
+      }
+    },
+    notifications,
+    unreadCount,
+    markNotificationAsRead,
+    markAllNotificationsAsRead
+  }), [
+    transactions,
+    accounts,
+    categories,
+    categoryFolders,
+    budgets,
+    commitments,
+    recurringRules,
+    ledgers,
+    userProfile,
+    fetchUserProfile,
+    updateUserProfile,
+    uploadAvatar,
+    addTransaction,
+    deleteTransaction,
+    addAccount,
+    updateAccount,
+    deleteAccount,
+    addCommitment,
+    updateCommitment,
+    deleteCommitment,
+    toggleCommitmentStatus,
+    updateTransaction,
+    duplicateTransaction,
+    toggleRuleStatus,
+    activateLedger,
+    generateSampleData,
+    totalBalance,
+    isDarkMode,
+    toggleTheme,
+    isLoading,
+    activeBookId,
+    refreshBooks,
+    formatAmount,
+    isTransactionModalOpen,
+    addBudget,
+    updateBudget,
+    deleteBudget,
+    checkRecurringBudgets,
+    notifications,
+    unreadCount,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    supabase
+  ]);
+
   return (
-    <FinanceContext.Provider value={{
-      transactions,
-      accounts,
-      categories,
-      categoryFolders,
-      budgets,
-      commitments,
-      recurringRules,
-      ledgers,
-      userProfile, // Exposed
-      fetchUserProfile, // Exposed
-      updateUserProfile, // Exposed
-      uploadAvatar, // Exposed
-      addTransaction,
-      deleteTransaction,
-      addAccount,
-      updateAccount,
-      deleteAccount,
-      addCommitment,
-      updateCommitment,
-      deleteCommitment,
-      toggleCommitmentStatus,
-      updateTransaction,
-      duplicateTransaction,
-      toggleRuleStatus,
-      activateLedger,
-      generateSampleData,
-      totalBalance,
-      isDarkMode,
-      toggleTheme,
-      isLoading,
-      activeBookId,
-      refreshBooks,
-      formatAmount,
-      isTransactionModalOpen,
-      openTransactionModal,
-      closeTransactionModal,
-      addBudget,
-      updateBudget,
-      deleteBudget,
-      checkRecurringBudgets,
-      deleteCategory: async (id: string) => {
-        if (!activeBookId) return;
-        const { error } = await supabase.from('categories').delete().eq('id', id);
-        if (error) {
-          console.error("Error deleting category:", error);
-          alert("Error al eliminar categoría: " + error.message);
-        } else {
-          await fetchCategories(activeBookId);
-        }
-      },
-      deleteCategoryFolder: async (id: string) => {
-        if (!activeBookId) return;
-        const { error } = await supabase.from('category_folders').delete().eq('id', id);
-        if (error) {
-          console.error("Error deleting folder:", error);
-          alert("Error al eliminar carpeta: " + error.message);
-        } else {
-          await fetchCategoryFolders(activeBookId);
-          // Also refresh categories as they might have been unlinked (if cascade set null) or deleted (if cascade delete)
-          await fetchCategories(activeBookId);
-        }
-      },
-      notifications,
-      unreadCount,
-      markNotificationAsRead,
-      markAllNotificationsAsRead
-    }}>
+    <FinanceContext.Provider value={contextValue}>
       {children}
     </FinanceContext.Provider>
   );

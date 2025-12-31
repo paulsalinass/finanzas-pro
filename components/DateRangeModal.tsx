@@ -281,7 +281,7 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
                 className={`flex-1 w-full relative flex items-center justify-center bg-slate-900/35 p-3 sm:p-4 backdrop-blur-sm transition-all duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
             >
                 <div
-                    className={`date-range-modal w-full max-w-5xl bg-white dark:bg-[#101828] rounded-[28px] shadow-2xl border border-slate-200/80 dark:border-white/10 p-4 sm:p-5 transition-all duration-300 transform ${isVisible && !isClosing ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}
+                    className={`date-range-modal w-full md:max-w-5xl bg-white dark:bg-[#101828] rounded-[28px] shadow-2xl border border-slate-200/80 dark:border-white/10 p-3 sm:p-5 transition-all duration-300 transform max-h-[90dvh] overflow-y-auto ${isVisible && !isClosing ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="flex items-start justify-between gap-3 mb-4">
@@ -377,7 +377,7 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
                                         locale={es}
                                     />
                                 </div>
-                                <div className="flex-1 border border-slate-100 rounded-2xl p-2 shadow-sm dark:border-white/10 backdrop-blur-sm">
+                                <div className="hidden md:block flex-1 border border-slate-100 rounded-2xl p-2 shadow-sm dark:border-white/10 backdrop-blur-sm">
                                     <MonthControls
                                         month={rightMonth}
                                         onChange={handleRightMonthChange}

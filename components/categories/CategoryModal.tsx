@@ -121,7 +121,7 @@ export function CategoryModal({ isOpen, onClose, folders, activeBookId, defaultF
                 onClick={handleClose}
             >
                 <div
-                    className={`bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-premium overflow-hidden flex flex-col border border-slate-100 dark:border-slate-800 max-h-[90vh] overflow-y-auto scrollbar-hide transition-all duration-300 transform ${isVisible && !isClosing ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                    className={`bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-premium overflow-hidden flex flex-col border border-slate-100 dark:border-slate-800 max-h-[90dvh] overflow-y-auto scrollbar-hide transition-all duration-300 transform ${isVisible && !isClosing ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex-shrink-0">

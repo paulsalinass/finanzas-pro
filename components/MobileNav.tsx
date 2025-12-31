@@ -30,7 +30,7 @@ export const MobileNav: React.FC = () => {
         </Link>
 
         {/* Center Button */}
-        <div className="relative -top-6 z-50">
+        <div className="relative -top-6 z-[60]">
           <button
             onClick={() => setIsTransactionModalOpen(true)}
             className="size-16 rounded-full bg-primary hover:bg-primary-hover shadow-xl shadow-primary/30 flex items-center justify-center text-white active:scale-95 transition-transform border-4 border-white dark:border-slate-950"

@@ -112,12 +112,12 @@ export const TransactionDetailsModal = ({ isOpen, onClose, transaction, onEdit }
     return (
         <>
             <div
-                className={`fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
+                className={`fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
                 onClick={handleClose}
             >
                 {/* ... existing modal content ... */}
                 <div
-                    className={`bg-white dark:bg-[#1e2530] w-full max-w-2xl rounded-3xl shadow-premium overflow-hidden flex flex-col max-h-[90vh] transition-all duration-300 transform ${isVisible && !isClosing ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                    className={`bg-white dark:bg-[#1e2530] w-full max-w-2xl rounded-3xl shadow-premium overflow-hidden flex flex-col max-h-[90dvh] transition-all duration-300 transform ${isVisible && !isClosing ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
 
@@ -248,24 +248,24 @@ export const TransactionDetailsModal = ({ isOpen, onClose, transaction, onEdit }
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="p-6 border-t border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-[#252b36]/50 flex justify-end gap-3">
+                    <div className="p-6 border-t border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-[#252b36]/50 flex flex-col sm:flex-row justify-end gap-3">
                         <button
                             onClick={handleDelete}
-                            className="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-danger hover:bg-danger/10 font-bold transition-all flex items-center gap-2"
+                            className="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-danger hover:bg-danger/10 font-bold transition-all flex items-center justify-center gap-2 w-full sm:w-auto order-3 sm:order-1"
                         >
                             <span className="material-symbols-outlined text-[18px]">delete</span>
                             Eliminar
                         </button>
                         <button
                             onClick={handleDuplicate}
-                            className="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-white/5 font-bold transition-all flex items-center gap-2"
+                            className="px-5 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-white/5 font-bold transition-all flex items-center justify-center gap-2 w-full sm:w-auto order-2 sm:order-2"
                         >
                             <span className="material-symbols-outlined text-[18px]">content_copy</span>
                             Duplicar
                         </button>
                         <button
                             onClick={() => onEdit(transaction)}
-                            className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/20 transition-all flex items-center gap-2"
+                            className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 w-full sm:w-auto order-1 sm:order-3"
                         >
                             <span className="material-symbols-outlined text-[18px]">edit</span>
                             Editar
