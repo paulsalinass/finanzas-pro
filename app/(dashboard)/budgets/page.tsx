@@ -14,7 +14,7 @@ import BudgetDetailsModal from '@/components/BudgetDetailsModal';
 
 export default function Budgets() {
     const router = useRouter();
-    const { budgets, categories, transactions, formatAmount, checkRecurringBudgets, ledgers, activeBookId } = useFinance();
+    const { budgets, categories, transactions, formatAmount, checkRecurringBudgets, ledgers, activeBookId, categoryFolders } = useFinance();
     const [filter, setFilter] = useState<'all' | 'danger' | 'exceeded' | 'healthy'>('all');
     const [sortBy, setSortBy] = useState('amount_desc');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -162,6 +162,67 @@ export default function Budgets() {
         setIsDetailsModalOpen(true);
     };
 
+    const renderBudgetCard = (budget: Budget) => {
+        const percentage = Math.min((budget.spent / budget.limit) * 100, 100);
+        const status = getStatusInfo(budget.spent, budget.limit);
+        const remaining = budget.limit - budget.spent;
+
+        // Client-side category lookup
+        const categoryObj = categories.find(c => c.id === budget.category_id);
+        const displayCategory = categoryObj ? categoryObj.name : (budget.category || 'Sin categoría');
+        const displayIcon = categoryObj?.icon || getIcon(displayCategory);
+
+        return (
+            <div
+                key={budget.id}
+                onClick={() => handleBudgetClick(budget)}
+                className={`glass-card rounded-3xl p-6 hover:shadow-xl transition-all duration-300 group cursor-pointer border-l-4 border-l-transparent hover:${status.borderClass}`}
+            >
+                <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-3">
+                        <div className={`size-10 rounded-xl flex items-center justify-center ${status.bgClass} ${status.colorClass}`}>
+                            <span className="material-symbols-outlined">{displayIcon}</span>
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-gray-900 dark:text-white">{displayCategory}</h4>
+                            <span className="text-xs text-gray-500">Mensual</span>
+                        </div>
+                    </div>
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${status.bgClass} ${status.colorClass}`}>
+                        {status.label}
+                    </span>
+                </div>
+                <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-end">
+                        <MoneyDisplay amount={budget.spent} currency={currencySymbol} size="4xl" color="text-gray-900 dark:text-white" />
+                        <div className="text-sm font-medium text-gray-500 mb-1 flex items-baseline gap-1">
+                            <span>de</span>
+                            <MoneyDisplay amount={budget.limit} currency={currencySymbol} size="lg" color="text-gray-500" weight="font-medium" />
+                        </div>
+                    </div>
+                    <div className="h-3 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden relative">
+                        {/* Background faint bar for exceeded state */}
+                        {percentage >= 100 && <div className="absolute inset-0 bg-red-400 opacity-20"></div>}
+                        <div
+                            className={`h-full rounded-full transition-all duration-1000 ease-out ${status.barClass}`}
+                            style={{ width: `${percentage}%` }}
+                        ></div>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>{percentage.toFixed(0)}% gastado</span>
+                        <span className={`font-medium flex items-center gap-1 ${remaining < 0 ? 'text-danger' : remaining < (budget.limit * 0.1) ? 'text-orange-500' : ''}`}>
+                            {remaining < 0 ? (
+                                <>+<MoneyDisplay amount={Math.abs(remaining)} currency={currencySymbol} size="md" color="text-danger" autoColor={false} /> sobre límite</>
+                            ) : (
+                                <><MoneyDisplay amount={remaining} currency={currencySymbol} size="md" color={(remaining < (budget.limit * 0.1) ? 'text-orange-500' : 'text-gray-400')} autoColor={false} /> restante</>
+                            )}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative scrollbar-hide pb-24">
             {/* Background Decor */}
@@ -200,7 +261,7 @@ export default function Budgets() {
 
                 {/* Summary Stats */}
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-5 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                    <div className="glass-panel rounded-2xl p-6 flex flex-col gap-3 shadow-glass group hover:shadow-lg transition-all duration-300">
+                    <div className="glass-card rounded-3xl p-6 flex flex-col gap-3 group hover:shadow-lg transition-all duration-300">
                         <div className="flex items-center justify-between">
                             <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-primary">
                                 <span className="material-symbols-outlined">assignment</span>
@@ -215,7 +276,7 @@ export default function Budgets() {
                         </div>
                     </div>
 
-                    <div className="glass-panel rounded-2xl p-6 flex flex-col gap-3 shadow-glass group hover:shadow-lg transition-all duration-300">
+                    <div className="glass-card rounded-3xl p-6 flex flex-col gap-3 group hover:shadow-lg transition-all duration-300">
                         <div className="flex items-center justify-between">
                             <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg text-emerald-600">
                                 <span className="material-symbols-outlined">savings</span>
@@ -233,7 +294,7 @@ export default function Budgets() {
                         </div>
                     </div>
 
-                    <div className="glass-panel rounded-2xl p-6 flex flex-col gap-3 shadow-glass group hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+                    <div className="glass-card rounded-3xl p-6 flex flex-col gap-3 group hover:shadow-lg transition-all duration-300 relative overflow-hidden">
                         <div className="absolute -right-4 -top-4 w-20 h-20 bg-orange-100 dark:bg-orange-900/20 rounded-full blur-2xl"></div>
                         <div className="flex items-center justify-between relative z-10">
                             <div className="p-2 bg-orange-50 dark:bg-orange-900/30 rounded-lg text-orange-500">
@@ -283,80 +344,80 @@ export default function Budgets() {
                     </div>
                 </div>
 
-                {/* Budgets Grid */}
-                <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                    {filteredBudgets.map((budget) => {
-                        const percentage = Math.min((budget.spent / budget.limit) * 100, 100);
-                        const status = getStatusInfo(budget.spent, budget.limit);
-                        const remaining = budget.limit - budget.spent;
+                {/* Grouped Budgets Render */}
+                {(() => {
+                    const groups: Record<string, typeof filteredBudgets> = {};
+                    const noFolder: typeof filteredBudgets = [];
 
-                        // Client-side category lookup
-                        const categoryObj = categories.find(c => c.id === budget.category_id);
-                        const displayCategory = categoryObj ? categoryObj.name : (budget.category || 'Sin categoría');
-                        const displayIcon = categoryObj?.icon || getIcon(displayCategory);
+                    filteredBudgets.forEach(budget => {
+                        const category = categories.find(c => c.id === budget.category_id);
+                        if (category && category.folder_id) {
+                            const folder = categoryFolders.find(f => f.id === category.folder_id);
+                            if (folder) {
+                                if (!groups[folder.id]) groups[folder.id] = [];
+                                groups[folder.id].push(budget);
+                                return;
+                            }
+                        }
+                        noFolder.push(budget);
+                    });
 
-                        return (
-                            <div
-                                key={budget.id}
-                                onClick={() => handleBudgetClick(budget)}
-                                className={`glass-panel rounded-2xl p-5 shadow-glass hover:shadow-xl transition-all duration-300 group cursor-pointer border-l-4 border-l-transparent hover:${status.borderClass}`}
-                            >
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`size-10 rounded-xl flex items-center justify-center ${status.bgClass} ${status.colorClass}`}>
-                                            <span className="material-symbols-outlined">{displayIcon}</span>
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-gray-900 dark:text-white">{displayCategory}</h4>
-                                            <span className="text-xs text-gray-500">Mensual</span>
-                                        </div>
-                                    </div>
-                                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${status.bgClass} ${status.colorClass}`}>
-                                        {status.label}
-                                    </span>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <div className="flex justify-between items-end">
-                                        <MoneyDisplay amount={budget.spent} currency={currencySymbol} size="4xl" color="text-gray-900 dark:text-white" />
-                                        <div className="text-sm font-medium text-gray-500 mb-1 flex items-baseline gap-1">
-                                            <span>de</span>
-                                            <MoneyDisplay amount={budget.limit} currency={currencySymbol} size="lg" color="text-gray-500" weight="font-medium" />
-                                        </div>
-                                    </div>
-                                    <div className="h-3 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden relative">
-                                        {/* Background faint bar for exceeded state */}
-                                        {percentage >= 100 && <div className="absolute inset-0 bg-red-400 opacity-20"></div>}
+                    const folderGroups = Object.keys(groups).map(folderId => {
+                        const folder = categoryFolders.find(f => f.id === folderId);
+                        return { folder, budgets: groups[folderId] };
+                    }).sort((a, b) => (a.folder?.name || '').localeCompare(b.folder?.name || ''));
+
+                    return (
+                        <div className="flex flex-col gap-10">
+                            {folderGroups.map(({ folder, budgets }) => (
+                                <section key={folder?.id} className="animate-fade-in">
+                                    <div className="flex items-center gap-3 mb-5">
                                         <div
-                                            className={`h-full rounded-full transition-all duration-1000 ease-out ${status.barClass}`}
-                                            style={{ width: `${percentage}%` }}
-                                        ></div>
+                                            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm"
+                                            style={{ backgroundColor: `${folder?.color || '#6366f1'}20`, color: folder?.color || '#6366f1' }}
+                                        >
+                                            <span className="material-symbols-outlined">{folder?.icon || 'folder'}</span>
+                                        </div>
+                                        <h3 className="text-xl font-bold text-gray-800 dark:text-white">{folder?.name}</h3>
+                                        <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800 ml-4"></div>
                                     </div>
-                                    <div className="flex justify-between text-xs text-gray-400 mt-1">
-                                        <span>{percentage.toFixed(0)}% gastado</span>
-                                        <span className={`font-medium flex items-center gap-1 ${remaining < 0 ? 'text-danger' : remaining < (budget.limit * 0.1) ? 'text-orange-500' : ''}`}>
-                                            {remaining < 0 ? (
-                                                <>+<MoneyDisplay amount={Math.abs(remaining)} currency={currencySymbol} size="md" color="text-danger" autoColor={false} /> sobre límite</>
-                                            ) : (
-                                                <><MoneyDisplay amount={remaining} currency={currencySymbol} size="md" color={(remaining < (budget.limit * 0.1) ? 'text-orange-500' : 'text-gray-400')} autoColor={false} /> restante</>
-                                            )}
-                                        </span>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                        {budgets.map(budget => renderBudgetCard(budget))}
                                     </div>
-                                </div>
-                            </div>
-                        );
-                    })}
+                                </section>
+                            ))}
 
-                    {/* Add New Placeholder Card */}
-                    <div
-                        onClick={() => setIsCreateModalOpen(true)}
-                        className="w-full border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-gray-400 hover:text-primary hover:border-primary hover:bg-white/50 dark:hover:bg-slate-800/20 transition-all cursor-pointer group min-h-[160px]"
-                    >
-                        <div className="size-14 rounded-[2rem] bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                            <span className="material-symbols-outlined text-3xl">add</span>
+                            {/* Ungrouped / General Section */}
+                            {(noFolder.length > 0 || folderGroups.length === 0) && (
+                                <section className="animate-fade-in">
+                                    {folderGroups.length > 0 && (
+                                        <div className="flex items-center gap-3 mb-5">
+                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-500 shadow-sm">
+                                                <span className="material-symbols-outlined">category</span>
+                                            </div>
+                                            <h3 className="text-xl font-bold text-gray-800 dark:text-white">General</h3>
+                                            <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800 ml-4"></div>
+                                        </div>
+                                    )}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                        {noFolder.map(budget => renderBudgetCard(budget))}
+
+                                        {/* Add New Placeholder Card */}
+                                        <div
+                                            onClick={() => setIsCreateModalOpen(true)}
+                                            className="w-full border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-3xl p-8 flex flex-col items-center justify-center gap-4 text-gray-400 hover:text-primary hover:border-primary hover:bg-white/50 dark:hover:bg-slate-800/20 transition-all cursor-pointer group min-h-[160px]"
+                                        >
+                                            <div className="size-14 rounded-[2rem] bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                                                <span className="material-symbols-outlined text-3xl">add</span>
+                                            </div>
+                                            <p className="font-medium">Crear nuevo presupuesto</p>
+                                        </div>
+                                    </div>
+                                </section>
+                            )}
                         </div>
-                        <p className="font-medium">Crear nuevo presupuesto</p>
-                    </div>
-                </section>
+                    );
+                })()}
 
                 <BudgetDetailsModal
                     isOpen={isDetailsModalOpen}

@@ -61,7 +61,8 @@ const MOCK_ACCOUNTS = [
         type: 'DEBIT',
         lastFour: '4829',
         bank: 'Santander',
-        status: 'Active'
+        status: 'Active',
+        currency: 'MXN'
     },
     {
         id: 'acc2',
@@ -71,7 +72,8 @@ const MOCK_ACCOUNTS = [
         lastFour: '4242',
         bank: 'Santander',
         status: 'Active',
-        limit: 5000,
+        currency: 'USD',
+        creditLimit: 5000,
         closingDate: 'Oct 25',
         dueDate: 'Nov 05'
     }
@@ -107,7 +109,9 @@ const MOCK_COMMITMENTS = [
         amount: 800,
         frequency: 'MONTHLY',
         nextDueDate: '2024-11-01',
-        status: 'PENDING'
+        status: 'PENDING',
+        type: 'FIXED',
+        isActive: true
     }
 ];
 const MOCK_RULES = [
@@ -737,7 +741,7 @@ function CardDetails() {
                                                                             className: "text-sm font-black text-gray-600 dark:text-slate-300 tabular-nums",
                                                                             children: [
                                                                                 "$",
-                                                                                ((card.limit || 5000) - card.balance).toLocaleString()
+                                                                                ((card.creditLimit || 5000) - card.balance).toLocaleString()
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/cards/page.tsx",
@@ -761,7 +765,7 @@ function CardDetails() {
                                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                 className: `h-full rounded-full transition-all duration-1000 ${i === 0 ? 'bg-primary' : 'bg-indigo-500'}`,
                                                                 style: {
-                                                                    width: `${card.balance / (card.limit || 5000) * 100}%`
+                                                                    width: `${card.balance / (card.creditLimit || 5000) * 100}%`
                                                                 }
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/cards/page.tsx",

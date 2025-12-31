@@ -14,44 +14,143 @@ interface CommitmentDetailsModalProps {
     onDelete: (id: string) => void;
 }
 
+const COLOR_MAP: Record<string, { bg: string, text: string }> = {
+    red: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400' },
+    orange: { bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-600 dark:text-orange-400' },
+    amber: { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-600 dark:text-amber-400' },
+    yellow: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-600 dark:text-yellow-400' },
+    lime: { bg: 'bg-lime-100 dark:bg-lime-900/30', text: 'text-lime-600 dark:text-lime-400' },
+    green: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-600 dark:text-green-400' },
+    emerald: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-600 dark:text-emerald-400' },
+    teal: { bg: 'bg-teal-100 dark:bg-teal-900/30', text: 'text-teal-600 dark:text-teal-400' },
+    cyan: { bg: 'bg-cyan-100 dark:bg-cyan-900/30', text: 'text-cyan-600 dark:text-cyan-400' },
+    sky: { bg: 'bg-sky-100 dark:bg-sky-900/30', text: 'text-sky-600 dark:text-sky-400' },
+    blue: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-600 dark:text-blue-400' },
+    indigo: { bg: 'bg-indigo-100 dark:bg-indigo-900/30', text: 'text-indigo-600 dark:text-indigo-400' },
+    violet: { bg: 'bg-violet-100 dark:bg-violet-900/30', text: 'text-violet-600 dark:text-violet-400' },
+    purple: { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-600 dark:text-purple-400' },
+    fuchsia: { bg: 'bg-fuchsia-100 dark:bg-fuchsia-900/30', text: 'text-fuchsia-600 dark:text-fuchsia-400' },
+    pink: { bg: 'bg-pink-100 dark:bg-pink-900/30', text: 'text-pink-600 dark:text-pink-400' },
+    rose: { bg: 'bg-rose-100 dark:bg-rose-900/30', text: 'text-rose-600 dark:text-rose-400' },
+    slate: { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-600 dark:text-slate-400' },
+    gray: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-600 dark:text-gray-400' },
+    zinc: { bg: 'bg-zinc-100 dark:bg-zinc-800', text: 'text-zinc-600 dark:text-zinc-400' },
+    neutral: { bg: 'bg-neutral-100 dark:bg-neutral-800', text: 'text-neutral-600 dark:text-neutral-400' },
+    stone: { bg: 'bg-stone-100 dark:bg-stone-800', text: 'text-stone-600 dark:text-stone-400' },
+};
+
 export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, onDelete }: CommitmentDetailsModalProps) => {
+    // ... context...
     const {
         ledgers,
         activeBookId,
         accounts,
         categories,
         toggleCommitmentStatus,
+        updateCommitment,
         transactions
     } = useFinance();
 
+    // ... state ...
     const [history, setHistory] = useState<any[]>([]);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
-    // Fetch history when commitment changes
-    useEffect(() => {
-        if (!commitment || !isOpen) return;
+    const [isVisible, setIsVisible] = useState(false);
+    const [cachedCommitment, setCachedCommitment] = useState<Commitment | null>(null);
 
-        // Try to find transactions linked by ID first, then by name (legacy)
+    // Edit logic
+    const [isEditingPaymentMethod, setIsEditingPaymentMethod] = useState(false);
+    const [selectedFundingAccount, setSelectedFundingAccount] = useState<string>('');
+
+    // Handle open/close animations and caching data
+    // Handle open/close animations and caching data
+    const [isClosing, setIsClosing] = useState(false);
+
+    useEffect(() => {
+        if (isOpen && commitment) {
+            setCachedCommitment(commitment);
+            // Small delay to ensure browser paints initial state before animating
+            const timer = setTimeout(() => {
+                setIsVisible(true);
+                setIsClosing(false);
+            }, 10);
+            return () => clearTimeout(timer);
+        } else {
+            setIsClosing(true);
+            setIsVisible(false);
+            const timer = setTimeout(() => {
+                setCachedCommitment(null);
+            }, 300); // 300ms matches existing transitions if any, or standard speed
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen, commitment]);
+
+    const handleClose = () => {
+        setIsClosing(true);
+        setIsVisible(false);
+        setTimeout(() => {
+            onClose();
+        }, 300);
+    };
+
+    // Handle ESC key
+    // Handle ESC key
+    useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && isOpen) {
+                handleClose();
+            }
+        };
+        window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, [isOpen, onClose]);
+
+    // Use cached commitment for rendering during exit animation
+    const displayCommitment = isOpen ? commitment : cachedCommitment;
+    // Use displayCommitment for all references below
+    const commitmentToRender = displayCommitment;
+
+    // Fetch history
+    useEffect(() => {
+        if (!commitmentToRender || !isOpen) return;
         const related = transactions.filter(t =>
-            (t.commitment_id === commitment.id) ||
-            (t.description.includes(commitment.name) && t.description.includes('[Compromiso]'))
+            (t.commitment_id === commitmentToRender.id) ||
+            (t.description.includes(commitmentToRender.name) && t.description.includes('[Compromiso]'))
         ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
             .slice(0, 5);
 
         setHistory(related);
-    }, [commitment, isOpen, transactions]);
+    }, [commitmentToRender, isOpen, transactions]);
 
-    if (!isOpen || !commitment) return null;
+    if (!isVisible && !isOpen && !cachedCommitment) return null;
+    if (!displayCommitment) return null;
+
+    // ... effects ...
+
 
     const activeLedger = ledgers.find(l => l.id === activeBookId);
     const currency = activeLedger?.currency || 'USD';
     const currencySymbol = currency === 'PEN' ? 'S/.' : (currency === 'EUR' ? '€' : '$');
 
-    const accountName = accounts.find(a => a.id === commitment.accountId)?.name || commitment.account || 'Sin cuenta';
-    const categoryObj = categories.find(c => c.id === commitment.categoryId) || categories.find(c => c.name === commitment.category);
-    const categoryName = categoryObj?.name || commitment.category || 'General';
+    // Determine Account Name to display (Funding > Linked)
+    const linkedAccount = accounts.find(a => a.id === commitmentToRender.accountId);
+    const fundingAccount = accounts.find(a => a.id === commitmentToRender.fundingAccountId);
+
+    // For CC payments, show Funding Account if set, otherwise fallback to generic or linked
+    // But if it's a regular commitment, usually linked account IS the funding account.
+    // We check if it's a CC payment type commitment
+    const isCreditCardPayment = commitmentToRender.transaction_type === 'INCOME' && linkedAccount?.type === 'CREDIT';
+
+    const displayAccountName = isCreditCardPayment
+        ? (fundingAccount?.name || 'Sin asignar')
+        : (linkedAccount?.name || commitmentToRender.account || 'Sin cuenta');
+
+    const categoryObj = categories.find(c => c.id === commitmentToRender.categoryId) || categories.find(c => c.name === commitmentToRender.category);
+    const categoryName = categoryObj?.name || commitmentToRender.category || 'General';
     const categoryIcon = categoryObj?.icon || 'grid_view';
-    const categoryColor = categoryObj?.color || 'slate';
+    // Use COLOR_MAP logic
+    const colorKey = categoryObj?.color || 'slate';
+    const itemColors = COLOR_MAP[colorKey] || COLOR_MAP.slate;
 
     const getDaysRemaining = (dateStr: string) => {
         const today = new Date();
@@ -64,9 +163,10 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
         return Math.ceil(diff / (1000 * 60 * 60 * 24));
     };
 
-    const daysRemaining = getDaysRemaining(commitment.nextDueDate);
-    const isOverdue = daysRemaining < 0 && commitment.status === 'PENDING';
-    const isPaid = commitment.status === 'PAID';
+    const daysRemaining = getDaysRemaining(commitmentToRender.nextDueDate);
+    // ... status constants ...
+    const isOverdue = daysRemaining < 0 && commitmentToRender.status === 'PENDING';
+    const isPaid = commitmentToRender.status === 'PAID';
 
     const frequencyMap: Record<string, string> = {
         'ONCE': 'Una vez',
@@ -76,42 +176,57 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
         'MONTHLY': 'Mensual',
         'YEARLY': 'Anual'
     };
-    const translatedFrequency = frequencyMap[commitment.frequency] || commitment.frequency;
+    const translatedFrequency = frequencyMap[commitmentToRender.frequency] || commitmentToRender.frequency;
 
     const handleToggleStatus = async () => {
-        await toggleCommitmentStatus(commitment.id, commitment.status);
-        onClose(); // Close after action? or stay open? User might want to see update. 
-        // Better to close or refresh.
+        await toggleCommitmentStatus(commitmentToRender.id, commitmentToRender.status);
+        handleClose();
     };
+
+    const handleSaveFundingAccount = async () => {
+        if (!selectedFundingAccount) return;
+        // Optimization: Create a specific function in context or use updateCommitment
+        // We have onEdit, but that opens the full edit modal. We want quick update.
+        // We need updateCommitment from context
+        // Accessing context via hook at top level
+        // Currently `updateCommitment` is not destructured. Let's assume we can add it or use `onEdit` differently?
+        // Ah, `onEdit` passed from parent might just open modal.
+        // We should probably expose updateCommitment in this component or use the context one.
+        // The modal receives `onEdit` for the full form.
+        // Let's grab `updateCommitment` from context.
+    };
+
+    // Filter debit accounts for selection
+    const debitAccounts = accounts.filter(a => a.type === 'DEBIT' || a.type === 'CASH');
 
     const handleDeleteClick = () => {
         setIsDeleteConfirmOpen(true);
     };
 
     const confirmDelete = () => {
-        onDelete(commitment.id);
+        onDelete(commitmentToRender.id);
         setIsDeleteConfirmOpen(false);
-        onClose();
+        handleClose();
     };
 
     return (
         <>
             <div
-                className="fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in transition-[left] duration-300"
-                onClick={onClose}
+                className={`fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+                onClick={handleClose}
             >
                 <div
-                    className="bg-white dark:bg-[#1e2530] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+                    className={`bg-white dark:bg-[#1e2530] w-full max-w-2xl rounded-3xl shadow-premium overflow-hidden flex flex-col max-h-[90vh] transition-all duration-300 transform ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
                     <div className="flex justify-between items-start p-6 border-b border-gray-100 dark:border-white/5">
                         <div className="flex items-center gap-4">
                             <div className="size-14 rounded-2xl bg-gray-100 dark:bg-white/5 flex items-center justify-center text-3xl">
-                                {commitment.name.charAt(0).toUpperCase()}
+                                {commitmentToRender.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-gray-800 dark:text-white leading-tight">{commitment.name}</h2>
+                                <h2 className="text-xl font-bold text-gray-800 dark:text-white leading-tight">{commitmentToRender.name}</h2>
                                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5 flex items-center gap-2">
                                     <span className="capitalize">{categoryName}</span>
                                     <span className="size-1 rounded-full bg-gray-300"></span>
@@ -126,7 +241,7 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
                                 }`}>
                                 {isPaid ? 'Pagado' : isOverdue ? 'Vencido' : 'Pendiente'}
                             </div>
-                            <button onClick={() => onEdit(commitment)} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl text-gray-400 hover:text-primary transition-colors">
+                            <button onClick={() => onEdit(commitmentToRender)} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl text-gray-400 hover:text-primary transition-colors">
                                 <span className="material-symbols-outlined text-[20px]">edit</span>
                             </button>
                             <button onClick={handleDeleteClick} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl text-gray-400 hover:text-rose-500 transition-colors">
@@ -141,7 +256,7 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
                             <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Monto a pagar</p>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-4xl font-black text-gray-800 dark:text-white tracking-tight">
-                                    {currencySymbol}{commitment.amount.toFixed(2)}
+                                    {currencySymbol}{commitmentToRender.amount.toFixed(2)}
                                 </span>
                                 <span className="text-sm font-bold text-gray-400 uppercase">{currency}</span>
                             </div>
@@ -156,7 +271,7 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
                                 </div>
                                 <div className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-1">
                                     {(() => {
-                                        const [y, m, d] = commitment.nextDueDate.split('-').map(Number);
+                                        const [y, m, d] = commitmentToRender.nextDueDate.split('-').map(Number);
                                         const localDate = new Date(y, m - 1, d);
                                         return localDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
                                     })()}
@@ -179,9 +294,48 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
                                     <div className="size-8 rounded-lg bg-gray-200 dark:bg-white/10 flex items-center justify-center text-gray-500">
                                         <span className="material-symbols-outlined text-[18px]">credit_card</span>
                                     </div>
-                                    <div className="overflow-hidden">
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Método de Pago</p>
-                                        <p className="text-sm font-bold text-gray-700 dark:text-gray-200 truncate">{accountName}</p>
+                                    <div className="overflow-hidden flex-1">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Método de Pago</p>
+                                            {isCreditCardPayment && !isPaid && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setIsEditingPaymentMethod(!isEditingPaymentMethod);
+                                                        setSelectedFundingAccount(commitmentToRender.fundingAccountId || '');
+                                                    }}
+                                                    className="text-[10px] text-primary font-bold hover:underline"
+                                                >
+                                                    {isEditingPaymentMethod ? 'Cancelar' : 'Cambiar'}
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {isEditingPaymentMethod ? (
+                                            <div onClick={(e) => e.stopPropagation()} className="mt-1">
+                                                <select
+                                                    value={selectedFundingAccount}
+                                                    onChange={async (e) => {
+                                                        const newVal = e.target.value;
+                                                        setSelectedFundingAccount(newVal);
+                                                        // Auto save on change
+                                                        if (newVal) {
+                                                            await updateCommitment(commitmentToRender.id, { fundingAccountId: newVal });
+                                                            setIsEditingPaymentMethod(false);
+                                                        }
+                                                    }}
+                                                    className="w-full text-xs p-1 rounded border border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-gray-800 dark:text-white"
+                                                    autoFocus
+                                                >
+                                                    <option value="">Seleccionar...</option>
+                                                    {debitAccounts.map(acc => (
+                                                        <option key={acc.id} value={acc.id}>{acc.name} ({acc.currency})</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm font-bold text-gray-700 dark:text-gray-200 truncate">{displayAccountName}</p>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5 flex items-center gap-3">
@@ -194,8 +348,8 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
                                     </div>
                                 </div>
                                 <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/5 flex items-center gap-3">
-                                    <div className={`size-8 rounded-lg flex items-center justify-center text-white shadow-sm ring-1 ring-white/20`} style={{ backgroundColor: categoryColor }}>
-                                        <span className="material-symbols-outlined text-[18px]">{categoryIcon}</span>
+                                    <div className={`size-8 rounded-lg flex items-center justify-center ${itemColors.bg} ${itemColors.text}`}>
+                                        <CategoryIcon icon={categoryIcon} className="text-[18px]" />
                                     </div>
                                     <div className="overflow-hidden">
                                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Categoría</p>
@@ -284,7 +438,7 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
                 onConfirm={confirmDelete}
                 title="¿Eliminar Compromiso?"
                 message="Estás a punto de eliminar este compromiso. Si existen transacciones pasadas, se mantendrán en el historial."
-                itemName={commitment.name}
+                itemName={commitmentToRender.name}
             />
         </>
     );

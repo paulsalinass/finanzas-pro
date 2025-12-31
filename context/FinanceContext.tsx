@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { createClient } from '../utils/supabase/client';
 import { Transaction, Account, Budget, Commitment, RecurringRule, Ledger, TransactionType, Category, CategoryFolder } from '../types';
 import { useRouter } from 'next/navigation';
-import { addMonths, addWeeks, addYears, isAfter, isBefore, startOfDay, addDays, isSameDay, endOfMonth } from 'date-fns';
+import { addMonths, addWeeks, addYears, isAfter, isBefore, startOfDay, addDays, isSameDay, endOfMonth, subMonths, format, subDays, endOfDay, parseISO } from 'date-fns';
 
 // Database types mapping could be strictly done here, but for now we map manually
 // to match the specific "Ledger" vs "Book" terminology change requested by user logic vs DB logic.
@@ -124,6 +124,152 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
     setIsLoading(false);
   };
+
+  // Check for Credit Card Commitments
+  const checkCreditCardCommitments = async () => {
+    if (accounts.length === 0 || transactions.length === 0 || isLoading) return;
+
+    for (const account of accounts) {
+      if (account.type !== 'CREDIT' || !account.cutoffDay || !account.payDay) continue;
+
+      const today = new Date();
+      // Determine the latest CLOSED cutoff date
+      let cycleCutoff = new Date(today.getFullYear(), today.getMonth(), account.cutoffDay);
+
+      // If today is before or equal to this month's cutoff, the last closed cycle was LAST month.
+      if (today.getDate() <= account.cutoffDay) {
+        cycleCutoff = subMonths(cycleCutoff, 1);
+      }
+
+      // Identify this cycle uniquely
+      const periodLabel = format(cycleCutoff, 'MMM yyyy');
+      const commitmentName = `Pago Tarjeta ${account.name} - ${periodLabel}`;
+
+      // Find appropriate category (reused logic)
+      let paymentCategoryid = categories.find(c => ['pagos', 'tarjeta', 'tarjetas', 'credit', 'payment', 'finance', 'finanzas'].some(key => c.name.toLowerCase().includes(key)))?.id;
+      if (!paymentCategoryid) paymentCategoryid = categories.find(c => c.name === 'General')?.id;
+      if (!paymentCategoryid && categories.length > 0) {
+        paymentCategoryid = categories[0].id;
+      }
+
+      // Find Funding Account (Debit with money, or any Debit)
+      const fundingAccount = accounts.find(a => a.type === 'DEBIT' && a.balance > 0) || accounts.find(a => a.type === 'DEBIT');
+
+      // Deduplicate first
+      const matches = commitments.filter(c => c.name === commitmentName && c.accountId === account.id);
+      if (matches.length > 1) {
+        // Identify the best one to keep (e.g., the one with funding account or correct type)
+        const valid = matches.find(c => c.transaction_type === 'INCOME' && c.fundingAccountId)
+          || matches.find(c => c.transaction_type === 'INCOME')
+          || matches[0];
+
+        const others = matches.filter(c => c.id !== valid.id);
+        for (const other of others) {
+          console.log(`Removing duplicate commitment: ${other.id}`);
+          await deleteCommitment(other.id);
+        }
+        // After delete, we continue with the 'valid' one as existing
+      }
+
+      // Check if commitment exists and needs update (Refresh find after dedupe)
+      const existingCommitment = commitments.find(c => c.name === commitmentName && c.accountId === account.id);
+
+      if (existingCommitment) {
+        // Check if needs fix (wrong type or missing category or funding account)
+        if (existingCommitment.transaction_type !== 'INCOME' || !existingCommitment.categoryId || !existingCommitment.fundingAccountId) {
+          console.log(`Fixing existing commitment: ${existingCommitment.name}`);
+          await updateCommitment(existingCommitment.id, {
+            transaction_type: 'INCOME',
+            categoryId: paymentCategoryid,
+            fundingAccountId: fundingAccount?.id
+          });
+        }
+        continue;
+      }
+
+      // Calculate Cycle Expenses
+      // Cycle starts day after PREVIOUS cutoff.
+      const prevCutoff = subMonths(cycleCutoff, 1);
+      const startOfCycle = startOfDay(addDays(prevCutoff, 1));
+      const endOfCycle = endOfDay(cycleCutoff);
+
+      const cycleExpenses = transactions.reduce((sum, t) => {
+        if ((t.account === account.name || t.account_id === account.id) &&
+          t.type === 'EXPENSE') {
+          const tDate = new Date(t.date);
+          if (tDate >= startOfCycle && tDate <= endOfCycle) {
+            return sum + t.amount;
+          }
+        }
+        return sum;
+      }, 0);
+
+      if (cycleExpenses <= 0) continue;
+
+      // Calculate Due Date (Pay Day - 1 Day)
+      let payDate = new Date(cycleCutoff.getFullYear(), cycleCutoff.getMonth(), account.payDay);
+      // If payDate is before cutoff (unlikely but possible if payday < cutoff), move to next month.
+      // E.g. Cutoff 18th, Payday 10th. Jan 18 close -> Due Feb 10.
+      if (account.payDay <= account.cutoffDay) {
+        payDate = addMonths(payDate, 1);
+      } else {
+        // Payday 28th. Jan 18 close -> Due Jan 28.
+        // Already in same month as cycleCutoff.
+      }
+
+      const limitDate = subDays(payDate, 1);
+
+      // Create Commitment (Category finding moved up)
+      await addCommitment({
+        name: commitmentName,
+        amount: cycleExpenses,
+        frequency: 'MONTHLY',
+        type: 'TEMPORAL',
+        nextDueDate: limitDate.toISOString(),
+        status: 'PENDING',
+        isActive: true,
+        accountId: account.id,
+        categoryId: paymentCategoryid, // Assign the found category
+        transaction_type: 'INCOME', // Paying the credit card is an INCOME to the credit card account
+        fundingAccountId: fundingAccount?.id, // Default funding source
+        account: account.name
+      });
+
+      console.log(`Generated commitment for ${account.name}: ${cycleExpenses} due ${limitDate.toISOString()}`);
+    }
+  };
+
+  // Deduplicate logic helper
+  const deduplicateCommitments = async (account: Account, periodLabel: string) => {
+    const commitmentName = `Pago Tarjeta ${account.name} - ${periodLabel}`;
+    // Find ALL matching commitments
+    const matches = commitments.filter(c => c.name === commitmentName && c.accountId === account.id);
+
+    if (matches.length > 1) {
+      console.warn(`Found ${matches.length} duplicates for ${commitmentName}. Keeping the one with manual edits or the last one.`);
+      // Sort by updated_at? We don't have it on type easily, assumed standard sort.
+      // Keep the one with fundingAccountId if exists, or just the first/last.
+      // Let's keep the one with ID that matches a 'valid' criteria or just the first one and delete others.
+      const keep = matches.find(c => c.fundingAccountId) || matches[0];
+      const toDelete = matches.filter(c => c.id !== keep.id);
+
+      for (const c of toDelete) {
+        await deleteCommitment(c.id);
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Ensure commitments are loaded or at least we have tried to fetch them.
+    // We can check if commitments array is populated or if we have a flag.
+    // Relying on accounts/transactions implies data is loaded.
+    // Adding `commitments` to deps ensures we re-run if they change (e.g. initial load finish).
+    // But we must guard against infinite loop if this function *modifies* commitments.
+    // checkCreditCardCommitments modifies commitments ONLY if needed.
+    if (!isLoading && accounts.length > 0 && transactions.length > 0) {
+      checkCreditCardCommitments();
+    }
+  }, [isLoading, accounts, transactions.length, commitments.length]); // Added commitments.length to detect load
 
   // Initial Load
   useEffect(() => {
@@ -255,8 +401,18 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     if (data) {
       setAccounts(data.map(a => ({
         ...a,
-        // Ensure types match UI expectation
-        type: a.type as any
+        // Ensure types match UI expectation and map snake_case to camelCase
+        type: a.type as any,
+        creditLimit: a.credit_limit,
+        availableCredit: a.available_credit,
+        cutoffDay: a.cutoff_day,
+        payDay: a.pay_day,
+        lastFour: a.last_four,
+        autoPay: a.auto_pay,
+        isDefault: a.is_default,
+        cardholderName: a.cardholder_name,
+        expiryDate: a.expiry_date,
+        // Keep original if needed, but UI uses camelCase
       })));
     }
   };
@@ -324,7 +480,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         categoryId: c.category_id,
         accountId: c.account_id,
         recurrence: c.recurrence,
-        transaction_type: c.transaction_type
+        transaction_type: c.transaction_type,
+        isAutoPay: c.is_auto_pay,
+        fundingAccountId: c.funding_account_id
       })));
     }
   };
@@ -508,11 +666,12 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       // Credit Card Fields
       credit_limit: a.creditLimit,
       available_credit: a.availableCredit,
-      cutoff_day: a.cutoffDay,
       pay_day: a.payDay,
       network: a.network,
       auto_pay: a.autoPay,
       last_four: a.lastFour, // Ensure this exists or is removed if unused
+      cardholder_name: a.cardholderName,
+      expiry_date: a.expiryDate,
       color: 'blue', // Default for now, or passed from 'a' if added to Account type
       icon: 'account_balance' // Default
     };
@@ -546,6 +705,8 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       network: a.network,
       auto_pay: a.autoPay,
       last_four: a.lastFour,
+      cardholder_name: a.cardholderName,
+      expiry_date: a.expiryDate,
       color: a.color || 'blue', // preserve or update
     };
 
@@ -595,7 +756,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       category_id: c.categoryId,
       account_id: c.accountId,
       recurrence: c.recurrence,
-      transaction_type: c.transaction_type
+      transaction_type: c.transaction_type,
+      is_auto_pay: c.isAutoPay,
+      funding_account_id: c.fundingAccountId
     };
 
     if (!c.categoryId && c.category) {
@@ -633,6 +796,8 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     if (updates.endDate !== undefined) payload.end_date = updates.endDate;
     if (updates.recurrence !== undefined) payload.recurrence = updates.recurrence;
     if (updates.transaction_type !== undefined) payload.transaction_type = updates.transaction_type;
+    if (updates.isAutoPay !== undefined) payload.is_auto_pay = updates.isAutoPay;
+    if (updates.fundingAccountId !== undefined) payload.funding_account_id = updates.fundingAccountId;
 
     if (updates.categoryId !== undefined) payload.category_id = updates.categoryId;
     if (updates.accountId !== undefined) payload.account_id = updates.accountId;
@@ -786,10 +951,19 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     if (newStatus === 'PAID') {
       const commitment = commitments.find(c => c.id === id);
       if (commitment) {
+        let transType = commitment.transaction_type || 'EXPENSE';
+        // Safety override: Credit Card payments (Temporal) are always INCOME to the card
+        if (commitment.accountId) {
+          const linkedAccount = accounts.find(a => a.id === commitment.accountId);
+          if (linkedAccount && linkedAccount.type === 'CREDIT' && commitment.type === 'TEMPORAL') {
+            transType = 'INCOME';
+          }
+        }
+
         const transactionData: any = {
           book_id: activeBookId,
           amount: commitment.amount,
-          type: commitment.transaction_type || 'EXPENSE', // Fallback to expense if not set
+          type: transType,
           account: commitment.account, // Name is used by addTransaction
           account_id: commitment.accountId, // Pass ID if available for precision
           category: commitment.category,
@@ -801,10 +975,29 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         };
 
         await addTransaction(transactionData);
-        // Toast or feedback could go here
+
+        // If Funding Account exists, create the EXPENSE side (Money leaving Debit)
+        if (commitment.fundingAccountId) {
+          const fundingAcc = accounts.find(a => a.id === commitment.fundingAccountId);
+          if (fundingAcc) {
+            await addTransaction({
+              // book_id handled internally by addTransaction
+              amount: commitment.amount,
+              type: 'EXPENSE',
+              account: fundingAcc.name,
+              account_id: fundingAcc.id,
+              category: commitment.category, // Keep same category? Or "Transfer"? Usually same category "Credit Card Payment"
+              category_id: commitment.categoryId,
+              description: `[Pago] ${commitment.name}`,
+              date: new Date().toISOString(),
+              notes: `Pago realizado a ${commitment.account}`,
+              icon: 'payments'
+            });
+          }
+        }
 
         // Generate Next Occurrence for Recurring Commitments
-        if (commitment.frequency) {
+        if (commitment.frequency && commitment.type !== 'TEMPORAL') {
           const currentDate = new Date(commitment.nextDueDate);
           // Ensure valid date
           if (!isNaN(currentDate.getTime())) {
@@ -1038,6 +1231,31 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       }
     }
   };
+
+  const checkAutoPayCommitments = async () => {
+    if (!activeBookId || commitments.length === 0) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const pendingAutoPay = commitments.filter(c =>
+      c.isActive &&
+      c.isAutoPay &&
+      c.status === 'PENDING' &&
+      new Date(c.nextDueDate) <= today
+    );
+
+    for (const commitment of pendingAutoPay) {
+      console.log(`Auto-paying commitment: ${commitment.name}`);
+      await toggleCommitmentStatus(commitment.id, 'PENDING');
+    }
+  };
+
+  useEffect(() => {
+    if (!isLoading && activeBookId && commitments.length > 0) {
+      checkAutoPayCommitments();
+    }
+  }, [isLoading, activeBookId, commitments]);
 
   // Modal State
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);

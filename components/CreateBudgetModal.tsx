@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useFinance } from '@/context/FinanceContext';
 import { Budget } from '@/types';
 import CustomDatePicker from './CustomDatePicker';
-import { format } from 'date-fns';
+import { format, addDays, endOfMonth, addYears, subDays } from 'date-fns';
 
 interface BudgetEditorModalProps {
     isOpen: boolean;
@@ -16,7 +16,7 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
     // Form State
     const [amount, setAmount] = useState('');
     const [categoryId, setCategoryId] = useState('');
-    const [recurrenceOption, setRecurrenceOption] = useState<'MONTHLY' | 'WEEKLY' | 'ANNUAL'>('MONTHLY');
+    const [recurrenceOption, setRecurrenceOption] = useState<'MONTHLY' | 'WEEKLY' | 'BIWEEKLY' | 'ANNUAL'>('MONTHLY');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [isRecurring, setIsRecurring] = useState(true);
@@ -42,6 +42,7 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
                 const recType = budgetToEdit.recurrence_type || 'MONTHLY';
 
                 if (recType === 'WEEKLY' && recInterval === 1) setRecurrenceOption('WEEKLY');
+                else if (recType === 'WEEKLY' && recInterval === 2) setRecurrenceOption('BIWEEKLY');
                 else if (recType === 'YEARLY' || (recType === 'MONTHLY' && recInterval === 12)) setRecurrenceOption('ANNUAL');
                 else setRecurrenceOption('MONTHLY');
 
@@ -69,6 +70,45 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
             onClose();
         }, 300);
     };
+
+    // Auto-Calculate End Date
+    useEffect(() => {
+        // Only run if we have a start date and the user hasn't explicitly set a custom end date separately
+        // OR we can just force it for now to be helpful. 
+        // Let's force it if it's a NEW budget (no budgetToEdit) OR if we want to be aggressive.
+        // Better UX: Update it if the user just changed the Start Date or Recurrence.
+        // Since we don't track "user modified end date" state, let's just update it.
+        // Users can override it afterwards if they REALLY want, but changing start/recurrence will reset it.
+
+        if (!startDate || !isRecurring) return;
+
+        try {
+            const start = new Date(startDate);
+            let end = new Date(startDate);
+
+            switch (recurrenceOption) {
+                case 'WEEKLY':
+                    end = addDays(start, 6);
+                    break;
+                case 'BIWEEKLY':
+                    end = addDays(start, 13);
+                    break;
+                case 'MONTHLY':
+                    end = endOfMonth(start);
+                    break;
+                case 'ANNUAL':
+                    end = subDays(addYears(start, 1), 1);
+                    break;
+            }
+
+            // Keep the time part or reset? Usually budgets end at end of day, but our ISO strings might be just dates or full ISOs.
+            // The DB likely expects end of day for checks, but let's just set the date component correctly.
+            setEndDate(end.toISOString());
+
+        } catch (e) {
+            // Invalid date
+        }
+    }, [startDate, recurrenceOption, isRecurring]);
 
     // Close on Escape
     useEffect(() => {
@@ -103,6 +143,7 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
             let rInterval = 1;
 
             if (recurrenceOption === 'WEEKLY') { rType = 'WEEKLY'; rInterval = 1; }
+            if (recurrenceOption === 'BIWEEKLY') { rType = 'WEEKLY'; rInterval = 2; }
             if (recurrenceOption === 'ANNUAL') { rType = 'YEARLY'; rInterval = 1; }
 
             const payload = {

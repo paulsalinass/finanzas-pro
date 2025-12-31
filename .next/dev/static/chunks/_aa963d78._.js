@@ -34,9 +34,14 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addWeeks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/addWeeks.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addYears$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/addYears.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$isBefore$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/isBefore.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/startOfDay.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/addDays.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$isSameDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/isSameDay.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfMonth$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/endOfMonth.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$subMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/subMonths.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/date-fns/format.js [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$subDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/subDays.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/date-fns/endOfDay.js [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
 "use client";
@@ -104,6 +109,142 @@ const FinanceProvider = ({ children })=>{
         }
         setIsLoading(false);
     };
+    // Check for Credit Card Commitments
+    const checkCreditCardCommitments = async ()=>{
+        if (accounts.length === 0 || transactions.length === 0 || isLoading) return;
+        for (const account of accounts){
+            if (account.type !== 'CREDIT' || !account.cutoffDay || !account.payDay) continue;
+            const today = new Date();
+            // Determine the latest CLOSED cutoff date
+            let cycleCutoff = new Date(today.getFullYear(), today.getMonth(), account.cutoffDay);
+            // If today is before or equal to this month's cutoff, the last closed cycle was LAST month.
+            if (today.getDate() <= account.cutoffDay) {
+                cycleCutoff = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$subMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["subMonths"])(cycleCutoff, 1);
+            }
+            // Identify this cycle uniquely
+            const periodLabel = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["format"])(cycleCutoff, 'MMM yyyy');
+            const commitmentName = `Pago Tarjeta ${account.name} - ${periodLabel}`;
+            // Find appropriate category (reused logic)
+            let paymentCategoryid = categories.find((c)=>[
+                    'pagos',
+                    'tarjeta',
+                    'tarjetas',
+                    'credit',
+                    'payment',
+                    'finance',
+                    'finanzas'
+                ].some((key)=>c.name.toLowerCase().includes(key)))?.id;
+            if (!paymentCategoryid) paymentCategoryid = categories.find((c)=>c.name === 'General')?.id;
+            if (!paymentCategoryid && categories.length > 0) {
+                paymentCategoryid = categories[0].id;
+            }
+            // Find Funding Account (Debit with money, or any Debit)
+            const fundingAccount = accounts.find((a)=>a.type === 'DEBIT' && a.balance > 0) || accounts.find((a)=>a.type === 'DEBIT');
+            // Deduplicate first
+            const matches = commitments.filter((c)=>c.name === commitmentName && c.accountId === account.id);
+            if (matches.length > 1) {
+                // Identify the best one to keep (e.g., the one with funding account or correct type)
+                const valid = matches.find((c)=>c.transaction_type === 'INCOME' && c.fundingAccountId) || matches.find((c)=>c.transaction_type === 'INCOME') || matches[0];
+                const others = matches.filter((c)=>c.id !== valid.id);
+                for (const other of others){
+                    console.log(`Removing duplicate commitment: ${other.id}`);
+                    await deleteCommitment(other.id);
+                }
+            // After delete, we continue with the 'valid' one as existing
+            }
+            // Check if commitment exists and needs update (Refresh find after dedupe)
+            const existingCommitment = commitments.find((c)=>c.name === commitmentName && c.accountId === account.id);
+            if (existingCommitment) {
+                // Check if needs fix (wrong type or missing category or funding account)
+                if (existingCommitment.transaction_type !== 'INCOME' || !existingCommitment.categoryId || !existingCommitment.fundingAccountId) {
+                    console.log(`Fixing existing commitment: ${existingCommitment.name}`);
+                    await updateCommitment(existingCommitment.id, {
+                        transaction_type: 'INCOME',
+                        categoryId: paymentCategoryid,
+                        fundingAccountId: fundingAccount?.id
+                    });
+                }
+                continue;
+            }
+            // Calculate Cycle Expenses
+            // Cycle starts day after PREVIOUS cutoff.
+            const prevCutoff = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$subMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["subMonths"])(cycleCutoff, 1);
+            const startOfCycle = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$startOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["startOfDay"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addDays"])(prevCutoff, 1));
+            const endOfCycle = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$endOfDay$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["endOfDay"])(cycleCutoff);
+            const cycleExpenses = transactions.reduce((sum, t)=>{
+                if ((t.account === account.name || t.account_id === account.id) && t.type === 'EXPENSE') {
+                    const tDate = new Date(t.date);
+                    if (tDate >= startOfCycle && tDate <= endOfCycle) {
+                        return sum + t.amount;
+                    }
+                }
+                return sum;
+            }, 0);
+            if (cycleExpenses <= 0) continue;
+            // Calculate Due Date (Pay Day - 1 Day)
+            let payDate = new Date(cycleCutoff.getFullYear(), cycleCutoff.getMonth(), account.payDay);
+            // If payDate is before cutoff (unlikely but possible if payday < cutoff), move to next month.
+            // E.g. Cutoff 18th, Payday 10th. Jan 18 close -> Due Feb 10.
+            if (account.payDay <= account.cutoffDay) {
+                payDate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$addMonths$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addMonths"])(payDate, 1);
+            } else {
+            // Payday 28th. Jan 18 close -> Due Jan 28.
+            // Already in same month as cycleCutoff.
+            }
+            const limitDate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$subDays$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["subDays"])(payDate, 1);
+            // Create Commitment (Category finding moved up)
+            await addCommitment({
+                name: commitmentName,
+                amount: cycleExpenses,
+                frequency: 'MONTHLY',
+                type: 'TEMPORAL',
+                nextDueDate: limitDate.toISOString(),
+                status: 'PENDING',
+                isActive: true,
+                accountId: account.id,
+                categoryId: paymentCategoryid,
+                transaction_type: 'INCOME',
+                fundingAccountId: fundingAccount?.id,
+                account: account.name
+            });
+            console.log(`Generated commitment for ${account.name}: ${cycleExpenses} due ${limitDate.toISOString()}`);
+        }
+    };
+    // Deduplicate logic helper
+    const deduplicateCommitments = async (account, periodLabel)=>{
+        const commitmentName = `Pago Tarjeta ${account.name} - ${periodLabel}`;
+        // Find ALL matching commitments
+        const matches = commitments.filter((c)=>c.name === commitmentName && c.accountId === account.id);
+        if (matches.length > 1) {
+            console.warn(`Found ${matches.length} duplicates for ${commitmentName}. Keeping the one with manual edits or the last one.`);
+            // Sort by updated_at? We don't have it on type easily, assumed standard sort.
+            // Keep the one with fundingAccountId if exists, or just the first/last.
+            // Let's keep the one with ID that matches a 'valid' criteria or just the first one and delete others.
+            const keep = matches.find((c)=>c.fundingAccountId) || matches[0];
+            const toDelete = matches.filter((c)=>c.id !== keep.id);
+            for (const c of toDelete){
+                await deleteCommitment(c.id);
+            }
+        }
+    };
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "FinanceProvider.useEffect": ()=>{
+            // Ensure commitments are loaded or at least we have tried to fetch them.
+            // We can check if commitments array is populated or if we have a flag.
+            // Relying on accounts/transactions implies data is loaded.
+            // Adding `commitments` to deps ensures we re-run if they change (e.g. initial load finish).
+            // But we must guard against infinite loop if this function *modifies* commitments.
+            // checkCreditCardCommitments modifies commitments ONLY if needed.
+            if (!isLoading && accounts.length > 0 && transactions.length > 0) {
+                checkCreditCardCommitments();
+            }
+        }
+    }["FinanceProvider.useEffect"], [
+        isLoading,
+        accounts,
+        transactions.length,
+        commitments.length
+    ]); // Added commitments.length to detect load
     // Initial Load
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "FinanceProvider.useEffect": ()=>{
@@ -240,8 +381,17 @@ const FinanceProvider = ({ children })=>{
         if (data) {
             setAccounts(data.map((a)=>({
                     ...a,
-                    // Ensure types match UI expectation
-                    type: a.type
+                    // Ensure types match UI expectation and map snake_case to camelCase
+                    type: a.type,
+                    creditLimit: a.credit_limit,
+                    availableCredit: a.available_credit,
+                    cutoffDay: a.cutoff_day,
+                    payDay: a.pay_day,
+                    lastFour: a.last_four,
+                    autoPay: a.auto_pay,
+                    isDefault: a.is_default,
+                    cardholderName: a.cardholder_name,
+                    expiryDate: a.expiry_date
                 })));
         }
     };
@@ -299,7 +449,9 @@ const FinanceProvider = ({ children })=>{
                     categoryId: c.category_id,
                     accountId: c.account_id,
                     recurrence: c.recurrence,
-                    transaction_type: c.transaction_type
+                    transaction_type: c.transaction_type,
+                    isAutoPay: c.is_auto_pay,
+                    fundingAccountId: c.funding_account_id
                 })));
         }
     };
@@ -456,11 +608,12 @@ const FinanceProvider = ({ children })=>{
             // Credit Card Fields
             credit_limit: a.creditLimit,
             available_credit: a.availableCredit,
-            cutoff_day: a.cutoffDay,
             pay_day: a.payDay,
             network: a.network,
             auto_pay: a.autoPay,
             last_four: a.lastFour,
+            cardholder_name: a.cardholderName,
+            expiry_date: a.expiryDate,
             color: 'blue',
             icon: 'account_balance' // Default
         };
@@ -489,6 +642,8 @@ const FinanceProvider = ({ children })=>{
             network: a.network,
             auto_pay: a.autoPay,
             last_four: a.lastFour,
+            cardholder_name: a.cardholderName,
+            expiry_date: a.expiryDate,
             color: a.color || 'blue'
         };
         // Remove undefined keys
@@ -528,7 +683,9 @@ const FinanceProvider = ({ children })=>{
             category_id: c.categoryId,
             account_id: c.accountId,
             recurrence: c.recurrence,
-            transaction_type: c.transaction_type
+            transaction_type: c.transaction_type,
+            is_auto_pay: c.isAutoPay,
+            funding_account_id: c.fundingAccountId
         };
         if (!c.categoryId && c.category) {
             const cat = categories.find((cat)=>cat.name === c.category);
@@ -559,6 +716,8 @@ const FinanceProvider = ({ children })=>{
         if (updates.endDate !== undefined) payload.end_date = updates.endDate;
         if (updates.recurrence !== undefined) payload.recurrence = updates.recurrence;
         if (updates.transaction_type !== undefined) payload.transaction_type = updates.transaction_type;
+        if (updates.isAutoPay !== undefined) payload.is_auto_pay = updates.isAutoPay;
+        if (updates.fundingAccountId !== undefined) payload.funding_account_id = updates.fundingAccountId;
         if (updates.categoryId !== undefined) payload.category_id = updates.categoryId;
         if (updates.accountId !== undefined) payload.account_id = updates.accountId;
         // Fallback for names
@@ -680,10 +839,18 @@ const FinanceProvider = ({ children })=>{
         if (newStatus === 'PAID') {
             const commitment = commitments.find((c)=>c.id === id);
             if (commitment) {
+                let transType = commitment.transaction_type || 'EXPENSE';
+                // Safety override: Credit Card payments (Temporal) are always INCOME to the card
+                if (commitment.accountId) {
+                    const linkedAccount = accounts.find((a)=>a.id === commitment.accountId);
+                    if (linkedAccount && linkedAccount.type === 'CREDIT' && commitment.type === 'TEMPORAL') {
+                        transType = 'INCOME';
+                    }
+                }
                 const transactionData = {
                     book_id: activeBookId,
                     amount: commitment.amount,
-                    type: commitment.transaction_type || 'EXPENSE',
+                    type: transType,
                     account: commitment.account,
                     account_id: commitment.accountId,
                     category: commitment.category,
@@ -694,9 +861,27 @@ const FinanceProvider = ({ children })=>{
                     commitment_id: id // Link back to commitment
                 };
                 await addTransaction(transactionData);
-                // Toast or feedback could go here
+                // If Funding Account exists, create the EXPENSE side (Money leaving Debit)
+                if (commitment.fundingAccountId) {
+                    const fundingAcc = accounts.find((a)=>a.id === commitment.fundingAccountId);
+                    if (fundingAcc) {
+                        await addTransaction({
+                            // book_id handled internally by addTransaction
+                            amount: commitment.amount,
+                            type: 'EXPENSE',
+                            account: fundingAcc.name,
+                            account_id: fundingAcc.id,
+                            category: commitment.category,
+                            category_id: commitment.categoryId,
+                            description: `[Pago] ${commitment.name}`,
+                            date: new Date().toISOString(),
+                            notes: `Pago realizado a ${commitment.account}`,
+                            icon: 'payments'
+                        });
+                    }
+                }
                 // Generate Next Occurrence for Recurring Commitments
-                if (commitment.frequency) {
+                if (commitment.frequency && commitment.type !== 'TEMPORAL') {
                     const currentDate = new Date(commitment.nextDueDate);
                     // Ensure valid date
                     if (!isNaN(currentDate.getTime())) {
@@ -958,6 +1143,27 @@ const FinanceProvider = ({ children })=>{
             }
         }
     };
+    const checkAutoPayCommitments = async ()=>{
+        if (!activeBookId || commitments.length === 0) return;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const pendingAutoPay = commitments.filter((c)=>c.isActive && c.isAutoPay && c.status === 'PENDING' && new Date(c.nextDueDate) <= today);
+        for (const commitment of pendingAutoPay){
+            console.log(`Auto-paying commitment: ${commitment.name}`);
+            await toggleCommitmentStatus(commitment.id, 'PENDING');
+        }
+    };
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "FinanceProvider.useEffect": ()=>{
+            if (!isLoading && activeBookId && commitments.length > 0) {
+                checkAutoPayCommitments();
+            }
+        }
+    }["FinanceProvider.useEffect"], [
+        isLoading,
+        activeBookId,
+        commitments
+    ]);
     // Modal State
     const [isTransactionModalOpen, setIsTransactionModalOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const openTransactionModal = ()=>setIsTransactionModalOpen(true);
@@ -1027,11 +1233,11 @@ const FinanceProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/context/FinanceContext.tsx",
-        lineNumber: 1051,
+        lineNumber: 1269,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(FinanceProvider, "MGhX0HkQhN6+7VFYq1+NldVlG0w=", false, function() {
+_s(FinanceProvider, "us5PCvrz+RzJ/z+te8Vu+xxn1LM=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"]
     ];

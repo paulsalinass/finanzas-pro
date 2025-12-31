@@ -12,7 +12,7 @@ import { MoneyDisplay } from '@/components/MoneyDisplay';
 
 export default function Commitments() {
     const router = useRouter();
-    const { commitments, toggleCommitmentStatus, deleteCommitment, ledgers, activeBookId } = useFinance();
+    const { commitments, toggleCommitmentStatus, deleteCommitment, ledgers, activeBookId, categories } = useFinance();
     const activeLedger = ledgers.find(l => l.id === activeBookId);
     const currencyCode = activeLedger?.currency || 'USD';
     const currencySymbol = currencyCode === 'PEN' ? 'S/' : (currencyCode === 'EUR' ? '€' : '$');
@@ -89,7 +89,9 @@ export default function Commitments() {
     });
 
     // 2. Compute Statistics based on Date Range ONLY
-    const expenseCommitments = commitmentsInDateRange.filter(c => c.transaction_type !== 'INCOME');
+    // We include INCOME now so Credit Card payments are counted in the "Planificado" to Pay.
+    // Optionally we could separate them, but user likely considers them a "Bill" to pay.
+    const expenseCommitments = commitmentsInDateRange; // Removed filter: c.transaction_type !== 'INCOME'
     const totalPlanificado = expenseCommitments.reduce((sum, c) => sum + c.amount, 0);
     const yaPagado = expenseCommitments.filter(c => c.status === 'PAID').reduce((sum, c) => sum + c.amount, 0);
     const porPagar = totalPlanificado - yaPagado;
@@ -97,8 +99,9 @@ export default function Commitments() {
     const pendingCount = expenseCommitments.filter(c => c.status === 'PENDING').length;
 
     // 3. Compute Next Payment from Date Range (ignoring list search/tabs)
+    // Also include INCOME types (Credit Card payments) in next payment alert
     const nextPayment = commitmentsInDateRange
-        .filter(c => c.status === 'PENDING' && c.transaction_type !== 'INCOME')
+        .filter(c => c.status === 'PENDING')
         .sort((a, b) => {
             // Parse dates manually for sort stability
             const da = new Date(a.nextDueDate + 'T00:00:00');
@@ -116,6 +119,10 @@ export default function Commitments() {
         if (filter === 'pending') return c.status === 'PENDING';
         if (filter === 'paid') return c.status === 'PAID';
         return true;
+    }).sort((a, b) => {
+        const da = new Date(a.nextDueDate);
+        const db = new Date(b.nextDueDate);
+        return da.getTime() - db.getTime();
     });
 
     const getDaysUntilDue = (dateStr: string) => {
@@ -323,9 +330,7 @@ export default function Commitments() {
                                                             <div className={`size-10 rounded-full flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${isPaid ? 'bg-gray-200 dark:bg-slate-700 text-gray-500' : 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600'
                                                                 }`}>
                                                                 <span className="material-symbols-outlined text-[20px]">
-                                                                    {item.name.toLowerCase().includes('internet') ? 'wifi' :
-                                                                        item.name.toLowerCase().includes('spotify') ? 'music_note' :
-                                                                            item.name.toLowerCase().includes('alquiler') ? 'home' : 'event_repeat'}
+                                                                    {categories.find(cat => cat.id === item.categoryId)?.icon || 'event_repeat'}
                                                                 </span>
                                                             </div>
                                                             <div>
@@ -343,7 +348,7 @@ export default function Commitments() {
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        <span className={`flex items-center text-base font-bold ${isPaid ? 'text-[#637288] opacity-60' : item.transaction_type === 'INCOME' ? 'text-green-600 dark:text-green-400' : 'text-[#111418] dark:text-white'}`}>
+                                                        <span className={`flex items-center text-base font-bold ${isPaid ? 'text-[#637288] opacity-60' : item.transaction_type === 'INCOME' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                                                             {item.transaction_type === 'INCOME' && <span className="mr-0.5">+</span>}
                                                             <MoneyDisplay
                                                                 amount={item.transaction_type === 'INCOME' ? item.amount : -item.amount}
@@ -359,10 +364,10 @@ export default function Commitments() {
                                                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${isPaid
                                                             ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
                                                             : isOverdue
-                                                                ? 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800'
-                                                                : 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+                                                                ? 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
+                                                                : 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800'
                                                             }`}>
-                                                            {!isPaid && <span className={`size-1.5 rounded-full ${isOverdue ? 'bg-orange-500 animate-pulse' : 'bg-slate-400'}`}></span>}
+                                                            {!isPaid && <span className={`size-1.5 rounded-full ${isOverdue ? 'bg-red-500 animate-pulse' : 'bg-yellow-500'}`}></span>}
                                                             {isPaid ? <span className="material-symbols-outlined text-[14px]">check</span> : ''}
                                                             {isPaid ? 'Completado' : isOverdue ? 'Urgente' : 'Pendiente'}
                                                         </span>

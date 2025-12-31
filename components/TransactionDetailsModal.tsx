@@ -48,19 +48,47 @@ export const TransactionDetailsModal = ({ isOpen, onClose, transaction, onEdit }
         }
     }, [isOpen, transaction?.id]);
 
+    // Animation & Interaction Logic
+    const [isVisible, setIsVisible] = React.useState(false);
+    const [isClosing, setIsClosing] = React.useState(false);
+
+    React.useEffect(() => {
+        if (isOpen) {
+            // Small delay to ensure browser paints initial state before animating
+            const timer = setTimeout(() => {
+                setIsVisible(true);
+                setIsClosing(false);
+            }, 10);
+            return () => clearTimeout(timer);
+        } else {
+            setIsClosing(true);
+            const timer = setTimeout(() => setIsVisible(false), 300);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
+
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            onClose();
+            setIsVisible(false);
+        }, 300);
+    };
+
     // Close on Escape key
     React.useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // Only close detail modal if delete confirmation is NOT open
             if (e.key === 'Escape' && isOpen && !showDeleteConfirm) {
-                onClose();
+                handleClose();
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, onClose, showDeleteConfirm]);
 
-    if (!isOpen || !transaction) return null;
+    if (!isOpen && !isVisible) return null;
+    if (!transaction) return null;
 
     const handleDelete = async () => {
         setShowDeleteConfirm(true);
@@ -69,13 +97,13 @@ export const TransactionDetailsModal = ({ isOpen, onClose, transaction, onEdit }
     const confirmDelete = async () => {
         if (transaction) {
             await deleteTransaction(transaction.id);
-            onClose();
+            handleClose();
         }
     };
 
     const handleDuplicate = async () => {
         await duplicateTransaction(transaction.id);
-        onClose();
+        handleClose();
     };
 
     const activeLedger = ledgers.find(l => l.id === activeBookId);
@@ -84,12 +112,12 @@ export const TransactionDetailsModal = ({ isOpen, onClose, transaction, onEdit }
     return (
         <>
             <div
-                className="fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in transition-[left] duration-300"
-                onClick={onClose}
+                className={`fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
+                onClick={handleClose}
             >
                 {/* ... existing modal content ... */}
                 <div
-                    className="bg-white dark:bg-[#1e2530] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+                    className={`bg-white dark:bg-[#1e2530] w-full max-w-2xl rounded-3xl shadow-premium overflow-hidden flex flex-col max-h-[90vh] transition-all duration-300 transform ${isVisible && !isClosing ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
 
@@ -99,7 +127,7 @@ export const TransactionDetailsModal = ({ isOpen, onClose, transaction, onEdit }
                             <h2 className="text-xl font-bold text-gray-800 dark:text-white">Detalle de Transacción</h2>
                             <p className="text-xs text-gray-400 mt-1 uppercase tracking-wider">ID: #{transaction.id.slice(0, 8)}</p>
                         </div>
-                        <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors">
+                        <button onClick={handleClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors">
                             <span className="material-symbols-outlined text-gray-500">close</span>
                         </button>
                     </div>

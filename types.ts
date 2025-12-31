@@ -58,6 +58,8 @@ export interface Account {
   payDay?: number; // Day of month
   closingDate?: string;
   dueDate?: string;
+  cardholderName?: string;
+  expiryDate?: string;
   network?: 'VISA' | 'MASTERCARD' | 'AMEX' | 'DINERS';
   autoPay?: boolean;
 }
@@ -99,6 +101,7 @@ export interface Commitment {
   frequency: 'MONTHLY' | 'WEEKLY' | 'ANNUAL' | 'DAILY' | 'BIWEEKLY' | 'QUARTERLY' | 'SEMIANNUAL';
   nextDueDate: string;
   status: 'PENDING' | 'PAID' | 'LATE' | 'SKIPPED';
+  isAutoPay?: boolean;
   type: 'FIXED' | 'TEMPORAL';
   isActive: boolean;
   endDate?: string;
@@ -108,6 +111,7 @@ export interface Commitment {
   accountId?: string;
   recurrence?: string;
   transaction_type?: 'INCOME' | 'EXPENSE';
+  fundingAccountId?: string;
 }
 
 export interface RecurringRule {

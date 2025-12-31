@@ -5,79 +5,28 @@ import { useRouter } from 'next/navigation';
 import { useFinance } from '@/context/FinanceContext';
 import { LineChart, Line, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { MoneyDisplay } from '@/components/MoneyDisplay';
+import { AccountModal } from '@/components/AccountModal';
 
 export default function Accounts() {
     const router = useRouter();
     const { accounts, totalBalance, ledgers, activeBookId, addAccount, updateAccount, deleteAccount, transactions } = useFinance();
 
     // Modal & Form State
+    // Modal & Form State
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingId, setEditingId] = useState<string | null>(null);
-
-    const [accountName, setAccountName] = useState('');
-    const [initialBalance, setInitialBalance] = useState('');
-    const [accountType, setAccountType] = useState('cash');
-    const [labelColor, setLabelColor] = useState('blue');
-
-    // Enhanced Fields
-    const [selectedCurrency, setSelectedCurrency] = useState('PEN');
-    const [isDefault, setIsDefault] = useState(false);
-
-    // Credit Card Specifics
-    const [cardNetwork, setCardNetwork] = useState('VISA');
-    const [lastFour, setLastFour] = useState('');
-    const [cutoffDay, setCutoffDay] = useState('');
-    const [payDay, setPayDay] = useState('');
-    const [creditLimit, setCreditLimit] = useState('');
-    const [availableCredit, setAvailableCredit] = useState('');
-    const [autoBilling, setAutoBilling] = useState(false);
+    const [editingAccount, setEditingAccount] = useState<any>(null);
 
     // Delete Modal State
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [accountToDelete, setAccountToDelete] = useState<any>(null);
 
-    const resetForm = () => {
-        setEditingId(null);
-        setAccountName('');
-        setInitialBalance('');
-        setAccountType('cash');
-        setLabelColor('blue');
-        setSelectedCurrency('PEN');
-        setIsDefault(false);
-        setCardNetwork('VISA');
-        setLastFour('');
-        setCutoffDay('');
-        setPayDay('');
-        setCreditLimit('');
-        setAvailableCredit('');
-        setAutoBilling(false);
-    };
-
     const openCreateModal = () => {
-        resetForm();
+        setEditingAccount(null);
         setIsModalOpen(true);
     };
 
     const handleEdit = (acc: any) => {
-        setEditingId(acc.id);
-        setAccountName(acc.name);
-        setInitialBalance(acc.balance.toString());
-        setAccountType(acc.type.toLowerCase() === 'credit' ? 'credit' : acc.type.toLowerCase());
-        setLabelColor(acc.color || 'blue');
-        setSelectedCurrency(acc.currency || 'PEN');
-        setIsDefault(acc.is_default || false);
-
-        // Credit fields
-        if (acc.type === 'CREDIT') {
-            setCardNetwork(acc.network || 'VISA');
-            setLastFour(acc.last_four || '');
-            setCutoffDay(acc.cutoff_day || '');
-            setPayDay(acc.pay_day || '');
-            setCreditLimit(acc.credit_limit || '');
-            setAvailableCredit(acc.available_credit || '');
-            setAutoBilling(acc.auto_pay || false);
-        }
-
+        setEditingAccount(acc);
         setIsModalOpen(true);
     };
 
@@ -94,33 +43,7 @@ export default function Accounts() {
         }
     };
 
-    const handleSaveAccount = async () => {
-        if (!accountName) return;
 
-        const accountData: any = {
-            name: accountName,
-            balance: parseFloat(initialBalance) || 0,
-            type: accountType.toUpperCase(),
-            currency: selectedCurrency,
-            isDefault,
-            network: cardNetwork,
-            cutoffDay: parseInt(cutoffDay),
-            payDay: parseInt(payDay),
-            creditLimit: parseFloat(creditLimit),
-            availableCredit: parseFloat(availableCredit),
-            autoPay: autoBilling,
-            lastFour: accountType === 'credit' ? lastFour : undefined
-        };
-
-        if (editingId) {
-            await updateAccount(editingId, accountData);
-        } else {
-            await addAccount(accountData);
-        }
-
-        setIsModalOpen(false);
-        resetForm();
-    };
 
     // Dropdown Component Helper
     const AccountActions = ({ account }: { account: any }) => {
@@ -338,7 +261,7 @@ export default function Accounts() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                         {assetsList.map((acc, idx) => (
-                            <div key={acc.id} onClick={() => router.push(`/accounts?id=${acc.id}`)} className="glass-card !overflow-visible p-5 rounded-3xl flex flex-col gap-5 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 group">
+                            <div key={acc.id} onClick={() => router.push(`/accounts/${acc.id}`)} className="glass-card !overflow-visible p-5 rounded-3xl flex flex-col gap-5 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 group">
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="size-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200">
@@ -395,304 +318,97 @@ export default function Accounts() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                        {liabilitiesList.map((acc) => (
-                            <div key={acc.id} className="glass-card !overflow-visible p-5 rounded-3xl flex flex-col gap-5 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 group">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="size-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                                            <span className="font-black text-[8px] tracking-tighter">VISA</span>
-                                        </div>
-                                        <div>
-                                            <h4 className="text-sm font-bold text-slate-900 dark:text-white">{acc.name}</h4>
-                                            <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mt-0.5">**** {acc.lastFour || '----'}</p>
-                                        </div>
-                                    </div>
-                                    <div onClick={(e) => e.stopPropagation()}>
-                                        <AccountActions account={acc} />
-                                    </div>
-                                </div>
+                        {liabilitiesList.map((acc) => {
+                            const usedAmount = Math.abs(acc.balance);
+                            const limit = acc.creditLimit || 0;
+                            // Available: Calculate dynamically as Limit - Used to ensure it's always up to date.
+                            const available = limit - usedAmount;
 
-                                <div>
-                                    <p className="tracking-tight">
-                                        <MoneyDisplay amount={-Math.abs(acc.balance)} currency={currencySymbol} size="4xl" autoColor={false} />
-                                    </p>
-                                    <p className="text-[11px] text-slate-400 font-medium mt-1">Límite disponible: {currencySymbol}4,550.00</p>
-                                </div>
+                            // Prevent division by zero
+                            const usagePercent = limit > 0 ? (usedAmount / limit) * 100 : 0;
 
-                                <div className="mt-auto pt-2">
-                                    <div className="flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                                        <span>Uso del crédito</span>
-                                        <span>9%</span>
+                            // Format Dates if present
+                            const cutoffLabel = acc.cutoffDay ? `Cierre: ${acc.cutoffDay}` : '';
+                            const payLabel = acc.payDay ? `Pago: ${acc.payDay}` : '';
+
+                            return (
+                                <div key={acc.id} onClick={() => router.push(`/accounts/${acc.id}`)} className="glass-card !overflow-visible p-6 rounded-3xl flex flex-col gap-6 cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 group">
+                                    {/* Header */}
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <div className="size-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                                                <span className="font-black text-[10px] tracking-tighter">{acc.network || 'CARD'}</span>
+                                            </div>
+                                            <div>
+                                                <h4 className="text-base font-bold text-slate-900 dark:text-white">{acc.name}</h4>
+                                                <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mt-0.5">**** {acc.lastFour || '----'}</p>
+                                            </div>
+                                        </div>
+                                        <div onClick={(e) => e.stopPropagation()}>
+                                            <AccountActions account={acc} />
+                                        </div>
                                     </div>
-                                    <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-indigo-500 w-[9%] rounded-full"></div>
+
+                                    {/* Main Info: Used vs Available */}
+                                    <div className="flex flex-col gap-1">
+                                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Línea Utilizada</p>
+                                        <p className="tracking-tight leading-none">
+                                            <MoneyDisplay amount={usedAmount} currency={currencySymbol} size="4xl" color="text-slate-900 dark:text-white" />
+                                        </p>
+
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Disponible:</p>
+                                            <p className={`text-sm font-bold bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded-md ${available >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>
+                                                {currencySymbol}{new Intl.NumberFormat('en-US', { minimumFractionDigits: 2 }).format(available)}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Dates Badges */}
+                                    {(cutoffLabel || payLabel) && (
+                                        <div className="flex gap-2">
+                                            {cutoffLabel && (
+                                                <span className="px-2.5 py-1 rounded-lg bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 text-[10px] font-bold border border-orange-100 dark:border-orange-800/50">
+                                                    {cutoffLabel}
+                                                </span>
+                                            )}
+                                            {payLabel && (
+                                                <span className="px-2.5 py-1 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-[10px] font-bold border border-red-100 dark:border-red-800/50">
+                                                    {payLabel}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Progress Bar */}
+                                    <div className="mt-auto">
+                                        <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+                                            <span>Uso del crédito</span>
+                                            <span className={`${usagePercent > 80 ? 'text-red-500' : 'text-slate-500'}`}>{usagePercent.toFixed(0)}%</span>
+                                        </div>
+                                        <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full rounded-full transition-all duration-500 ${usagePercent > 85 ? 'bg-red-500' :
+                                                    usagePercent > 50 ? 'bg-amber-500' : 'bg-indigo-500'
+                                                    }`}
+                                                style={{ width: `${Math.min(usagePercent, 100)}%` }}
+                                            ></div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </section>
             </div>
 
             {/* ACCOUNT DETAILS MODAL */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in group/modal">
-                    {/* Modal Container: Centered in visible area (approx) */}
-                    <main className="w-full max-w-2xl bg-white dark:bg-[#1e293b] rounded-[2rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-scale-in relative border border-slate-200 dark:border-slate-700">
-
-                        {/* Modal Header */}
-                        <header className="flex-none px-8 py-6 flex justify-between items-start border-b border-slate-100 dark:border-slate-800">
-                            <div className="flex flex-col gap-1">
-                                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{editingId ? 'Editar Cuenta' : 'Detalles de la Cuenta'}</h2>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm">{editingId ? 'Modifica los datos de la cuenta.' : 'Configura los detalles de tu nueva cuenta.'}</p>
-                            </div>
-                            <button
-                                onClick={() => setIsModalOpen(false)}
-                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors bg-slate-50 dark:bg-slate-800 p-2 rounded-full"
-                            >
-                                <span className="material-symbols-outlined text-xl">close</span>
-                            </button>
-                        </header>
-
-                        {/* Modal Content */}
-                        <div className="flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-8 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
-
-                            {/* Account Type Selection */}
-                            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-                                {accountTypes.map(type => (
-                                    <button
-                                        key={type.id}
-                                        onClick={() => setAccountType(type.id)}
-                                        className={`p-3 flex flex-col items-center justify-center gap-2 rounded-2xl border transition-all duration-200 min-h-[80px] ${accountType === type.id
-                                            ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                                            : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800'
-                                            }`}
-                                    >
-                                        <span className={`material-symbols-outlined text-2xl ${accountType === type.id ? 'text-primary' : 'text-slate-500'}`}>
-                                            {type.icon}
-                                        </span>
-                                        <span className={`text-[10px] font-bold uppercase tracking-tight ${accountType === type.id ? 'text-primary' : 'text-slate-600 dark:text-slate-400'}`}>
-                                            {type.label}
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Main Info */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">Nombre</label>
-                                    <div className="flex items-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 h-12 px-4 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
-                                        <input
-                                            value={accountName}
-                                            onChange={(e) => setAccountName(e.target.value)}
-                                            className="w-full bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder:text-slate-400 text-sm font-semibold"
-                                            placeholder="Ej. BCP Ahorros"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">Divisa</label>
-                                    <div className="flex gap-2">
-                                        {['PEN', 'USD', 'MXN', 'EUR'].map(curr => (
-                                            <button
-                                                key={curr}
-                                                onClick={() => setSelectedCurrency(curr)}
-                                                className={`flex-1 h-12 rounded-xl border text-xs font-bold transition-all ${selectedCurrency === curr
-                                                    ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900'
-                                                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 hover:border-slate-300'}`}
-                                            >
-                                                {curr}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Balance & Default */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">Saldo Inicial</label>
-                                    <div className="flex items-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 h-12 px-4 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
-                                        <span className="text-slate-400 font-bold mr-2 text-xs">{selectedCurrency}</span>
-                                        <input
-                                            value={initialBalance}
-                                            onChange={(e) => setInitialBalance(e.target.value)}
-                                            className="w-full bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder:text-slate-400 text-lg font-bold"
-                                            placeholder="0.00"
-                                            type="number"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 mt-6">
-                                    <div
-                                        onClick={() => setIsDefault(!isDefault)}
-                                        className={`w-10 h-6 rounded-full p-1 cursor-pointer transition-colors ${isDefault ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-600'}`}
-                                    >
-                                        <div className={`size-4 bg-white rounded-full shadow-sm transition-transform ${isDefault ? 'translate-x-4' : ''}`} />
-                                    </div>
-                                    <span className="text-xs font-bold text-slate-600 dark:text-slate-300 select-none cursor-pointer" onClick={() => setIsDefault(!isDefault)}>Cuenta Predeterminada</span>
-                                </div>
-                            </div>
-
-                            {/* CREDIT CARD SPECIFIC FIELDS */}
-                            {accountType === 'credit' && (
-                                <div className="space-y-6 pt-4 border-t border-slate-100 dark:border-slate-800 animate-slide-down">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <span className="material-symbols-outlined text-indigo-500">credit_card_gear</span>
-                                        <h3 className="text-sm font-bold text-slate-900 dark:text-white">Configuración de Tarjeta</h3>
-                                    </div>
-
-                                    {/* Card Network & Last 4 */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-3">
-                                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Red de Tarjeta</label>
-                                            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                                                {['VISA', 'MASTERCARD', 'AMEX', 'DINERS'].map(net => (
-                                                    <button
-                                                        key={net}
-                                                        onClick={() => setCardNetwork(net)}
-                                                        className={`px-4 py-2 rounded-lg border text-xs font-bold whitespace-nowrap transition-all ${cardNetwork === net
-                                                            ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-800 dark:text-indigo-400'
-                                                            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'}`}
-                                                    >
-                                                        {net}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Últimos 4 Dígitos</label>
-                                            <div className="flex items-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 h-10">
-                                                <span className="text-slate-400 text-sm mr-2">•••• •••• ••••</span>
-                                                <input
-                                                    value={lastFour}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value.replace(/\D/g, '').slice(0, 4);
-                                                        setLastFour(val);
-                                                    }}
-                                                    className="w-full bg-transparent border-none outline-none text-sm font-semibold text-slate-900 dark:text-white"
-                                                    placeholder="4679"
-                                                    type="text"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Credit Lines */}
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Línea Total</label>
-                                            <div className="flex items-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 h-10">
-                                                <span className="text-slate-500 text-xs font-bold mr-2">{selectedCurrency}</span>
-                                                <input
-                                                    value={creditLimit}
-                                                    onChange={(e) => setCreditLimit(e.target.value)}
-                                                    className="w-full bg-transparent border-none outline-none text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400"
-                                                    placeholder="0.00"
-                                                    type="number"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Línea Disponible</label>
-                                            <div className="flex items-center rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 h-10">
-                                                <span className="text-slate-500 text-xs font-bold mr-2">{selectedCurrency}</span>
-                                                <input
-                                                    value={availableCredit}
-                                                    onChange={(e) => setAvailableCredit(e.target.value)}
-                                                    className="w-full bg-transparent border-none outline-none text-sm font-semibold text-slate-900 dark:text-white placeholder:text-slate-400"
-                                                    placeholder="0.00"
-                                                    type="number"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Dates */}
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Día de Cierre</label>
-                                            <select
-                                                value={cutoffDay}
-                                                onChange={(e) => setCutoffDay(e.target.value)}
-                                                className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800 border-none text-xs font-medium appearance-none cursor-pointer"
-                                            >
-                                                <option value="">Seleccionar día</option>
-                                                {[...Array(31)].map((_, i) => (
-                                                    <option key={i} value={i + 1}>Día {i + 1}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Día de Pago</label>
-                                            <select
-                                                value={payDay}
-                                                onChange={(e) => setPayDay(e.target.value)}
-                                                className="w-full h-10 px-3 rounded-lg bg-slate-50 dark:bg-slate-800 border-none text-xs font-medium appearance-none cursor-pointer"
-                                            >
-                                                <option value="">Seleccionar día</option>
-                                                {[...Array(31)].map((_, i) => (
-                                                    <option key={i} value={i + 1}>Día {i + 1}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    {/* Auto Billing */}
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30">
-                                        <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined text-indigo-500 text-lg">autorenew</span>
-                                            <span className="text-xs font-bold text-indigo-900 dark:text-indigo-300">Facturación Automática</span>
-                                        </div>
-                                        <div
-                                            onClick={() => setAutoBilling(!autoBilling)}
-                                            className={`w-9 h-5 rounded-full p-0.5 cursor-pointer transition-colors ${autoBilling ? 'bg-indigo-500' : 'bg-slate-300 dark:bg-slate-600'}`}
-                                        >
-                                            <div className={`size-4 bg-white rounded-full shadow-sm transition-transform ${autoBilling ? 'translate-x-4' : ''}`} />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Color Selection */}
-                            <div className="space-y-3">
-                                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">Color de Etiqueta</label>
-                                <div className="flex flex-wrap gap-3">
-                                    {colors.map(color => (
-                                        <button
-                                            key={color.id}
-                                            onClick={() => setLabelColor(color.id)}
-                                            style={{ backgroundColor: color.hex }}
-                                            className={`size-8 rounded-full transition-transform hover:scale-110 ${labelColor === color.id
-                                                ? 'ring-2 ring-offset-2 ring-blue-500 dark:ring-offset-slate-900 scale-110'
-                                                : ''
-                                                }`}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Modal Footer */}
-                        <footer className="flex-none px-8 py-5 flex justify-end gap-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                            <button
-                                onClick={() => setIsModalOpen(false)}
-                                className="px-5 py-2.5 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={handleSaveAccount}
-                                className="px-6 py-2.5 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold text-sm shadow-md shadow-blue-500/20 transition-all flex items-center gap-2 active:scale-95"
-                            >
-                                <span className="material-symbols-outlined text-[18px]">check</span>
-                                {editingId ? 'Actualizar Cuenta' : 'Guardar Cuenta'}
-                            </button>
-                        </footer>
-                    </main>
-                </div>
-            )}
+            {/* ACCOUNT DETAILS MODAL */}
+            <AccountModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                account={editingAccount}
+            />
 
             {/* DELETE MODAL */}
             {isDeleteModalOpen && accountToDelete && (

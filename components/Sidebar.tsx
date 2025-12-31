@@ -117,7 +117,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle })
         <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/commitments" icon={CalendarClock} label="Compromisos" />
         <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/categories" icon={Tags} label="Categorías" />
         <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/cards" icon={CreditCard} label="Tarjetas y Cuotas" />
-        <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/rules" icon={Repeat} label="Reglas Recurrentes" />
+
         <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/ledgers" icon={BookOpen} label="Libros Contables" />
 
         {!collapsed && <p className="px-4 mt-6 mb-2 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Configuración</p>}

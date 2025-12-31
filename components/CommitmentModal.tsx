@@ -31,6 +31,23 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
     const [categoryId, setCategoryId] = useState('');
     const [accountId, setAccountId] = useState('');
     const [isActive, setIsActive] = useState(true);
+    const [isAutoPay, setIsAutoPay] = useState(false);
+
+    const [isVisible, setIsVisible] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            setShowModal(true);
+            // Small delay to ensure DOM is present before opacity transition
+            const timer = setTimeout(() => setIsVisible(true), 10);
+            return () => clearTimeout(timer);
+        } else {
+            setIsVisible(false);
+            const timer = setTimeout(() => setShowModal(false), 300);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
 
     // Populate form on open
     useEffect(() => {
@@ -54,20 +71,8 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
             setCategoryId(commitmentToEdit.categoryId || categories.find(c => c.name === commitmentToEdit.category)?.id || '');
             setAccountId(commitmentToEdit.accountId || accounts.find(a => a.name === commitmentToEdit.account)?.id || '');
             setIsActive(commitmentToEdit.isActive ?? true);
+            setIsAutoPay(commitmentToEdit.isAutoPay ?? false);
         } else {
-            // Only reset if we are NOT already editing (prevent clearing on minor re-renders if logic was flaky, but mostly focus on open)
-            // Actually, we just want to set defaults for NEW.
-            // Problem: If I type, and this effect runs again, it wipes it.
-            // Solution: This effect should ONLY run when `isOpen` changes.
-            // But we need `commitmentToEdit` in deps.
-            // We can check if we have already initialized? No, simpler to trust dependencies but ensure parent doesn't unstable-ref `commitmentToEdit`.
-            // Better: Only reset if `name` is empty? No.
-            // Best: Split into two effects or use a ref tracking previous `isOpen`. 
-            // OR simply remove `accounts` and `categories` from deps? 
-            // If they load late, we might miss setting initial IDs.
-            // But for 'New', we set defaults.
-
-            // Let's go with the standard pattern:
             setName('');
             setAmount('');
             setFrequency('MONTHLY');
@@ -79,8 +84,9 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
             setCategoryId('');
             setAccountId(accounts[0]?.id || '');
             setIsActive(true);
+            setIsAutoPay(false);
         }
-    }, [isOpen, commitmentToEdit]); // Removed accounts/categories to prevent reset on background fetch
+    }, [isOpen, commitmentToEdit, accounts, categories]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -105,6 +111,7 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
             transaction_type: transactionType,
             nextDueDate: new Date(nextDueDate).toISOString(),
             isActive,
+            isAutoPay,
             categoryId: categoryId || undefined,
             accountId: accountId || undefined,
             category: categories.find(c => c.id === categoryId)?.name,
@@ -136,7 +143,7 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, onClose]);
 
-    if (!isOpen) return null;
+    if (!showModal) return null;
 
     const activeLedger = ledgers.find(l => l.id === activeBookId);
     const currencyCode = activeLedger?.currency || 'USD';
@@ -161,11 +168,11 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
 
     return (
         <div
-            className="fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in transition-[left] duration-300"
+            className={`fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
             onClick={onClose}
         >
             <div
-                className="bg-white dark:bg-[#1e2530] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+                className={`bg-white dark:bg-[#1e2530] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] transition-all duration-300 transform ${isVisible ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -177,7 +184,7 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Configura los detalles de tus transacciones automáticas.</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors">
-                        <span className="material-icons text-gray-500">close</span>
+                        <span className="material-symbols-outlined text-gray-500 text-2xl">close</span>
                     </button>
                 </div>
 
@@ -349,24 +356,41 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                             </div>
                         </div>
 
-                        {/* Status Type - Keep it simple/hidden or integrated? 
-                            The example image layout separates these. The prompt didn't strictly say to remove existing logic, but to match layout.
-                            I will put 'Tipo' (Fixed/Temporal) in a small section if needed, or maybe just default to Fixed?
-                            The user said "Gasto Fijo" implies Fixed. But I also have 'Status'.
-                            I'll place them in a subtle "Opciones Adicionales" or just hide them if defaults are good.
-                            Defaults: Status=PENDING, Type=FIXED.
-                            I'll add a small advanced row for Type/Status if needed, or assume defaults.
-                            Given user request "design and distribution of image", I should stick close to image. Image doesn't show Type/Status.
-                            I'll keep them but maybe less prominent or visually consistent.
-                        */}
+                        {/* Auto Pay Toggle */}
+                        <div className="col-span-2 mt-2">
+                            <label className="flex items-center gap-3 cursor-pointer group">
+                                <div className={`w-11 h-6 flex items-center bg-gray-200 dark:bg-gray-700 rounded-full p-1 duration-300 ease-in-out ${isAutoPay ? 'bg-primary' : ''}`}>
+                                    <div className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ease-in-out ${isAutoPay ? 'translate-x-5' : ''}`}></div>
+                                </div>
+                                <input
+                                    type="checkbox"
+                                    className="hidden"
+                                    checked={isAutoPay}
+                                    onChange={(e) => setIsAutoPay(e.target.checked)}
+                                />
+                                <span className="text-gray-800 dark:text-white font-medium group-hover:text-primary transition-colors">Facturación Automática</span>
+                            </label>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 pl-14">
+                                Si activas esta opción, el compromiso se marcará automáticamente como pagado en la fecha de vencimiento.
+                            </p>
+                        </div>
+
                     </div>
 
                     {/* Summary Box */}
                     <div className={`mt-8 p-4 rounded-2xl flex gap-3 text-sm border ${transactionType === 'INCOME' ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border-green-100 dark:border-green-800/50' : 'bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 border-blue-100 dark:border-blue-800/50'}`}>
                         <span className="material-symbols-outlined shrink-0">info</span>
-                        <p>
-                            <span className="font-bold">Resumen:</span> Se registrará un <span className="font-bold">{transactionType === 'INCOME' ? 'Ingreso' : 'Gasto'}</span> de <span className="font-bold">{currencySymbol}{amount || '0.00'}</span> para <span className="font-bold">{name || '...'}</span> cada <span className="font-bold">{frequencyText}</span>, comenzando el <span className="font-bold">{startDateFormatted}</span> en la cuenta <span className="font-bold">{accountName}</span>.
-                        </p>
+                        <div>
+                            {isAutoPay ? (
+                                <p>
+                                    <span className="font-bold">Resumen:</span> Se registrará automáticamente un <span className="font-bold">{transactionType === 'INCOME' ? 'Ingreso' : 'Gasto'}</span> de <span className="font-bold">{currencySymbol}{amount || '0.00'}</span> cada <span className="font-bold">{frequencyText}</span>, comenzando el <span className="font-bold">{startDateFormatted}</span>.
+                                </p>
+                            ) : (
+                                <p>
+                                    <span className="font-bold">Resumen:</span> Se creará un recordatorio de <span className="font-bold">{transactionType === 'INCOME' ? 'Ingreso' : 'Gasto'}</span> de <span className="font-bold">{currencySymbol}{amount || '0.00'}</span> para <span className="font-bold">{name || '...'}</span> cada <span className="font-bold">{frequencyText}</span>.
+                                </p>
+                            )}
+                        </div>
                     </div>
 
                 </form>
