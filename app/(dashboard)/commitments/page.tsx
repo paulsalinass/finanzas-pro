@@ -89,9 +89,8 @@ export default function Commitments() {
     });
 
     // 2. Compute Statistics based on Date Range ONLY
-    // We include INCOME now so Credit Card payments are counted in the "Planificado" to Pay.
-    // Optionally we could separate them, but user likely considers them a "Bill" to pay.
-    const expenseCommitments = commitmentsInDateRange; // Removed filter: c.transaction_type !== 'INCOME'
+    // Filter to include only expenses (exclude INCOME) as requested
+    const expenseCommitments = commitmentsInDateRange.filter(c => c.transaction_type !== 'INCOME');
     const totalPlanificado = expenseCommitments.reduce((sum, c) => sum + c.amount, 0);
     const yaPagado = expenseCommitments.filter(c => c.status === 'PAID').reduce((sum, c) => sum + c.amount, 0);
     const porPagar = totalPlanificado - yaPagado;
@@ -156,80 +155,89 @@ export default function Commitments() {
 
                     <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10 animate-fade-in" style={{ animationDelay: '0.1s' }}>
                         {/* Next Payment Card */}
-                        <div className="glass-card p-6 rounded-2xl flex flex-col gap-4 relative overflow-hidden group border-orange-100 dark:border-orange-900/30 bg-white/60 dark:bg-slate-900/60">
+                        <div className="glass-card p-6 rounded-2xl flex flex-col justify-between relative overflow-hidden group border-orange-100 dark:border-orange-900/30 bg-white/60 dark:bg-slate-900/60 min-h-[160px]">
                             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                                 <span className="material-symbols-outlined text-8xl text-orange-500">calendar_clock</span>
                             </div>
-                            <div className="flex items-center gap-2 mb-2">
+                            <div className="h-6 flex items-center gap-2 mb-2">
                                 <div className="size-10 rounded-xl bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center text-orange-600">
                                     <span className="material-symbols-outlined text-[20px]">event_upcoming</span>
                                 </div>
                                 <p className="text-[#637288] dark:text-slate-400 text-xs font-bold uppercase tracking-widest">Próximo Pago</p>
                             </div>
 
-                            {nextPayment ? (
-                                <div className="relative z-10">
-                                    <div className="flex items-center gap-1 mb-1">
-                                        <MoneyDisplay amount={nextPayment.amount} currency={currencySymbol} size="5xl" weight="font-bold" color="text-[#111418] dark:text-white" />
-                                        <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 truncate max-w-[80px]">
-                                            {nextPayment.name}
-                                        </span>
+                            <div className="h-14 flex items-center">
+                                {nextPayment ? (
+                                    <div className="relative z-10">
+                                        <div className="flex items-center gap-1 mb-1">
+                                            <MoneyDisplay amount={nextPayment.amount} currency={currencySymbol} size="4xl" weight="font-bold" color="text-[#111418] dark:text-white" />
+                                            <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 truncate max-w-[80px]">
+                                                {nextPayment.name}
+                                            </span>
+                                        </div>
                                     </div>
+                                ) : (
+                                    <div className="relative z-10">
+                                        <p className="text-[#111418] dark:text-white text-lg font-bold">¡Todo al día!</p>
+                                    </div>
+                                )}
+                            </div>
 
-                                    {(() => {
-                                        const days = getDaysUntilDue(nextPayment.nextDueDate);
-                                        let message = '';
-                                        let colorClass = '';
+                            <div className="h-10 flex items-end">
+                                {nextPayment ? (() => {
+                                    const days = getDaysUntilDue(nextPayment.nextDueDate);
+                                    let message = '';
+                                    let colorClass = '';
 
-                                        if (days < 0) { message = `Venció hace ${Math.abs(days)} días`; colorClass = 'text-red-500'; }
-                                        else if (days === 0) { message = 'Vence hoy'; colorClass = 'text-orange-500'; }
-                                        else if (days === 1) { message = 'Vence mañana'; colorClass = 'text-orange-500'; }
-                                        else { message = `Vence en ${days} días`; colorClass = 'text-blue-500'; }
+                                    if (days < 0) { message = `Venció hace ${Math.abs(days)} días`; colorClass = 'text-red-500'; }
+                                    else if (days === 0) { message = 'Vence hoy'; colorClass = 'text-orange-500'; }
+                                    else if (days === 1) { message = 'Vence mañana'; colorClass = 'text-orange-500'; }
+                                    else { message = `Vence en ${days} días`; colorClass = 'text-blue-500'; }
 
-                                        return (
-                                            <div className={`flex items-center gap-1.5 text-xs font-bold ${colorClass}`}>
-                                                <span className="material-symbols-outlined text-[14px]">warning</span>
-                                                {message}
-                                            </div>
-                                        );
-                                    })()}
-                                </div>
-                            ) : (
-                                <div className="relative z-10">
-                                    <p className="text-[#111418] dark:text-white text-lg font-bold">¡Todo al día!</p>
+                                    return (
+                                        <div className={`flex items-center gap-1.5 text-xs font-bold ${colorClass}`}>
+                                            <span className="material-symbols-outlined text-[14px]">warning</span>
+                                            {message}
+                                        </div>
+                                    );
+                                })() : (
                                     <p className="text-[#637288] dark:text-slate-500 text-xs">No tienes pagos pendientes próximos.</p>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
 
-                        <div className="glass-card p-6 rounded-2xl flex flex-col gap-4 relative overflow-hidden group">
+                        <div className="glass-card p-6 rounded-2xl flex flex-col justify-between relative overflow-hidden group min-h-[160px]">
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <span className="material-symbols-outlined text-6xl text-primary">account_balance</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="h-6 flex items-center gap-2">
                                 <div className="size-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-primary">
                                     <span className="material-symbols-outlined text-sm">savings</span>
                                 </div>
                                 <p className="text-[#637288] dark:text-slate-400 text-sm font-medium">Total Planificado</p>
                             </div>
-                            <div>
-                                <MoneyDisplay amount={totalPlanificado} currency={currencySymbol} size="5xl" weight="font-bold" color="text-[#111418] dark:text-white" />
+                            <div className="h-14 flex items-center">
+                                <MoneyDisplay amount={totalPlanificado} currency={currencySymbol} size="4xl" weight="font-bold" color="text-[#111418] dark:text-white" />
+                            </div>
+                            <div className="h-10 flex items-end">
                                 <p className="text-[#637288] dark:text-slate-500 text-xs mt-1">Estimación mensual</p>
                             </div>
                         </div>
 
-                        <div className="glass-card p-6 rounded-2xl flex flex-col gap-4 relative overflow-hidden group">
+                        <div className="glass-card p-6 rounded-2xl flex flex-col justify-between relative overflow-hidden group min-h-[160px]">
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <span className="material-symbols-outlined text-6xl text-success">check_circle</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="h-6 flex items-center gap-2">
                                 <div className="size-8 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center text-success">
                                     <span className="material-symbols-outlined text-sm">payments</span>
                                 </div>
                                 <p className="text-[#637288] dark:text-slate-400 text-sm font-medium">Ya Pagado</p>
                             </div>
-                            <div>
-                                <MoneyDisplay amount={yaPagado} currency={currencySymbol} size="5xl" weight="font-bold" color="text-[#111418] dark:text-white" />
+                            <div className="h-14 flex items-center justify-between w-full">
+                                <MoneyDisplay amount={yaPagado} currency={currencySymbol} size="4xl" weight="font-bold" color="text-[#111418] dark:text-white" />
+                            </div>
+                            <div className="h-10 flex flex-col justify-end w-full">
                                 <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
                                     <div className="bg-success h-full rounded-full transition-all duration-1000" style={{ width: `${progressPercent}%` }}></div>
                                 </div>
@@ -237,18 +245,20 @@ export default function Commitments() {
                             </div>
                         </div>
 
-                        <div className="glass-card p-6 rounded-2xl flex flex-col gap-4 relative overflow-hidden group border-orange-100 dark:border-orange-900/30">
+                        <div className="glass-card p-6 rounded-2xl flex flex-col justify-between relative overflow-hidden group border-orange-100 dark:border-orange-900/30 min-h-[160px]">
                             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <span className="material-symbols-outlined text-6xl text-orange-500">pending_actions</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="h-6 flex items-center gap-2">
                                 <div className="size-8 rounded-full bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center text-orange-600">
                                     <span className="material-symbols-outlined text-sm">hourglass_top</span>
                                 </div>
                                 <p className="text-[#637288] dark:text-slate-400 text-sm font-medium">Por Pagar</p>
                             </div>
-                            <div>
-                                <MoneyDisplay amount={porPagar} currency={currencySymbol} size="5xl" weight="font-bold" color="text-[#111418] dark:text-white" />
+                            <div className="h-14 flex items-center">
+                                <MoneyDisplay amount={porPagar} currency={currencySymbol} size="4xl" weight="font-bold" color="text-[#111418] dark:text-white" />
+                            </div>
+                            <div className="h-10 flex items-end">
                                 <p className="text-[#637288] dark:text-slate-500 text-xs mt-1">{pendingCount} compromisos pendientes</p>
                             </div>
                         </div>

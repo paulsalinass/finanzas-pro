@@ -24,6 +24,9 @@ interface FinanceContextType {
   userProfile: UserProfile | null;
   fetchUserProfile: () => Promise<void>;
   updateUserProfile: (updates: Partial<UserProfile>) => Promise<void>;
+  updatePassword: (current: string, newPass: string) => Promise<boolean>;
+  resetPasswordForEmail: (email: string) => Promise<boolean>;
+  deleteUserAccount: () => Promise<void>;
   uploadAvatar: (file: File) => Promise<string | null>;
 
   // Actions
@@ -592,7 +595,8 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         start_date: b.start_date,
         end_date: b.end_date,
         recurrence_type: b.recurrence_type,
-        recurrence_interval: b.recurrence_interval
+        recurrence_interval: b.recurrence_interval,
+        created_at: b.created_at
       })));
     }
   }, [supabase]);
@@ -1470,7 +1474,12 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
 
     if (data) {
-      setUserProfile(data);
+      // Prioritize Auth email over DB email to ensure accuracy for display
+      setUserProfile({
+        ...data,
+        email: user.email || data.email || '',
+        email_confirmed_at: user.email_confirmed_at || null
+      });
     }
   }, [supabase]);
 
@@ -1478,6 +1487,20 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    // Handle Email Update in Auth (if changed)
+    if (updates.email && updates.email !== user.email) {
+      const { error: authError } = await supabase.auth.updateUser({ email: updates.email });
+
+      if (authError) {
+        console.error("Error updating auth email:", authError);
+        alert("Error al actualizar correo de inicio de sesión: " + authError.message);
+        return; // Stop execution if auth update fails to prevent inconsistency
+      }
+
+      alert(`Se ha solicitado el cambio de correo a ${updates.email}. Por favor revisa tu bandeja de entrada para confirmar el cambio.`);
+    }
+
+    // Update Profile Data in Database
     const { error } = await supabase
       .from('profiles')
       .update(updates)
@@ -1490,6 +1513,87 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       fetchUserProfile();
     }
   }, [supabase, fetchUserProfile]);
+
+  const updatePassword = useCallback(async (current: string, newPass: string): Promise<boolean> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !user.email) return false;
+
+    // 1. Re-authenticate
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: current
+    });
+
+    if (signInError) {
+      console.error("Re-authentication failed:", signInError);
+      alert("La contraseña actual es incorrecta.");
+      return false;
+    }
+
+    // 2. Update Password
+    const { error: updateError } = await supabase.auth.updateUser({ password: newPass });
+
+    if (updateError) {
+      console.error("Error updating password:", updateError);
+      alert("Error al actualizar contraseña: " + updateError.message);
+      return false;
+    }
+
+    return true;
+  }, [supabase]);
+
+  const resetPasswordForEmail = useCallback(async (email: string): Promise<boolean> => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) {
+      console.error("Error sending reset email:", error);
+      alert("Error al enviar el correo: " + error.message);
+      return false;
+    }
+    return true;
+  }, [supabase]);
+
+  const deleteUserAccount = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    try {
+      setIsLoading(true);
+
+      // 1. Delete dependent data (reverse order of creation/dependency)
+      // Transactions
+      await supabase.from('transactions').delete().eq('user_id', user.id);
+
+      // Commitments
+      await supabase.from('commitments').delete().eq('user_id', user.id);
+
+      // Budgets
+      await supabase.from('budgets').delete().eq('user_id', user.id);
+
+      // Accounts
+      await supabase.from('accounts').delete().eq('user_id', user.id);
+
+      // Ledgers/Books (and member relations if any)
+      await supabase.from('books').delete().eq('owner', user.id); // Assuming owner field or RLS handles it
+
+      // Profile
+      const { error: profileError } = await supabase.from('profiles').delete().eq('id', user.id);
+      if (profileError) {
+        throw profileError;
+      }
+
+      // 2. Sign out
+      await supabase.auth.signOut();
+
+      // 3. Optional: Redirect is usually handled by auth state change listener in layout
+      // window.location.href = '/login'; 
+
+    } catch (error: any) {
+      console.error("Error deleting account:", error);
+      alert("Error al eliminar la cuenta: " + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [supabase, setIsLoading]);
 
   const uploadAvatar = useCallback(async (file: File): Promise<string | null> => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -1587,7 +1691,10 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     notifications,
     unreadCount,
     markNotificationAsRead,
-    markAllNotificationsAsRead
+    markAllNotificationsAsRead,
+    updatePassword,
+    resetPasswordForEmail,
+    deleteUserAccount
   }), [
     transactions,
     accounts,

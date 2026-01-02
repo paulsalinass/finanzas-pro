@@ -94,6 +94,7 @@ export interface Budget {
   end_date?: string;
   recurrence_type?: string;
   recurrence_interval?: number;
+  created_at?: string;
 }
 
 export interface Commitment {
@@ -162,6 +163,7 @@ export interface UserProfile {
   location_lat?: number;
   location_lng?: number;
   is_location_enabled?: boolean;
+  email_confirmed_at?: string | null;
 }
 
 export interface Notification {

@@ -188,18 +188,35 @@ export default function BudgetDetailsModal({ isOpen, onClose, budget, onEdit }: 
                                             Gastado: <span className="text-slate-900 dark:text-white font-semibold">{formatAmount(spent)}</span>
                                         </p>
                                     </div>
-                                    <div className={`px-3 py-1 rounded-lg text-xs font-bold ${isExceeded ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'}`}>
-                                        {isExceeded ? 'Excedido' : 'Controlado'}
+                                    <div className={`px-3 py-1 rounded-lg text-xs font-bold ${isExceeded ? 'bg-red-50 text-red-600' :
+                                        percentage >= 100 ? 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300' :
+                                            percentage >= 80 ? 'bg-orange-50 text-orange-600' :
+                                                'bg-emerald-50 text-emerald-600'
+                                        }`}>
+                                        {isExceeded ? 'Excedido' :
+                                            percentage >= 100 ? 'Al Límite' :
+                                                percentage >= 80 ? 'Cuidado' :
+                                                    'Controlado'}
                                     </div>
                                 </div>
 
-                                <div className="text-right mb-2 text-sm font-bold text-emerald-500">
-                                    {remaining >= 0 ? `${formatAmount(remaining)} disponible` : `${formatAmount(Math.abs(remaining))} excedido`}
+                                <div className={`text-right mb-2 text-sm font-bold ${remaining < 0 ? 'text-red-500' :
+                                    remaining === 0 ? 'text-slate-500' :
+                                        percentage >= 80 ? 'text-orange-500' :
+                                            'text-emerald-500'
+                                    }`}>
+                                    {remaining > 0 ? `${formatAmount(remaining)} disponible` :
+                                        remaining === 0 ? 'Límite alcanzado' :
+                                            `${formatAmount(Math.abs(remaining))} excedido`}
                                 </div>
 
                                 <div className="h-4 w-full bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-2">
                                     <div
-                                        className={`h-full rounded-full ${isExceeded ? 'bg-red-500' : 'bg-emerald-500'}`}
+                                        className={`h-full rounded-full ${isExceeded ? 'bg-red-500' :
+                                            percentage >= 100 ? 'bg-slate-500' :
+                                                percentage >= 80 ? 'bg-orange-500' :
+                                                    'bg-emerald-500'
+                                            }`}
                                         style={{ width: `${percentage}%` }}
                                     ></div>
                                 </div>
@@ -243,7 +260,11 @@ export default function BudgetDetailsModal({ isOpen, onClose, budget, onEdit }: 
                                     </div>
                                     <div>
                                         <p className="text-xs text-slate-400 font-medium">Fecha de Creación</p>
-                                        <p className="font-bold text-slate-900 dark:text-white">10 Enero, 2023</p>
+                                        <p className="font-bold text-slate-900 dark:text-white">
+                                            {budget?.created_at
+                                                ? format(new Date(budget.created_at), 'd MMMM, yyyy', { locale: es })
+                                                : 'No disponible'}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -277,6 +298,12 @@ export default function BudgetDetailsModal({ isOpen, onClose, budget, onEdit }: 
                                 } else if (itemSpent > itemLimit) {
                                     statusNote = `Excedido (${formatAmount(itemSpent - itemLimit)})`;
                                     statusClass = 'text-red-500 font-bold';
+                                } else if (itemLimit > 0 && (itemSpent / itemLimit) >= 1) {
+                                    statusNote = 'Al Límite';
+                                    statusClass = 'text-slate-500 font-bold';
+                                } else if (itemLimit > 0 && (itemSpent / itemLimit) >= 0.8) {
+                                    statusNote = 'Cuidado';
+                                    statusClass = 'text-orange-500 font-bold';
                                 } else if (hasData) {
                                     statusNote = 'Controlado';
                                     statusClass = 'text-emerald-600 font-bold';

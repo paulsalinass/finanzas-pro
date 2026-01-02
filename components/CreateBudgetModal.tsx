@@ -16,7 +16,7 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
     // Form State
     const [amount, setAmount] = useState('');
     const [categoryId, setCategoryId] = useState('');
-    const [recurrenceOption, setRecurrenceOption] = useState<'MONTHLY' | 'WEEKLY' | 'BIWEEKLY' | 'ANNUAL'>('MONTHLY');
+    const [recurrenceOption, setRecurrenceOption] = useState<'MONTHLY' | 'WEEKLY' | 'BIWEEKLY' | 'ANNUAL' | 'CUSTOM'>('MONTHLY');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [isRecurring, setIsRecurring] = useState(true);
@@ -80,7 +80,7 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
         // Since we don't track "user modified end date" state, let's just update it.
         // Users can override it afterwards if they REALLY want, but changing start/recurrence will reset it.
 
-        if (!startDate || !isRecurring) return;
+        if (!startDate || !isRecurring || recurrenceOption === 'CUSTOM') return;
 
         try {
             const start = new Date(startDate);
@@ -145,6 +145,7 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
             if (recurrenceOption === 'WEEKLY') { rType = 'WEEKLY'; rInterval = 1; }
             if (recurrenceOption === 'BIWEEKLY') { rType = 'WEEKLY'; rInterval = 2; }
             if (recurrenceOption === 'ANNUAL') { rType = 'YEARLY'; rInterval = 1; }
+            if (recurrenceOption === 'CUSTOM') { rType = 'CUSTOM'; rInterval = 1; }
 
             const payload = {
                 amount: parseFloat(amount),
@@ -250,6 +251,7 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
                                     <option value="BIWEEKLY">Quincenal</option>
                                     <option value="MONTHLY">Mensual</option>
                                     <option value="ANNUAL">Anual</option>
+                                    <option value="CUSTOM">Personalizado</option>
                                 </select>
                                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none material-symbols-outlined text-xl">expand_more</span>
                             </div>
@@ -334,6 +336,7 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
                         if (activeDatePicker === 'START') setStartDate(date.toISOString());
                         if (activeDatePicker === 'END') setEndDate(date.toISOString());
                         setActiveDatePicker(null);
+                        setRecurrenceOption('CUSTOM');
                     }}
                 />
             </div>

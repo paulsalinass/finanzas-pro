@@ -100,28 +100,47 @@ export default function AccountDetails() {
         return { usedAmount, limit, available, usagePercent };
     }, [account]);
 
-    // Analytics Data: Usage Trend (Last 30 days roughly or just from transactions)
+    // Analytics Data: Usage Trend (Current Month)
     const usageData = useMemo(() => {
+        const today = new Date();
+        const start = startOfMonth(today);
+        const end = endOfMonth(today);
+
         // Group by Date
         const dataMap = new Map();
-        [...accountTransactions].reverse().forEach(t => {
-            const date = format(new Date(t.date), 'dd MMM', { locale: es });
-            if (!dataMap.has(date)) dataMap.set(date, 0);
+
+        // Filter first, then reverse/process
+        const monthTransactions = [...accountTransactions]
+            .filter(t => {
+                const tDate = new Date(t.date);
+                return tDate >= start && tDate <= end;
+            })
+            .reverse();
+
+        monthTransactions.forEach(t => {
+            const dateStr = format(new Date(t.date), 'dd MMM', { locale: es });
+
+            if (!dataMap.has(dateStr)) dataMap.set(dateStr, 0);
             // Accumulate absolute amount for usage visual
-            dataMap.set(date, dataMap.get(date) + Math.abs(t.amount));
+            dataMap.set(dateStr, dataMap.get(dateStr) + Math.abs(t.amount));
         });
 
         // Convert to array
-        return Array.from(dataMap.entries()).map(([name, value]) => ({ name, value })).slice(-15); // Last 15 data points
+        return Array.from(dataMap.entries()).map(([name, value]) => ({ name, value }));
     }, [accountTransactions]);
 
 
 
-    // Analytics Data: Top Categories
+    // Analytics Data: Top Categories (Current Month)
     const categoryData = useMemo(() => {
+        const today = new Date();
+        const start = startOfMonth(today);
+        const end = endOfMonth(today);
+
         const catMap = new Map();
         accountTransactions.forEach(t => {
-            if (t.type === 'EXPENSE') {
+            const tDate = new Date(t.date);
+            if (t.type === 'EXPENSE' && tDate >= start && tDate <= end) {
                 const cat = t.category || 'Otros';
                 const current = catMap.get(cat) || 0;
                 catMap.set(cat, current + t.amount);
@@ -386,7 +405,7 @@ export default function AccountDetails() {
                     {/* Usage Chart */}
                     <div className="col-span-2 glass-card p-6 rounded-3xl border border-white/40 dark:border-slate-800">
                         <div className="flex items-center justify-between mb-6">
-                            <h3 className="font-bold text-slate-800 dark:text-white">Uso del Crédito (Últimos 30 días)</h3>
+                            <h3 className="font-bold text-slate-800 dark:text-white">Uso del Crédito <span className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">(Mes Actual)</span></h3>
                             <span className="text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-1 rounded-full">Tendencia</span>
                         </div>
                         <div className="h-[250px] w-full">
@@ -435,7 +454,8 @@ export default function AccountDetails() {
 
                     {/* Top Categories */}
                     <div className="glass-card p-6 rounded-3xl border border-white/40 dark:border-slate-800">
-                        <h3 className="font-bold text-slate-800 dark:text-white mb-6">Gastos por Categoría</h3>
+                        <h3 className="font-bold text-slate-800 dark:text-white mb-6">Gastos por Categoría <span className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">(Mes Actual)</span></h3>
+
                         <div className="space-y-5">
                             {categoryData.length > 0 ? categoryData.map((cat, idx) => (
                                 <div key={idx} className="space-y-2">

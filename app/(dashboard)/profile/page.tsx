@@ -3,6 +3,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useFinance } from '@/context/FinanceContext';
 import AvatarSelectionModal from '@/components/AvatarSelectionModal';
+import { PasswordResetModal } from '@/components/PasswordResetModal';
+import { SuccessModal } from '@/components/SuccessModal';
+import { DeleteConfirmationModal } from '@/components/DeleteConfirmationModal';
+import { DiscardChangesModal } from '@/components/DiscardChangesModal';
+import { SaveChangesModal } from '@/components/SaveChangesModal';
 import {
     User,
     Mail,
@@ -18,13 +23,17 @@ import {
     Eye,
     EyeOff,
     Save,
-    X
+    X,
+    Clock,
+    Sun,
+    Moon,
+    Palette
 } from 'lucide-react';
 import { COUNTRIES, LOCATIONS, CITY_COORDINATES } from '@/constants/locations';
 
 export default function ProfilePage() {
     // State for form fields
-    const { userProfile, updateUserProfile, uploadAvatar } = useFinance();
+    const { userProfile, updateUserProfile, uploadAvatar, updatePassword, resetPasswordForEmail, deleteUserAccount, isDarkMode, toggleTheme, generateSampleData } = useFinance();
     const [formData, setFormData] = useState({
         fullName: userProfile?.full_name || '',
         username: userProfile?.username || '',
@@ -49,6 +58,12 @@ export default function ProfilePage() {
     const [showPassword, setShowPassword] = useState(false);
     const [isDirty, setIsDirty] = useState(false);
     const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+    const [isPasswordResetModalOpen, setIsPasswordResetModalOpen] = useState(false);
+    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+    const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
+    const [isDiscardModalOpen, setIsDiscardModalOpen] = useState(false);
+    const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
     const [isLocationLoading, setIsLocationLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -175,6 +190,26 @@ export default function ProfilePage() {
     };
 
     const handleSave = async () => {
+        // Handle Password Change
+        if (formData.newPassword) {
+            if (!formData.currentPassword) {
+                alert("Debes ingresar tu contraseña actual para establecer una nueva.");
+                return;
+            }
+            if (formData.newPassword.length < 6) {
+                alert("La nueva contraseña debe tener al menos 6 caracteres.");
+                return;
+            }
+
+            const success = await updatePassword(formData.currentPassword, formData.newPassword);
+            if (!success) return; // Stop if password update failed
+
+            // Clear password fields on success
+            setFormData(prev => ({ ...prev, currentPassword: '', newPassword: '' }));
+            setSuccessMessage("Contraseña actualizada correctamente.");
+            setIsSuccessModalOpen(true);
+        }
+
         await updateUserProfile({
             full_name: formData.fullName,
             username: formData.username,
@@ -208,14 +243,20 @@ export default function ProfilePage() {
 
                     <div className="flex items-center gap-3">
                         <button
-                            onClick={() => setIsDirty(false)} // Reset (mock)
+                            onClick={() => {
+                                if (isDirty) {
+                                    setIsDiscardModalOpen(true);
+                                } else {
+                                    setIsDirty(false); // No-op really, but safe
+                                }
+                            }}
                             className="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-2"
                         >
                             <X size={18} strokeWidth={2.5} />
                             <span>Cancelar</span>
                         </button>
                         <button
-                            onClick={handleSave}
+                            onClick={() => setIsSaveModalOpen(true)}
                             disabled={!isDirty}
                             className={`px-6 py-2.5 rounded-xl font-bold text-white shadow-lg shadow-primary/25 transition-all flex items-center gap-2 ${isDirty ? 'bg-gradient-primary hover:shadow-primary/40 hover:-translate-y-0.5' : 'bg-slate-300 dark:bg-slate-700 cursor-not-allowed shadow-none'}`}
                         >
@@ -268,15 +309,27 @@ export default function ProfilePage() {
                                 Estado de la cuenta
                             </h3>
 
-                            <div className="flex items-center gap-4 p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30">
-                                <div className="p-2.5 rounded-full bg-emerald-100 dark:bg-emerald-800 text-emerald-600 dark:text-emerald-300">
-                                    <CheckCircle2 size={24} strokeWidth={2.5} />
+                            {userProfile?.email_confirmed_at ? (
+                                <div className="flex items-center gap-4 p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 relative overflow-hidden">
+                                    <div className="p-2.5 rounded-full bg-emerald-100 dark:bg-emerald-800 text-emerald-600 dark:text-emerald-300 relative z-10">
+                                        <CheckCircle2 size={24} strokeWidth={2.5} />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-emerald-900 dark:text-emerald-100 text-sm">Verificada</h4>
+                                        <p className="text-xs text-emerald-700 dark:text-emerald-400">Identidad confirmada</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-emerald-900 dark:text-emerald-100 text-sm">Verificada</h4>
-                                    <p className="text-xs text-emerald-700 dark:text-emerald-400">Identidad confirmada</p>
+                            ) : (
+                                <div className="flex items-center gap-4 p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30 relative overflow-hidden">
+                                    <div className="p-2.5 rounded-full bg-amber-100 dark:bg-amber-800 text-amber-600 dark:text-amber-300 relative z-10">
+                                        <Clock size={24} strokeWidth={2.5} />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-amber-900 dark:text-amber-100 text-sm">Pendiente</h4>
+                                        <p className="text-xs text-amber-700 dark:text-amber-400">Verifica tu correo</p>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div className="flex items-center gap-4 p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 relative overflow-hidden">
                                 <div className="p-2.5 rounded-full bg-blue-100 dark:bg-blue-800 text-blue-600 dark:text-blue-300 relative z-10">
@@ -284,10 +337,10 @@ export default function ProfilePage() {
                                 </div>
                                 <div className="relative z-10 flex-1">
                                     <div className="flex justify-between items-center">
-                                        <h4 className="font-bold text-blue-900 dark:text-blue-100 text-sm">Plan Pro</h4>
-                                        <a href="#" className="text-xs font-bold text-blue-600 hover:underline">Gestionar</a>
+                                        <h4 className="font-bold text-blue-900 dark:text-blue-100 text-sm">Plan Gratis</h4>
+                                        <a href="#" className="text-xs font-bold text-blue-600 hover:underline">Mejorar</a>
                                     </div>
-                                    <p className="text-xs text-blue-700 dark:text-blue-400">Renueva el 12 Oct</p>
+                                    <p className="text-xs text-blue-700 dark:text-blue-400">Plan básico activo</p>
                                 </div>
                             </div>
                         </div>
@@ -405,6 +458,21 @@ export default function ProfilePage() {
                                 </div>
                             </div>
 
+                            <div className="flex justify-end -mt-4 mb-8">
+                                <button
+                                    onClick={() => {
+                                        if (!formData.email) {
+                                            alert("No hay un correo electrónico asociado a esta cuenta.");
+                                            return;
+                                        }
+                                        setIsPasswordResetModalOpen(true);
+                                    }}
+                                    className="text-primary text-sm font-bold hover:underline"
+                                >
+                                    ¿Olvidé mi contraseña?
+                                </button>
+                            </div>
+
                             <div className="bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5">
                                 <div className="p-3 bg-orange-100 dark:bg-orange-800/50 rounded-full text-orange-600 dark:text-orange-400">
                                     <Shield size={24} />
@@ -466,6 +534,34 @@ export default function ProfilePage() {
                                             {formData.currency}
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div className="mb-6">
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
+                                    Preferencias de Apariencia
+                                </h3>
+                                <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`p-2.5 rounded-full flex items-center justify-center transition-colors ${isDarkMode ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400' : 'bg-amber-100 text-amber-600'}`}>
+                                            {isDarkMode ? <Moon size={20} /> : <Sun size={20} />}
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-slate-900 dark:text-white text-sm">Modo Oscuro</h4>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">Cambia la apariencia de la interfaz</p>
+                                        </div>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            className="sr-only peer"
+                                            checked={isDarkMode}
+                                            onChange={toggleTheme}
+                                        />
+                                        <div className="w-12 h-7 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-600 peer-checked:bg-primary transition-colors">
+                                            <div className={`absolute top-1 left-1 bg-white rounded-full h-5 w-5 shadow-sm transition-transform ${isDarkMode ? 'translate-x-5' : ''}`}></div>
+                                        </div>
+                                    </label>
                                 </div>
                             </div>
 
@@ -582,6 +678,19 @@ export default function ProfilePage() {
                             </div>
                         </div>
 
+                        {/* DANGER ZONE */}
+                        <div className="bg-red-50 dark:bg-red-900/10 rounded-[2rem] p-8 shadow-sm border border-red-100 dark:border-red-900/30">
+                            <h3 className="text-lg font-bold text-red-600 dark:text-red-400 mb-2">Zona de Peligro</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
+                                Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate.
+                            </p>
+                            <button
+                                onClick={() => setIsDeleteAccountModalOpen(true)}
+                                className="px-6 py-3 rounded-xl bg-white dark:bg-red-900/20 text-red-500 font-bold text-sm shadow-sm border border-red-100 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                Eliminar mi cuenta
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -593,6 +702,80 @@ export default function ProfilePage() {
                 onUpload={handleAvatarUpload}
                 currentAvatarUrl={formData.avatarUrl}
             />
-        </div>
+
+            <PasswordResetModal
+                isOpen={isPasswordResetModalOpen}
+                onClose={() => setIsPasswordResetModalOpen(false)}
+                onConfirm={async () => {
+                    await resetPasswordForEmail(formData.email);
+                }}
+                email={formData.email}
+            />
+
+            <DeleteConfirmationModal
+                isOpen={isDeleteAccountModalOpen}
+                onClose={() => setIsDeleteAccountModalOpen(false)}
+                onConfirm={async () => {
+                    await deleteUserAccount();
+                }}
+                title="¿Eliminar cuenta?"
+                description={
+                    <span>
+                        Estás a punto de eliminar permanentemente tu cuenta y <strong>todos tus datos asociados</strong> (transacciones, cuentas, presupuestos).
+                        <br /><br />
+                        Esta acción no se puede deshacer.
+                    </span>
+                }
+            />
+
+            <DiscardChangesModal
+                isOpen={isDiscardModalOpen}
+                onClose={() => setIsDiscardModalOpen(false)}
+                onConfirm={() => {
+                    setIsDirty(false);
+                    // Reset form to initial state logic handled by useEffect on userProfile
+                    // Wait, useEffect on userProfile updates formData, but if it hasn't changed, we might need manual reset.
+                    // Actually, modifying isDirty to false disables Save, but formData remains "edited".
+                    // We should reset formData here.
+                    if (userProfile) {
+                        setFormData(prev => ({
+                            ...prev,
+                            fullName: userProfile.full_name || '',
+                            username: userProfile.username || '',
+                            email: userProfile.email || '',
+                            phone: userProfile.phone || '',
+                            bio: userProfile.bio || '',
+                            avatarUrl: userProfile.avatar_url || '',
+                            // Reset password fields
+                            currentPassword: '',
+                            newPassword: '',
+                            // Other fields
+                            language: userProfile.language || 'es',
+                            currency: userProfile.currency || 'PEN',
+                            country: userProfile.country || 'Peru',
+                            city: userProfile.city || 'Lima',
+                            notifications: userProfile.notifications_enabled ?? true,
+                            twoFactor: userProfile.two_factor_enabled ?? false,
+                            location_lat: userProfile.location_lat ?? null,
+                            location_lng: userProfile.location_lng ?? null,
+                            is_location_enabled: userProfile.is_location_enabled ?? false
+                        }));
+                    }
+                }}
+            />
+
+            <SaveChangesModal
+                isOpen={isSaveModalOpen}
+                onClose={() => setIsSaveModalOpen(false)}
+                onConfirm={handleSave}
+            />
+
+            <SuccessModal
+                isOpen={isSuccessModalOpen}
+                onClose={() => setIsSuccessModalOpen(false)}
+                title="¡Éxito!"
+                message={successMessage}
+            />
+        </div >
     );
 }

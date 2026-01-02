@@ -6,10 +6,12 @@ import { useFinance } from '@/context/FinanceContext';
 import { LineChart, Line, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { MoneyDisplay } from '@/components/MoneyDisplay';
 import { AccountModal } from '@/components/AccountModal';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 export default function Accounts() {
     const router = useRouter();
-    const { accounts, totalBalance, ledgers, activeBookId, addAccount, updateAccount, deleteAccount, transactions } = useFinance();
+    const { accounts, totalBalance, ledgers, activeBookId, addAccount, updateAccount, deleteAccount, transactions, commitments } = useFinance();
 
     // Modal & Form State
     // Modal & Form State
@@ -95,37 +97,41 @@ export default function Accounts() {
         return curr === 'PEN' ? 'S/' : (curr === 'USD' ? '$' : curr);
     }, [ledgers, activeBookId]);
 
-    // Calcular métricas para el resumen
-    const totalAssets = accounts
-        .filter(acc => acc.type !== 'CREDIT')
-        .reduce((sum, acc) => sum + acc.balance, 0);
+    // Calculate metrics
+    const totalAssets = accounts.filter(acc => acc.type !== 'CREDIT').reduce((sum, acc) => sum + acc.balance, 0);
+    const totalLiabilities = accounts.filter(acc => acc.type === 'CREDIT').reduce((sum, acc) => sum + Math.abs(acc.balance), 0);
 
-    const totalLiabilities = accounts
-        .filter(acc => acc.type === 'CREDIT')
-        .reduce((sum, acc) => sum + acc.balance, 0);
-
-    // User requested Net Worth to be ONLY Cash + Banks (Assets), ignoring debt.
-    const netWorth = totalAssets;
-
-    // Calculate Monthly Change (Income - Expenses for current month)
+    // Net Worth Comparison Logic
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
 
-    const monthlyTransactions = transactions.filter(t => {
-        const d = new Date(t.date);
-        return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
-    });
+    const monthlyCashFlow = transactions
+        .filter(t => {
+            const tDate = new Date(t.date);
+            return tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear;
+        })
+        .reduce((sum, t) => {
+            if (t.type === 'INCOME') return sum + t.amount;
+            if (t.type === 'EXPENSE') return sum - t.amount;
+            return sum;
+        }, 0);
 
-    const monthlyIncome = monthlyTransactions
-        .filter(t => t.type === 'INCOME')
-        .reduce((sum, t) => sum + t.amount, 0);
+    const previousNetWorth = totalBalance - monthlyCashFlow;
+    const netWorthChange = totalBalance - previousNetWorth;
+    const netWorthChangePercent = previousNetWorth !== 0 ? (netWorthChange / Math.abs(previousNetWorth)) * 100 : 0;
+    const isPositiveNetWorthChange = netWorthChange >= 0;
 
-    const monthlyExpense = monthlyTransactions
-        .filter(t => t.type === 'EXPENSE')
-        .reduce((sum, t) => sum + t.amount, 0);
+    // Credit Line Logic
+    const activeCreditAccounts = accounts.filter(acc => acc.type === 'CREDIT' && acc.status !== 'Inactive');
+    const totalCreditLimit = activeCreditAccounts.reduce((sum, acc) => sum + (acc.creditLimit || 0), 0);
+    const totalAvailableCredit = activeCreditAccounts.reduce((sum, acc) => {
+        const limit = acc.creditLimit || 0;
+        const used = Math.abs(acc.balance);
+        return sum + Math.max(0, limit - used);
+    }, 0);
 
-    const monthlyChange = monthlyIncome - monthlyExpense;
-    const isPositiveChange = monthlyChange >= 0;
+    // Calculate percentage of available credit vs total limit
+    const availableCreditPercent = totalCreditLimit > 0 ? (totalAvailableCredit / totalCreditLimit) * 100 : 0;
 
     const accountTypes = [
         { id: 'cash', label: 'Efectivo', icon: 'payments' },
@@ -144,6 +150,45 @@ export default function Accounts() {
         { id: 'pink', hex: '#ec4899' },
         { id: 'gray', hex: '#6b7280' },
     ];
+
+    // Logic for "Deuda Total" status card
+    const debtStatusLabel = useMemo(() => {
+        const creditAccountIds = accounts.filter(a => a.type === 'CREDIT').map(a => a.id);
+        if (creditAccountIds.length === 0 || !commitments) return { text: 'Pagos al día', icon: 'check_circle', color: 'text-slate-500' };
+
+        // Find relevant commitments (linked to credit accounts)
+        // STRICTLY filter for 'INCOME' type, which represents PAYMENTS TO THE CARD
+        const creditCommitments = commitments.filter(c =>
+            (creditAccountIds.includes(c.accountId || '') || creditAccountIds.includes(c.fundingAccountId || '')) &&
+            c.isActive &&
+            c.transaction_type === 'INCOME'
+        );
+
+        if (creditCommitments.length === 0) return { text: 'Pagos al día', icon: 'check_circle', color: 'text-slate-500' };
+
+        // Sort by nextDueDate descending to capture the most relevant upcoming or recent cycle
+        const latestInfo = creditCommitments.sort((a, b) => new Date(b.nextDueDate).getTime() - new Date(a.nextDueDate).getTime())[0];
+
+        if (!latestInfo) return { text: 'Pagos al día', icon: 'check_circle', color: 'text-slate-500' };
+
+        if (latestInfo.status === 'PAID') {
+            return { text: 'Último pago realizado', icon: 'check_circle', color: 'text-emerald-500' };
+        } else {
+            // Pending or Late
+            // Fix: Parse YYYY-MM-DD as LOCAL midnight to prevent timezone shift (UTC->Local)
+            // If it's just a date string, appending T00:00:00 forces local parsing
+            const dateStrRaw = latestInfo.nextDueDate.includes('T') ? latestInfo.nextDueDate : `${latestInfo.nextDueDate}T00:00:00`;
+            const date = new Date(dateStrRaw);
+
+            const dateStr = format(date, "d 'de' MMM", { locale: es });
+            const isLate = new Date() > date;
+            return {
+                text: isLate ? `Venció el ${dateStr}` : `Vence el ${dateStr}`,
+                icon: isLate ? 'warning' : 'schedule',
+                color: isLate ? 'text-red-500' : 'text-amber-500'
+            };
+        }
+    }, [commitments, accounts]);
 
     // Mock data for sparklines
     const mockTrendData = [
@@ -169,7 +214,7 @@ export default function Accounts() {
                 <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-fade-in">
                     <div className="flex flex-col gap-1">
                         <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-[#111418] dark:text-white">Mis Cuentas</h1>
-                        <p className="text-gray-500 dark:text-gray-400 text-lg font-normal capitalize">
+                        <p className="text-gray-500 dark:text-gray-400 text-lg font-normal">
                             Visión general de tu liquidez y patrimonio.
                         </p>
                     </div>
@@ -186,61 +231,90 @@ export default function Accounts() {
 
                 {/* Summary Metrics */}
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-5 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                    {/* Patrimonio Neto */}
-                    <div className="glass-card p-5 rounded-3xl flex flex-col justify-between relative overflow-hidden group border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 min-h-[140px]">
+                    {/* Patrimonio Neto Total */}
+                    <div className="glass-card p-5 rounded-3xl flex flex-col justify-between relative overflow-hidden group border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 min-h-[160px]">
                         <div className="flex flex-col gap-1 z-10">
-                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Patrimonio Neto Total</p>
-                            <div className="mt-1">
-                                <MoneyDisplay amount={netWorth} currency={currencySymbol} size="3xl" />
+                            <div className="h-6 flex items-center">
+                                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">PATRIMONIO NETO TOTAL</p>
                             </div>
-                        </div>
-                        <div className="flex items-center gap-2 mt-3 z-10">
-                            <div className="bg-emerald-50 dark:bg-emerald-900/20 px-2.5 py-1 rounded-full flex items-center gap-1">
-                                <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-[14px]">trending_up</span>
-                                <span className="text-emerald-700 dark:text-emerald-400 text-[11px] font-bold">+2.5%</span>
-                            </div>
-                            <span className="text-slate-400 dark:text-slate-500 text-[11px] font-medium">vs mes anterior</span>
-                        </div>
-                        {/* Decorative Icon */}
-                        <div className="absolute top-3 right-3 opacity-5 dark:opacity-10 scale-100">
-                            <span className="material-symbols-outlined text-7xl text-indigo-500">account_balance</span>
-                        </div>
-                    </div>
-
-                    {/* Cambio Mensual */}
-                    <div className="glass-card p-5 rounded-3xl flex flex-col justify-between relative overflow-hidden group border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 min-h-[140px]">
-                        <div className="flex flex-col gap-1 z-10">
-                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Cambio Mensual</p>
-                            <div className="mt-1">
+                            <div className="h-12 flex items-center mt-1">
                                 <MoneyDisplay
-                                    amount={monthlyChange}
+                                    amount={totalBalance}
                                     currency={currencySymbol}
                                     size="3xl"
-                                    color={isPositiveChange ? 'text-emerald-500' : 'text-slate-900 dark:text-white'}
+                                    color="text-slate-900 dark:text-white"
                                 />
                             </div>
                         </div>
-                        <div className="h-10 w-full mt-2">
-                            {/* Simple visual cue or sparkline could go here, keeping existing simple line for now or removing if irrelevant */}
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={mockTrendData}>
-                                    <Line type="monotone" dataKey="value" stroke={isPositiveChange ? "#10b981" : "#f59e0b"} strokeWidth={2} dot={false} />
-                                </LineChart>
-                            </ResponsiveContainer>
+                        <div className="h-10 flex items-end z-10">
+                            <div className="flex items-center gap-2">
+                                <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full ${isPositiveNetWorthChange ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400'}`}>
+                                    <span className="material-symbols-outlined text-[14px]">{isPositiveNetWorthChange ? 'trending_up' : 'trending_down'}</span>
+                                    <span className="text-xs font-bold">{Math.abs(netWorthChangePercent).toFixed(1)}%</span>
+                                </div>
+                                <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">vs mes anterior</span>
+                            </div>
+                        </div>
+                        {/* Decorative Icon */}
+                        <div className="absolute top-3 right-3 opacity-5 dark:opacity-10 scale-100">
+                            <span className="material-symbols-outlined text-7xl text-slate-500">account_balance</span>
+                        </div>
+                    </div>
+
+                    {/* Línea Disponible */}
+                    <div className="glass-card p-5 rounded-3xl flex flex-col justify-between relative overflow-hidden group border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 min-h-[160px]">
+                        <div className="flex flex-col gap-1 z-10">
+                            <div className="h-6 flex items-center">
+                                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">LÍNEA DISPONIBLE</p>
+                            </div>
+                            <div className="h-12 flex items-center mt-1">
+                                <MoneyDisplay
+                                    amount={totalAvailableCredit}
+                                    currency={currencySymbol}
+                                    size="3xl"
+                                    color="text-slate-900 dark:text-white"
+                                />
+                            </div>
+                        </div>
+                        <div className="h-10 w-full flex items-end">
+                            {/* Simple visual cue for credit availability */}
+                            <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-indigo-500 w-full opacity-50 transition-all duration-1000 ease-out"
+                                    style={{ width: `${availableCreditPercent}%` }}
+                                ></div>
+                            </div>
+                        </div>
+                        {/* Decorative Icon */}
+                        <div className="absolute top-3 right-3 opacity-5 dark:opacity-10 scale-100">
+                            <span className="material-symbols-outlined text-7xl text-indigo-500">credit_score</span>
                         </div>
                     </div>
 
                     {/* Deuda Total */}
-                    <div className="glass-card p-5 rounded-3xl flex flex-col justify-between relative overflow-hidden group border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 min-h-[140px]">
+                    <div className="glass-card p-5 rounded-3xl flex flex-col justify-between relative overflow-hidden group border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 min-h-[160px]">
                         <div className="flex flex-col gap-1 z-10">
-                            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Deuda Total</p>
-                            <div className="flex items-center gap-3">
-                                <MoneyDisplay amount={Math.abs(totalLiabilities)} currency={currencySymbol} size="3xl" />
+                            <div className="h-6 flex items-center">
+                                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">DEUDA TOTAL</p>
+                            </div>
+                            <div className="h-12 flex items-center mt-1">
+                                <MoneyDisplay
+                                    amount={totalLiabilities}
+                                    currency={currencySymbol}
+                                    size="3xl"
+                                    color="text-slate-900 dark:text-white"
+                                />
                             </div>
                         </div>
-                        <div className="flex items-center gap-2 mt-3 z-10">
-                            <span className="material-symbols-outlined text-slate-400 text-[16px]">check_circle</span>
-                            <span className="text-slate-500 dark:text-slate-400 text-xs font-medium">Pagos al día</span>
+                        <div className="h-10 flex items-end z-10">
+                            <div className="flex items-center gap-2">
+                                <span className={`material-symbols-outlined text-[16px] ${debtStatusLabel.color === 'text-slate-500' ? 'text-slate-400' : debtStatusLabel.color}`}>{debtStatusLabel.icon}</span>
+                                <span className={`${debtStatusLabel.color === 'text-slate-500' ? 'text-slate-500 dark:text-slate-400' : debtStatusLabel.color} text-xs font-medium`}>{debtStatusLabel.text}</span>
+                            </div>
+                        </div>
+                        {/* Decorative Icon */}
+                        <div className="absolute top-3 right-3 opacity-5 dark:opacity-10 scale-100">
+                            <span className="material-symbols-outlined text-7xl text-orange-500">trending_down</span>
                         </div>
                     </div>
                 </section>

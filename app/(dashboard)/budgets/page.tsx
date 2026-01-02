@@ -15,7 +15,7 @@ import BudgetDetailsModal from '@/components/BudgetDetailsModal';
 export default function Budgets() {
     const router = useRouter();
     const { budgets, categories, transactions, formatAmount, checkRecurringBudgets, ledgers, activeBookId, categoryFolders } = useFinance();
-    const [filter, setFilter] = useState<'all' | 'danger' | 'exceeded' | 'healthy'>('all');
+    const [filter, setFilter] = useState<'all' | 'warning' | 'limit' | 'exceeded' | 'healthy'>('all');
     const [sortBy, setSortBy] = useState('amount_desc');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -110,15 +110,23 @@ export default function Budgets() {
     const availablePercent = totalPlanned > 0 ? (totalAvailable / totalPlanned) * 100 : 0;
 
     // Categorías cerca del límite (alertas)
-    const alertsCount = useMemo(() => calculatedBudgets.filter(b => (b.spent / b.limit) >= 0.9).length, [calculatedBudgets]);
+    const alertsCount = useMemo(() => calculatedBudgets.filter(b => (b.spent / b.limit) >= 0.8).length, [calculatedBudgets]);
 
     // Lógica de filtrado y ordenación
     const filteredBudgets = useMemo(() => {
         let result = calculatedBudgets.filter(b => {
             const ratio = b.limit > 0 ? b.spent / b.limit : 0;
-            if (filter === 'danger') return ratio >= 0.9 && ratio < 1;
-            if (filter === 'exceeded') return ratio >= 1;
-            if (filter === 'healthy') return ratio < 0.9;
+            if (filter === 'warning') return ratio >= 0.8 && ratio < 1;
+            if (filter === 'limit') return ratio >= 1 && b.spent <= b.limit; // Or just ratio==1 if strict
+            // Actually 'limit' usually means exactly 100% or very close. 
+            // Previous logic for "Al Limite" was ratio >= 1 in getStatusInfo but check precedence.
+            // Let's align with getStatusInfo:
+            // if (spent > limit) -> exceeded
+            // if (ratio >= 1) -> limit (implies spent == limit)
+
+            if (filter === 'exceeded') return b.spent > b.limit;
+            if (filter === 'limit') return b.spent === b.limit || (ratio >= 1 && b.spent <= b.limit);
+            if (filter === 'healthy') return ratio < 0.8;
             return true;
         });
 
@@ -126,13 +134,6 @@ export default function Budgets() {
             if (sortBy === 'amount_desc') return b.limit - a.limit;
             if (sortBy === 'amount_asc') return a.limit - b.limit;
             if (sortBy === 'name') {
-                // Client-side lookup for sorting if needed, but 'category' field is present from context mapping (Loading...)
-                // We can look up here or just use what we have. 
-                // Context returns 'Loading...' but Page maps it. 
-                // Let's rely on the ID match logic inside the render for display, 
-                // but for sorting we might need the name.
-                // Ideally calculatedBudgets should include the resolved name.
-                // For now, let's leave as is, sorting might be slightly off until mapped.
                 return a.category.localeCompare(b.category);
             }
             return 0;
@@ -141,9 +142,11 @@ export default function Budgets() {
 
     const getStatusInfo = (spent: number, limit: number) => {
         const ratio = limit > 0 ? spent / limit : 0;
-        if (ratio >= 1) return { label: 'Excedido', colorClass: 'text-danger', bgClass: 'bg-red-50 dark:bg-red-900/20', borderClass: 'border-l-danger', barClass: 'bg-danger' };
-        if (ratio >= 0.9) return { label: 'Cuidado', colorClass: 'text-warning', bgClass: 'bg-orange-50 dark:bg-orange-900/20', borderClass: 'border-l-warning', barClass: 'bg-warning' };
-        return { label: 'Normal', colorClass: 'text-primary', bgClass: 'bg-blue-50 dark:bg-blue-900/20', borderClass: 'border-l-primary', barClass: 'bg-primary' };
+
+        if (spent > limit) return { label: 'Excedido', colorClass: 'text-danger', bgClass: 'bg-red-50 dark:bg-red-900/20', borderClass: 'border-l-danger', barClass: 'bg-danger' };
+        if (ratio >= 1) return { label: 'Al Límite', colorClass: 'text-slate-500', bgClass: 'bg-slate-100 dark:bg-slate-800', borderClass: 'border-l-slate-500', barClass: 'bg-slate-500' };
+        if (ratio >= 0.8) return { label: 'Cuidado', colorClass: 'text-warning', bgClass: 'bg-orange-50 dark:bg-orange-900/20', borderClass: 'border-l-warning', barClass: 'bg-warning' };
+        return { label: 'Controlado', colorClass: 'text-primary', bgClass: 'bg-blue-50 dark:bg-blue-900/20', borderClass: 'border-l-primary', barClass: 'bg-primary' };
     };
 
     const getIcon = (category: string) => {
@@ -314,9 +317,10 @@ export default function Budgets() {
                     <div className="flex gap-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 scrollbar-hide">
                         {[
                             { id: 'all', label: 'Todos' },
-                            { id: 'danger', label: 'En Peligro' },
+                            { id: 'healthy', label: 'Controlados' },
+                            { id: 'warning', label: 'Cuidado' },
+                            { id: 'limit', label: 'Al Límite' },
                             { id: 'exceeded', label: 'Excedidos' },
-                            { id: 'healthy', label: 'Saludables' }
                         ].map(btn => (
                             <button
                                 key={btn.id}

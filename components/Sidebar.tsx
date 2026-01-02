@@ -17,7 +17,6 @@ import {
   Repeat,
   BookOpen,
   User,
-  Settings,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -152,7 +151,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle })
 
         {!collapsed && <p className="px-4 mt-6 mb-2 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Configuración</p>}
         <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/profile" icon={User} label="Perfil de Usuario" />
-        <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/settings" icon={Settings} label="Ajustes" />
+
         <div className="h-6"></div>
       </nav>
 

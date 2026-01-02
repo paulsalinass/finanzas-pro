@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useFinance } from '@/context/FinanceContext';
 import { Transaction, TransactionType } from '@/types';
+import { format } from 'date-fns';
+
 interface TransactionModalProps {
     isOpen?: boolean;
     onClose?: () => void;
@@ -30,7 +32,8 @@ export const TransactionModal = ({ isOpen, onClose, transactionToEdit }: Transac
     const [type, setType] = useState<TransactionType>('EXPENSE');
     const [categoryId, setCategoryId] = useState('');
     const [accountId, setAccountId] = useState('');
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    // Initialize with local date
+    const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
     const [time, setTime] = useState(new Date().toTimeString().slice(0, 5));
     const [location, setLocation] = useState('');
     const [notes, setNotes] = useState('');
@@ -52,6 +55,11 @@ export const TransactionModal = ({ isOpen, onClose, transactionToEdit }: Transac
                 setAccountId(transactionToEdit.account_id || accounts.find(a => a.name === transactionToEdit.account)?.id || '');
 
                 const d = new Date(transactionToEdit.date);
+                // When editing, we rely on the stored date string being correct or standardized.
+                // But usually we just want to display the date part. 
+                // If stored in UTC ISO, splitting T might be okay IF it was stored correctly.
+                // However, let's keep the existing logic for EDIT for now, or ensure consistency.
+                // Usually edit takes what's in DB.
                 setDate(d.toISOString().split('T')[0]);
                 setTime(d.toTimeString().slice(0, 5));
 
@@ -70,9 +78,12 @@ export const TransactionModal = ({ isOpen, onClose, transactionToEdit }: Transac
                 setType('EXPENSE');
                 setCategoryId('');
                 setAccountId(accounts[0]?.id || '');
+
+                // Use local time for new transactions
                 const now = new Date();
-                setDate(now.toISOString().split('T')[0]);
+                setDate(format(now, 'yyyy-MM-dd'));
                 setTime(now.toTimeString().slice(0, 5));
+
                 setLocation('');
                 setNotes('');
                 setBeneficiary('');
