@@ -117,15 +117,8 @@ export default function Budgets() {
         let result = calculatedBudgets.filter(b => {
             const ratio = b.limit > 0 ? b.spent / b.limit : 0;
             if (filter === 'warning') return ratio >= 0.8 && ratio < 1;
-            if (filter === 'limit') return ratio >= 1 && b.spent <= b.limit; // Or just ratio==1 if strict
-            // Actually 'limit' usually means exactly 100% or very close. 
-            // Previous logic for "Al Limite" was ratio >= 1 in getStatusInfo but check precedence.
-            // Let's align with getStatusInfo:
-            // if (spent > limit) -> exceeded
-            // if (ratio >= 1) -> limit (implies spent == limit)
-
             if (filter === 'exceeded') return b.spent > b.limit;
-            if (filter === 'limit') return b.spent === b.limit || (ratio >= 1 && b.spent <= b.limit);
+            if (filter === 'limit') return ratio >= 1 && b.spent <= b.limit;
             if (filter === 'healthy') return ratio < 0.8;
             return true;
         });
