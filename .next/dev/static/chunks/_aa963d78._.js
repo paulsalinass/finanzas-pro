@@ -521,15 +521,17 @@ const FinanceProvider = ({ children })=>{
         "FinanceProvider.useCallback[fetchCategories]": async (bookId)=>{
             const { data } = await supabase.from('categories').select('*').eq('book_id', bookId);
             if (data) {
-                setCategories(data.map({
-                    "FinanceProvider.useCallback[fetchCategories]": (cat)=>({
+                const mapped = data.map({
+                    "FinanceProvider.useCallback[fetchCategories].mapped": (cat)=>({
                             id: cat.id,
                             name: cat.name,
                             color: cat.color || '#2563eb',
                             icon: cat.icon || 'category',
                             folder_id: cat.folder_id || null
                         })
-                }["FinanceProvider.useCallback[fetchCategories]"]));
+                }["FinanceProvider.useCallback[fetchCategories].mapped"]);
+                setCategories(mapped);
+                localStorage.setItem(`fin_cache_categories_${bookId}`, JSON.stringify(mapped));
             }
         }
     }["FinanceProvider.useCallback[fetchCategories]"], [
@@ -539,14 +541,16 @@ const FinanceProvider = ({ children })=>{
         "FinanceProvider.useCallback[fetchCategoryFolders]": async (bookId)=>{
             const { data } = await supabase.from('category_folders').select('*').eq('book_id', bookId);
             if (data) {
-                setCategoryFolders(data.map({
-                    "FinanceProvider.useCallback[fetchCategoryFolders]": (folder)=>({
+                const mapped = data.map({
+                    "FinanceProvider.useCallback[fetchCategoryFolders].mapped": (folder)=>({
                             id: folder.id,
                             name: folder.name,
                             color: folder.color || '#6366f1',
                             icon: folder.icon || 'folder'
                         })
-                }["FinanceProvider.useCallback[fetchCategoryFolders]"]));
+                }["FinanceProvider.useCallback[fetchCategoryFolders].mapped"]);
+                setCategoryFolders(mapped);
+                localStorage.setItem(`fin_cache_folders_${bookId}`, JSON.stringify(mapped));
             }
         }
     }["FinanceProvider.useCallback[fetchCategoryFolders]"], [
@@ -556,8 +560,8 @@ const FinanceProvider = ({ children })=>{
         "FinanceProvider.useCallback[fetchAccounts]": async (bookId)=>{
             const { data } = await supabase.from('accounts').select('*').eq('book_id', bookId);
             if (data) {
-                setAccounts(data.map({
-                    "FinanceProvider.useCallback[fetchAccounts]": (a)=>({
+                const mapped = data.map({
+                    "FinanceProvider.useCallback[fetchAccounts].mapped": (a)=>({
                             ...a,
                             // Ensure types match UI expectation and map snake_case to camelCase
                             type: a.type,
@@ -571,7 +575,9 @@ const FinanceProvider = ({ children })=>{
                             cardholderName: a.cardholder_name,
                             expiryDate: a.expiry_date
                         })
-                }["FinanceProvider.useCallback[fetchAccounts]"]));
+                }["FinanceProvider.useCallback[fetchAccounts].mapped"]);
+                setAccounts(mapped);
+                localStorage.setItem(`fin_cache_accounts_${bookId}`, JSON.stringify(mapped));
             }
         }
     }["FinanceProvider.useCallback[fetchAccounts]"], [
@@ -587,8 +593,8 @@ const FinanceProvider = ({ children })=>{
                 ascending: false
             });
             if (data) {
-                setTransactions(data.map({
-                    "FinanceProvider.useCallback[fetchTransactions]": (t)=>({
+                const mapped = data.map({
+                    "FinanceProvider.useCallback[fetchTransactions].mapped": (t)=>({
                             id: t.id,
                             amount: t.amount,
                             type: t.type,
@@ -606,7 +612,9 @@ const FinanceProvider = ({ children })=>{
                             created_at: t.created_at,
                             updated_at: t.updated_at
                         })
-                }["FinanceProvider.useCallback[fetchTransactions]"]));
+                }["FinanceProvider.useCallback[fetchTransactions].mapped"]);
+                setTransactions(mapped);
+                localStorage.setItem(`fin_cache_transactions_${bookId}`, JSON.stringify(mapped));
             }
         }
     }["FinanceProvider.useCallback[fetchTransactions]"], [
@@ -658,8 +666,8 @@ const FinanceProvider = ({ children })=>{
                 return;
             }
             if (data) {
-                setBudgets(data.map({
-                    "FinanceProvider.useCallback[fetchBudgets]": (b)=>({
+                const mapped = data.map({
+                    "FinanceProvider.useCallback[fetchBudgets].mapped": (b)=>({
                             id: b.id,
                             category: 'Loading...',
                             category_id: b.category_id,
@@ -673,7 +681,9 @@ const FinanceProvider = ({ children })=>{
                             recurrence_interval: b.recurrence_interval,
                             created_at: b.created_at
                         })
-                }["FinanceProvider.useCallback[fetchBudgets]"]));
+                }["FinanceProvider.useCallback[fetchBudgets].mapped"]);
+                setBudgets(mapped);
+                localStorage.setItem(`fin_cache_budgets_${bookId}`, JSON.stringify(mapped));
             }
         }
     }["FinanceProvider.useCallback[fetchBudgets]"], [
@@ -773,7 +783,24 @@ const FinanceProvider = ({ children })=>{
                             })
                     }["FinanceProvider.useCallback[handleChangeActiveBook]"])
             }["FinanceProvider.useCallback[handleChangeActiveBook]"]);
-            // Fetch Data for this Book
+            // Load Caches Immediately
+            try {
+                const cachedAcc = localStorage.getItem(`fin_cache_accounts_${bookId}`);
+                if (cachedAcc) setAccounts(JSON.parse(cachedAcc));
+                const cachedCats = localStorage.getItem(`fin_cache_categories_${bookId}`);
+                if (cachedCats) setCategories(JSON.parse(cachedCats));
+                const cachedTx = localStorage.getItem(`fin_cache_transactions_${bookId}`);
+                if (cachedTx) setTransactions(JSON.parse(cachedTx));
+                const cachedFolders = localStorage.getItem(`fin_cache_folders_${bookId}`);
+                if (cachedFolders) setCategoryFolders(JSON.parse(cachedFolders));
+                const cachedBudgets = localStorage.getItem(`fin_cache_budgets_${bookId}`);
+                if (cachedBudgets) setBudgets(JSON.parse(cachedBudgets));
+            // Note: Commitments and Recurring Rules are less critical for 'First Paint' or invalid initial layout, 
+            // but encouraged if consistent.
+            } catch (e) {
+                console.warn("Failed to load cache:", e);
+            }
+            // Fetch Data for this Book (Background Refresh)
             await Promise.all([
                 fetchAccounts(bookId),
                 fetchCategories(bookId),
@@ -1935,7 +1962,7 @@ const FinanceProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/context/FinanceContext.tsx",
-        lineNumber: 1745,
+        lineNumber: 1779,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

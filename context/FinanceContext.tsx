@@ -459,32 +459,36 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
   const fetchCategories = useCallback(async (bookId: string) => {
     const { data } = await supabase.from('categories').select('*').eq('book_id', bookId);
     if (data) {
-      setCategories(data.map((cat: any) => ({
+      const mapped = data.map((cat: any) => ({
         id: cat.id,
         name: cat.name,
         color: cat.color || '#2563eb',
         icon: cat.icon || 'category',
         folder_id: cat.folder_id || null
-      })));
+      }));
+      setCategories(mapped);
+      localStorage.setItem(`fin_cache_categories_${bookId}`, JSON.stringify(mapped));
     }
   }, [supabase]);
 
   const fetchCategoryFolders = useCallback(async (bookId: string) => {
     const { data } = await supabase.from('category_folders').select('*').eq('book_id', bookId);
     if (data) {
-      setCategoryFolders(data.map((folder: any) => ({
+      const mapped = data.map((folder: any) => ({
         id: folder.id,
         name: folder.name,
         color: folder.color || '#6366f1',
         icon: folder.icon || 'folder'
-      })));
+      }));
+      setCategoryFolders(mapped);
+      localStorage.setItem(`fin_cache_folders_${bookId}`, JSON.stringify(mapped));
     }
   }, [supabase]);
 
   const fetchAccounts = useCallback(async (bookId: string) => {
     const { data } = await supabase.from('accounts').select('*').eq('book_id', bookId);
     if (data) {
-      setAccounts(data.map(a => ({
+      const mapped = data.map(a => ({
         ...a,
         // Ensure types match UI expectation and map snake_case to camelCase
         type: a.type as any,
@@ -498,7 +502,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         cardholderName: a.cardholder_name,
         expiryDate: a.expiry_date,
         // Keep original if needed, but UI uses camelCase
-      })));
+      }));
+      setAccounts(mapped);
+      localStorage.setItem(`fin_cache_accounts_${bookId}`, JSON.stringify(mapped));
     }
   }, [supabase]);
 
@@ -514,7 +520,7 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       .order('occurred_at', { ascending: false });
 
     if (data) {
-      setTransactions(data.map((t: any) => ({
+      const mapped = data.map((t: any) => ({
         id: t.id,
         amount: t.amount,
         type: t.type as any,
@@ -531,7 +537,9 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         beneficiary: t.beneficiary,
         created_at: t.created_at,
         updated_at: t.updated_at
-      })));
+      }));
+      setTransactions(mapped);
+      localStorage.setItem(`fin_cache_transactions_${bookId}`, JSON.stringify(mapped));
     }
   }, [supabase]);
 
@@ -584,20 +592,22 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       return;
     }
     if (data) {
-      setBudgets(data.map((b: any) => ({
+      const mapped = data.map((b: any) => ({
         id: b.id,
         category: 'Loading...', // Main mapping done in Page via category_id
         category_id: b.category_id,
         limit: Number(b.amount || 0),
         spent: 0,
-        period: 'MONTHLY',
-        severity: 'NORMAL',
+        period: 'MONTHLY' as const, // Default or map if DB has it
+        severity: 'NORMAL' as const,
         start_date: b.start_date,
         end_date: b.end_date,
         recurrence_type: b.recurrence_type,
         recurrence_interval: b.recurrence_interval,
         created_at: b.created_at
-      })));
+      }));
+      setBudgets(mapped);
+      localStorage.setItem(`fin_cache_budgets_${bookId}`, JSON.stringify(mapped));
     }
   }, [supabase]);
 
@@ -680,7 +690,31 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     localStorage.setItem('finance_active_book_id', bookId); // Persist selection
     setLedgers(prev => prev.map(l => ({ ...l, isActive: l.id === bookId })));
 
-    // Fetch Data for this Book
+    // Load Caches Immediately
+    try {
+      const cachedAcc = localStorage.getItem(`fin_cache_accounts_${bookId}`);
+      if (cachedAcc) setAccounts(JSON.parse(cachedAcc));
+
+      const cachedCats = localStorage.getItem(`fin_cache_categories_${bookId}`);
+      if (cachedCats) setCategories(JSON.parse(cachedCats));
+
+      const cachedTx = localStorage.getItem(`fin_cache_transactions_${bookId}`);
+      if (cachedTx) setTransactions(JSON.parse(cachedTx));
+
+      const cachedFolders = localStorage.getItem(`fin_cache_folders_${bookId}`);
+      if (cachedFolders) setCategoryFolders(JSON.parse(cachedFolders));
+
+      const cachedBudgets = localStorage.getItem(`fin_cache_budgets_${bookId}`);
+      if (cachedBudgets) setBudgets(JSON.parse(cachedBudgets));
+
+      // Note: Commitments and Recurring Rules are less critical for 'First Paint' or invalid initial layout, 
+      // but encouraged if consistent.
+
+    } catch (e) {
+      console.warn("Failed to load cache:", e);
+    }
+
+    // Fetch Data for this Book (Background Refresh)
     await Promise.all([
       fetchAccounts(bookId),
       fetchCategories(bookId),

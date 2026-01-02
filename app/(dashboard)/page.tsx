@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -11,11 +12,15 @@ import { CommitmentDetailsModal } from '@/components/CommitmentDetailsModal';
 import { CommitmentModal } from '@/components/CommitmentModal';
 import { Commitment } from '@/types';
 import { useFinance } from '@/context/FinanceContext';
-import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, BarChart, Bar, Cell, Legend } from 'recharts';
+// Recharts removed, using dynamic component
 import { startOfMonth, endOfMonth, differenceInCalendarDays, addDays, startOfDay, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { MoneyDisplay } from '@/components/MoneyDisplay';
 
+const DashboardChart = dynamic(() => import('@/components/DashboardChart'), {
+    ssr: false,
+    loading: () => <div className="h-full w-full bg-gray-100 dark:bg-white/5 animate-pulse rounded-xl" />
+});
 
 const COLOR_MAP: Record<string, { bg: string, text: string, ring: string, border: string, solid: string }> = {
     red: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400', ring: 'ring-red-500/10', border: 'border-red-200', solid: 'bg-red-500' },
@@ -37,6 +42,8 @@ const COLOR_MAP: Record<string, { bg: string, text: string, ring: string, border
     rose: { bg: 'bg-rose-100 dark:bg-rose-900/30', text: 'text-rose-600 dark:text-rose-400', ring: 'ring-rose-500/10', border: 'border-rose-200', solid: 'bg-rose-500' },
     slate: { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-600 dark:text-slate-400', ring: 'ring-slate-500/10', border: 'border-slate-200', solid: 'bg-slate-500' },
 };
+
+
 
 export default function Dashboard() {
     const router = useRouter();
@@ -579,24 +586,7 @@ export default function Dashboard() {
                             <p className="text-xs opacity-80">Diferencia diaria de {currencySymbol}{dailyTrendDelta.toFixed(2)} ({dailyTrendPositive ? 'por debajo' : 'por encima'} del ritmo).</p>
                         </div>
                         <div className="h-40">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={dailyExpensesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                    <defs>
-                                        <linearGradient id="dailyExpenseGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#94a3b8' }} interval={Math.ceil(dailyExpensesData.length / 6)} />
-                                    <YAxis hide />
-                                    <Tooltip
-                                        formatter={(value: any) => [`${currencySymbol}${Number(value).toFixed(2)}`, 'Gasto']}
-                                        labelFormatter={(label) => label}
-                                        contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.15)' }}
-                                    />
-                                    <Area type="monotone" dataKey="amount" stroke="#10B981" strokeWidth={3} fill="url(#dailyExpenseGradient)" />
-                                </AreaChart>
-                            </ResponsiveContainer>
+                            <DashboardChart data={dailyExpensesData} currencySymbol={currencySymbol} />
                         </div>
                     </div>
 

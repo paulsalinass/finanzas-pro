@@ -450,13 +450,15 @@ const FinanceProvider = ({ children })=>{
     const fetchCategories = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (bookId)=>{
         const { data } = await supabase.from('categories').select('*').eq('book_id', bookId);
         if (data) {
-            setCategories(data.map((cat)=>({
+            const mapped = data.map((cat)=>({
                     id: cat.id,
                     name: cat.name,
                     color: cat.color || '#2563eb',
                     icon: cat.icon || 'category',
                     folder_id: cat.folder_id || null
-                })));
+                }));
+            setCategories(mapped);
+            localStorage.setItem(`fin_cache_categories_${bookId}`, JSON.stringify(mapped));
         }
     }, [
         supabase
@@ -464,12 +466,14 @@ const FinanceProvider = ({ children })=>{
     const fetchCategoryFolders = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (bookId)=>{
         const { data } = await supabase.from('category_folders').select('*').eq('book_id', bookId);
         if (data) {
-            setCategoryFolders(data.map((folder)=>({
+            const mapped = data.map((folder)=>({
                     id: folder.id,
                     name: folder.name,
                     color: folder.color || '#6366f1',
                     icon: folder.icon || 'folder'
-                })));
+                }));
+            setCategoryFolders(mapped);
+            localStorage.setItem(`fin_cache_folders_${bookId}`, JSON.stringify(mapped));
         }
     }, [
         supabase
@@ -477,7 +481,7 @@ const FinanceProvider = ({ children })=>{
     const fetchAccounts = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (bookId)=>{
         const { data } = await supabase.from('accounts').select('*').eq('book_id', bookId);
         if (data) {
-            setAccounts(data.map((a)=>({
+            const mapped = data.map((a)=>({
                     ...a,
                     // Ensure types match UI expectation and map snake_case to camelCase
                     type: a.type,
@@ -490,7 +494,9 @@ const FinanceProvider = ({ children })=>{
                     isDefault: a.is_default,
                     cardholderName: a.cardholder_name,
                     expiryDate: a.expiry_date
-                })));
+                }));
+            setAccounts(mapped);
+            localStorage.setItem(`fin_cache_accounts_${bookId}`, JSON.stringify(mapped));
         }
     }, [
         supabase
@@ -504,7 +510,7 @@ const FinanceProvider = ({ children })=>{
             ascending: false
         });
         if (data) {
-            setTransactions(data.map((t)=>({
+            const mapped = data.map((t)=>({
                     id: t.id,
                     amount: t.amount,
                     type: t.type,
@@ -521,7 +527,9 @@ const FinanceProvider = ({ children })=>{
                     beneficiary: t.beneficiary,
                     created_at: t.created_at,
                     updated_at: t.updated_at
-                })));
+                }));
+            setTransactions(mapped);
+            localStorage.setItem(`fin_cache_transactions_${bookId}`, JSON.stringify(mapped));
         }
     }, [
         supabase
@@ -567,7 +575,7 @@ const FinanceProvider = ({ children })=>{
             return;
         }
         if (data) {
-            setBudgets(data.map((b)=>({
+            const mapped = data.map((b)=>({
                     id: b.id,
                     category: 'Loading...',
                     category_id: b.category_id,
@@ -580,7 +588,9 @@ const FinanceProvider = ({ children })=>{
                     recurrence_type: b.recurrence_type,
                     recurrence_interval: b.recurrence_interval,
                     created_at: b.created_at
-                })));
+                }));
+            setBudgets(mapped);
+            localStorage.setItem(`fin_cache_budgets_${bookId}`, JSON.stringify(mapped));
         }
     }, [
         supabase
@@ -666,7 +676,24 @@ const FinanceProvider = ({ children })=>{
                     ...l,
                     isActive: l.id === bookId
                 })));
-        // Fetch Data for this Book
+        // Load Caches Immediately
+        try {
+            const cachedAcc = localStorage.getItem(`fin_cache_accounts_${bookId}`);
+            if (cachedAcc) setAccounts(JSON.parse(cachedAcc));
+            const cachedCats = localStorage.getItem(`fin_cache_categories_${bookId}`);
+            if (cachedCats) setCategories(JSON.parse(cachedCats));
+            const cachedTx = localStorage.getItem(`fin_cache_transactions_${bookId}`);
+            if (cachedTx) setTransactions(JSON.parse(cachedTx));
+            const cachedFolders = localStorage.getItem(`fin_cache_folders_${bookId}`);
+            if (cachedFolders) setCategoryFolders(JSON.parse(cachedFolders));
+            const cachedBudgets = localStorage.getItem(`fin_cache_budgets_${bookId}`);
+            if (cachedBudgets) setBudgets(JSON.parse(cachedBudgets));
+        // Note: Commitments and Recurring Rules are less critical for 'First Paint' or invalid initial layout, 
+        // but encouraged if consistent.
+        } catch (e) {
+            console.warn("Failed to load cache:", e);
+        }
+        // Fetch Data for this Book (Background Refresh)
         await Promise.all([
             fetchAccounts(bookId),
             fetchCategories(bookId),
@@ -1731,7 +1758,7 @@ const FinanceProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/context/FinanceContext.tsx",
-        lineNumber: 1745,
+        lineNumber: 1779,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };

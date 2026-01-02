@@ -2,8 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
-import EmojiPicker, { Theme, EmojiStyle } from 'emoji-picker-react';
+import dynamic from 'next/dynamic'
 import * as Icons from "lucide-react"
+
+const EmojiPickerWrapper = dynamic(() => import('./EmojiPickerWrapper'), {
+    loading: () => <div className="h-full w-full flex items-center justify-center"><p className="text-sm text-gray-400">Cargando emojis...</p></div>,
+    ssr: false
+});
 
 // Define a subset of icons for books and mapping for search
 // Define a subset of icons for books and mapping for search
@@ -190,17 +195,7 @@ export function IconPicker({ value, onChange }: { value: string, onChange: (icon
                         <div className="flex-1 overflow-hidden relative bg-white dark:bg-slate-900">
                             {activeTab === 'emoji' ? (
                                 <div className="h-full w-full [&_.epr-preview]:!hidden [&_.epr-emoji-category-label]:!text-primary [&_.epr-emoji-category-label]:!text-sm [&_.epr-emoji-category-label]:!font-bold">
-                                    <EmojiPicker
-                                        onEmojiClick={(emojiData) => handleSelect(emojiData.emoji)}
-                                        theme={Theme.AUTO}
-                                        emojiStyle={EmojiStyle.APPLE}
-                                        searchDisabled={false}
-                                        width="100%"
-                                        height="100%"
-                                        lazyLoadEmojis={true}
-                                        skinTonesDisabled
-                                        previewConfig={{ showPreview: false }}
-                                    />
+                                    <EmojiPickerWrapper onEmojiSelect={handleSelect} />
                                 </div>
                             ) : (
                                 <div className="h-full flex flex-col">

@@ -1,1 +1,11 @@
-{}
+{
+  "[project]/components/DashboardChart.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/components/DashboardChart.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/node_modules_recharts_es6_2576b104._.js",
+      "static/chunks/node_modules_2b047146._.js",
+      "static/chunks/components_DashboardChart_tsx_ec547299._.js",
+      "static/chunks/components_DashboardChart_tsx_5c3647b6._.js"
+    ]
+  }
+}
