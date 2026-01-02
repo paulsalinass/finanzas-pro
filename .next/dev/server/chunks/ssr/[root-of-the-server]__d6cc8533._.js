@@ -15,7 +15,7 @@ __turbopack_context__.n(__turbopack_context__.i("[project]/app/(dashboard)/layou
 }),
 "[project]/app/(dashboard)/categories/page.tsx [app-rsc] (ecmascript)", ((__turbopack_context__, module, exports) => {
 
-const e = new Error("Could not parse module '[project]/app/(dashboard)/categories/page.tsx'\n\nExpected ',', got 'isOpen'");
+const e = new Error("Could not parse module '[project]/app/(dashboard)/categories/page.tsx'\n\nExpected '</', got 'jsx text (\n                    )'");
 e.code = 'MODULE_UNPARSABLE';
 throw e;
 }),

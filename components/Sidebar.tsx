@@ -47,7 +47,7 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({ to, icon: Icon, label, exact 
     if (!rect) return;
     onHoverChange({
       label,
-      top: rect.top + rect.height / 2,
+      top: rect.top + rect.height / 2 - 16, // Modified to shift up significantly
     });
   };
 
@@ -141,7 +141,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle })
         <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/budgets" icon={PieChart} label="Presupuestos" />
         <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/reports" icon={BarChart3} label="Reportes" />
 
-        {!collapsed && <p className="px-4 mt-6 mb-2 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Gestión</p>}
+        {collapsed ? (
+          <div className="my-4 mx-2 border-t border-slate-200 dark:border-slate-800" />
+        ) : (
+          <p className="px-4 mt-6 mb-2 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Gestión</p>
+        )}
         <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/accounts" icon={Landmark} label="Cuentas" />
         <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/commitments" icon={CalendarClock} label="Compromisos" />
         <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/categories" icon={Tags} label="Categorías" />
@@ -149,7 +153,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle })
 
         <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/ledgers" icon={BookOpen} label="Libros Contables" />
 
-        {!collapsed && <p className="px-4 mt-6 mb-2 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Configuración</p>}
+        {collapsed ? (
+          <div className="my-4 mx-2 border-t border-slate-200 dark:border-slate-800" />
+        ) : (
+          <p className="px-4 mt-6 mb-2 text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Configuración</p>
+        )}
         <SidebarLink collapsed={collapsed} onHoverChange={setTooltip} to="/profile" icon={User} label="Perfil de Usuario" />
 
         <div className="h-6"></div>

@@ -151,7 +151,7 @@ export default function Categories() {
     };
 
     return (
-        <div className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative scrollbar-hide pb-24">
+        <div className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative scrollbar-hide pb-40">
             {/* Background Blobs (Matched opacity/styles from Budgets if desired, or keep existing but with consistent positioning) */}
             <div className="fixed inset-0 -z-10 pointer-events-none opacity-40 dark:opacity-10">
                 <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-100 rounded-full blur-[120px]"></div>
@@ -163,23 +163,23 @@ export default function Categories() {
                 <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-fade-in">
                     <div className="flex flex-col gap-1">
                         <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-[#111418] dark:text-white">Categorías</h1>
-                        <p className="text-gray-500 dark:text-gray-400 text-lg font-normal capitalize">
+                        <p className="text-gray-500 dark:text-gray-400 text-lg font-normal">
                             Gestión y organización global
                         </p>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <div className="flex flex-row gap-3 w-full md:w-auto">
                         <button
                             onClick={handleAddFolder}
-                            className="flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-medium text-sm hover:border-primary hover:text-primary transition-colors h-12 shadow-sm"
+                            className="flex-1 flex items-center justify-center gap-1.5 px-2 md:px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-medium text-xs md:text-sm hover:border-primary hover:text-primary transition-colors h-12 shadow-sm whitespace-nowrap"
                         >
-                            <span className="material-symbols-outlined text-[20px]">create_new_folder</span>
+                            <span className="material-symbols-outlined text-[18px] md:text-[20px]">create_new_folder</span>
                             <span>Nueva Carpeta</span>
                         </button>
                         <button
                             onClick={() => handleAddCategory()}
-                            className="flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 h-12"
+                            className="flex-1 flex items-center justify-center gap-1.5 bg-primary hover:bg-blue-600 text-white font-bold py-3 px-2 md:px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 h-12 whitespace-nowrap text-xs md:text-sm"
                         >
-                            <span className="material-symbols-outlined text-[20px]">add</span>
+                            <span className="material-symbols-outlined text-[18px] md:text-[20px]">add</span>
                             <span>Nueva Categoría</span>
                         </button>
                     </div>
@@ -287,7 +287,7 @@ export default function Categories() {
                         })}
                     </div>
                 </div>
-            </div>
+            </div >
 
             <CategoryModal
                 isOpen={isCatModalOpen}
@@ -306,7 +306,7 @@ export default function Categories() {
                 initialData={editingFolder}
                 onSuccess={refreshBooks}
             />
-        </div>
+        </div >
     );
 }
 

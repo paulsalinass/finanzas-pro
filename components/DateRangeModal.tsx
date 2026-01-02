@@ -281,7 +281,7 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
                 className={`flex-1 w-full relative flex items-center justify-center bg-slate-900/35 p-3 sm:p-4 backdrop-blur-sm transition-all duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
             >
                 <div
-                    className={`date-range-modal w-full md:max-w-5xl bg-white dark:bg-[#101828] rounded-[28px] shadow-2xl border border-slate-200/80 dark:border-white/10 p-3 sm:p-5 transition-all duration-300 transform max-h-[90dvh] overflow-y-auto ${isVisible && !isClosing ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}
+                    className={`date-range-modal w-full md:max-w-5xl bg-white dark:bg-[#101828] rounded-[28px] shadow-2xl border border-slate-200/80 dark:border-white/10 p-5 sm:p-6 transition-all duration-300 transform max-h-[90dvh] overflow-y-auto ${isVisible && !isClosing ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="flex items-start justify-between gap-3 mb-4">
@@ -300,6 +300,9 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
                             <div className="grid grid-cols-2 lg:grid-cols-1 gap-2">
                                 {quickRanges.map((preset) => {
                                     const isActive = activePreset === preset.label;
+                                    // Hide 'Últimos 3 meses' on mobile
+                                    const isHiddenOnMobile = preset.label === 'Últimos 3 meses';
+
                                     return (
                                         <button
                                             key={preset.label}
@@ -307,7 +310,7 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
                                             className={`text-left px-3 py-1.5 rounded-2xl border text-[11px] font-semibold transition-all ${isActive
                                                 ? 'bg-primary/10 border-primary/40 text-primary'
                                                 : 'border-slate-200 text-slate-600 hover:border-primary/30 hover:text-primary'
-                                                }`}
+                                                } ${isHiddenOnMobile ? 'hidden md:block' : ''}`}
                                         >
                                             {preset.label}
                                         </button>
@@ -417,14 +420,14 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
                                 </div>
                                 <p className="text-[11px] text-slate-400 dark:text-white/60">{formattedRange}</p>
                             </div>
-                            <div className="flex flex-col sm:flex-row items-center gap-2 justify-end w-full sm:w-auto">
-                                <button onClick={handleClose} className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-[11px] font-semibold hover:border-slate-300 dark:border-white/10 dark:text-white">
+                            <div className="flex flex-row items-center gap-2 justify-end w-full sm:w-auto mt-2 sm:mt-0">
+                                <button onClick={handleClose} className="flex-1 sm:flex-none px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-[11px] font-semibold hover:border-slate-300 dark:border-white/10 dark:text-white justify-center">
                                     Cancelar
                                 </button>
                                 <button
                                     onClick={handleApply}
                                     disabled={!range?.from || !range?.to}
-                                    className="px-6 py-2 rounded-xl bg-primary text-white text-[11px] font-bold shadow-lg shadow-primary/30 hover:bg-primary-hover transition disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+                                    className="flex-1 sm:flex-none px-6 py-2 rounded-xl bg-primary text-white text-[11px] font-bold shadow-lg shadow-primary/30 hover:bg-primary-hover transition disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none justify-center"
                                 >
                                     Aplicar
                                 </button>

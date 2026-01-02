@@ -176,7 +176,7 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="px-8 py-5 border-b border-gray-100 dark:border-white/5 flex justify-between items-start">
+                <div className="px-6 py-5 border-b border-gray-100 dark:border-white/5 flex justify-between items-start">
                     <div>
                         <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
                             {commitmentToEdit ? 'Editar Compromiso' : 'Nuevo Compromiso'}
@@ -188,7 +188,7 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 pt-6">
+                <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-6 scrollbar-hide">
 
                     {/* Tabs (Visual only for now as Commitments are typically Expenses) */}
                     <div className="flex justify-center mb-8">
@@ -396,19 +396,19 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                 </form>
 
                 {/* Footer buttons */}
-                <div className="p-6 bg-white dark:bg-[#1e2530] border-t border-gray-100 dark:border-white/5 flex justify-end gap-4">
+                <div className="p-6 bg-white dark:bg-[#1e2530] border-t border-gray-100 dark:border-white/5 flex gap-4">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-6 py-2.5 rounded-xl font-bold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white transition-colors"
+                        className="flex-1 px-4 py-3 rounded-xl font-bold text-gray-500 bg-gray-50 hover:bg-gray-100 dark:bg-white/5 dark:text-gray-400 dark:hover:text-white transition-colors"
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={handleSubmit}
-                        className={`px-8 py-2.5 rounded-xl font-bold text-white shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 ${transactionType === 'INCOME' ? 'bg-green-600 shadow-green-600/30 hover:bg-green-700' : 'bg-primary shadow-primary/30 hover:bg-primary/90'}`}
+                        className={`flex-1 px-4 py-3 rounded-xl font-bold text-white shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 ${transactionType === 'INCOME' ? 'bg-green-600 shadow-green-600/30 hover:bg-green-700' : 'bg-primary shadow-primary/30 hover:bg-primary/90'}`}
                     >
-                        {commitmentToEdit ? 'Guardar Cambios' : 'Crear Compromiso'}
+                        {commitmentToEdit ? 'Guardar' : 'Crear'}
                     </button>
                 </div>
             </div>

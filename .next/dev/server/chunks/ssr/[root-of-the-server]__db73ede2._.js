@@ -1911,9 +1911,25 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
         className: "fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in transition-[left] duration-300",
         onClick: finalOnClose,
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "bg-white dark:bg-[#1e2530] w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh]",
+            className: "bg-white dark:bg-[#1e2530] w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh] relative",
             onClick: (e)=>e.stopPropagation(),
             children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                    onClick: finalOnClose,
+                    className: "absolute top-4 right-4 z-20 p-2 bg-black/5 dark:bg-white/10 rounded-full text-gray-500 dark:text-gray-300 md:hidden hover:bg-black/10 transition-colors",
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        className: "material-symbols-outlined text-[18px]",
+                        children: "close"
+                    }, void 0, false, {
+                        fileName: "[project]/components/TransactionModal.tsx",
+                        lineNumber: 170,
+                        columnNumber: 21
+                    }, ("TURBOPACK compile-time value", void 0))
+                }, void 0, false, {
+                    fileName: "[project]/components/TransactionModal.tsx",
+                    lineNumber: 166,
+                    columnNumber: 17
+                }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "w-full md:w-5/12 bg-gray-50 dark:bg-[#252b36] p-8 flex flex-col justify-center items-center relative border-b md:border-b-0 md:border-r border-gray-100 dark:border-white/5",
                     children: [
@@ -1926,7 +1942,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                     children: "Gasto"
                                 }, void 0, false, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 169,
+                                    lineNumber: 176,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1935,13 +1951,13 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                     children: "Ingreso"
                                 }, void 0, false, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 175,
+                                    lineNumber: 182,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/TransactionModal.tsx",
-                            lineNumber: 168,
+                            lineNumber: 175,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1952,7 +1968,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                     children: "MONTO TOTAL"
                                 }, void 0, false, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 184,
+                                    lineNumber: 191,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1967,7 +1983,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                             autoFocus: true
                                         }, void 0, false, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 186,
+                                            lineNumber: 193,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1975,19 +1991,19 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                             children: ledgers.find((l)=>l.id === activeBookId)?.currency || '$'
                                         }, void 0, false, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 194,
+                                            lineNumber: 201,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 185,
+                                    lineNumber: 192,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/TransactionModal.tsx",
-                            lineNumber: 183,
+                            lineNumber: 190,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1998,7 +2014,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                     children: "Cuenta de Origen"
                                 }, void 0, false, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 201,
+                                    lineNumber: 208,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2018,12 +2034,12 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                     ]
                                                 }, acc.id, true, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 209,
+                                                    lineNumber: 216,
                                                     columnNumber: 37
                                                 }, ("TURBOPACK compile-time value", void 0)))
                                         }, void 0, false, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 203,
+                                            lineNumber: 210,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2033,44 +2049,44 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                 children: "expand_more"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/TransactionModal.tsx",
-                                                lineNumber: 215,
+                                                lineNumber: 222,
                                                 columnNumber: 33
                                             }, ("TURBOPACK compile-time value", void 0))
                                         }, void 0, false, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 214,
+                                            lineNumber: 221,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 202,
+                                    lineNumber: 209,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/TransactionModal.tsx",
-                            lineNumber: 200,
+                            lineNumber: 207,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/TransactionModal.tsx",
-                    lineNumber: 167,
+                    lineNumber: 174,
                     columnNumber: 17
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "w-full md:w-7/12 p-8 overflow-y-auto custom-scrollbar bg-white dark:bg-[#1e2530]",
+                    className: "w-full md:w-7/12 p-5 md:p-8 overflow-y-auto overflow-x-hidden custom-scrollbar bg-white dark:bg-[#1e2530]",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "flex justify-between items-center mb-8",
+                            className: "hidden md:flex justify-between items-center mb-8",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                                     className: "text-xl font-bold text-gray-800 dark:text-white",
                                     children: "Nueva Transacción"
                                 }, void 0, false, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 224,
+                                    lineNumber: 231,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2081,18 +2097,18 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                         children: "close"
                                     }, void 0, false, {
                                         fileName: "[project]/components/TransactionModal.tsx",
-                                        lineNumber: 226,
+                                        lineNumber: 233,
                                         columnNumber: 29
                                     }, ("TURBOPACK compile-time value", void 0))
                                 }, void 0, false, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 225,
+                                    lineNumber: 232,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/TransactionModal.tsx",
-                            lineNumber: 223,
+                            lineNumber: 230,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -2106,7 +2122,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                             children: "Categoría"
                                         }, void 0, false, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 234,
+                                            lineNumber: 241,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2119,12 +2135,12 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                         children: "category"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/TransactionModal.tsx",
-                                                        lineNumber: 237,
+                                                        lineNumber: 244,
                                                         columnNumber: 37
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 236,
+                                                    lineNumber: 243,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -2137,7 +2153,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                             children: "Selecciona una categoría..."
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 244,
+                                                            lineNumber: 251,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         categories.map((cat)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -2145,25 +2161,25 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                                 children: cat.name
                                                             }, cat.id, false, {
                                                                 fileName: "[project]/components/TransactionModal.tsx",
-                                                                lineNumber: 246,
+                                                                lineNumber: 253,
                                                                 columnNumber: 41
                                                             }, ("TURBOPACK compile-time value", void 0)))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 239,
+                                                    lineNumber: 246,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 235,
+                                            lineNumber: 242,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 233,
+                                    lineNumber: 240,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2173,7 +2189,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                             children: "Descripción / Beneficiario"
                                         }, void 0, false, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 254,
+                                            lineNumber: 261,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2186,12 +2202,12 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                         children: "description"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/TransactionModal.tsx",
-                                                        lineNumber: 257,
+                                                        lineNumber: 264,
                                                         columnNumber: 37
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 256,
+                                                    lineNumber: 263,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2202,19 +2218,19 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                     className: "w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#252b36] border border-gray-200 dark:border-gray-700/50 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white dark:focus:bg-[#252b36] transition-all outline-none font-medium text-gray-700 dark:text-white placeholder-gray-400"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 259,
+                                                    lineNumber: 266,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 255,
+                                            lineNumber: 262,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 253,
+                                    lineNumber: 260,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2227,7 +2243,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                     children: "Fecha"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 272,
+                                                    lineNumber: 279,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2240,12 +2256,12 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                                 children: "calendar_today"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/TransactionModal.tsx",
-                                                                lineNumber: 275,
+                                                                lineNumber: 282,
                                                                 columnNumber: 41
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 274,
+                                                            lineNumber: 281,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2255,19 +2271,19 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                             className: "w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#252b36] border border-gray-200 dark:border-gray-700/50 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white dark:focus:bg-[#252b36] transition-all outline-none font-medium text-gray-700 dark:text-white"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 277,
+                                                            lineNumber: 284,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 273,
+                                                    lineNumber: 280,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 271,
+                                            lineNumber: 278,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2277,7 +2293,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                     children: "Hora"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 286,
+                                                    lineNumber: 293,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2290,12 +2306,12 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                                 children: "schedule"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/TransactionModal.tsx",
-                                                                lineNumber: 289,
+                                                                lineNumber: 296,
                                                                 columnNumber: 41
                                                             }, ("TURBOPACK compile-time value", void 0))
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 288,
+                                                            lineNumber: 295,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2305,25 +2321,25 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                             className: "w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#252b36] border border-gray-200 dark:border-gray-700/50 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white dark:focus:bg-[#252b36] transition-all outline-none font-medium text-gray-700 dark:text-white"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 291,
+                                                            lineNumber: 298,
                                                             columnNumber: 37
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 287,
+                                                    lineNumber: 294,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 285,
+                                            lineNumber: 292,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 270,
+                                    lineNumber: 277,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2333,7 +2349,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                             children: "Ubicación"
                                         }, void 0, false, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 303,
+                                            lineNumber: 310,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2346,12 +2362,12 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                         children: "location_on"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/TransactionModal.tsx",
-                                                        lineNumber: 306,
+                                                        lineNumber: 313,
                                                         columnNumber: 37
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 305,
+                                                    lineNumber: 312,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2362,7 +2378,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                     className: "w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#252b36] border border-gray-200 dark:border-gray-700/50 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white dark:focus:bg-[#252b36] transition-all outline-none font-medium text-gray-700 dark:text-white placeholder-gray-400"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 308,
+                                                    lineNumber: 315,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2376,29 +2392,29 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                             children: "my_location"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 317,
+                                                            lineNumber: 324,
                                                             columnNumber: 41
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/TransactionModal.tsx",
-                                                        lineNumber: 316,
+                                                        lineNumber: 323,
                                                         columnNumber: 37
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 315,
+                                                    lineNumber: 322,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 304,
+                                            lineNumber: 311,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 302,
+                                    lineNumber: 309,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2408,7 +2424,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                             children: "Notas"
                                         }, void 0, false, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 325,
+                                            lineNumber: 332,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -2419,13 +2435,13 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                             className: "w-full p-4 bg-gray-50 dark:bg-[#252b36] border border-gray-200 dark:border-gray-700/50 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white dark:focus:bg-[#252b36] transition-all outline-none font-medium text-gray-700 dark:text-white placeholder-gray-400 resize-none"
                                         }, void 0, false, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 326,
+                                            lineNumber: 333,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 324,
+                                    lineNumber: 331,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2440,12 +2456,12 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                         className: `bg-white size-4 rounded-full shadow-md transform transition-transform duration-300 ${isPending ? 'translate-x-6' : ''}`
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/TransactionModal.tsx",
-                                                        lineNumber: 339,
+                                                        lineNumber: 346,
                                                         columnNumber: 37
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 338,
+                                                    lineNumber: 345,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2453,7 +2469,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                     children: "Pendiente"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 341,
+                                                    lineNumber: 348,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2463,13 +2479,13 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                     className: "hidden"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 342,
+                                                    lineNumber: 349,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 337,
+                                            lineNumber: 344,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -2481,12 +2497,12 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                         className: `bg-white size-4 rounded-full shadow-md transform transition-transform duration-300 ${isRecurring ? 'translate-x-6' : ''}`
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/TransactionModal.tsx",
-                                                        lineNumber: 347,
+                                                        lineNumber: 354,
                                                         columnNumber: 37
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 346,
+                                                    lineNumber: 353,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2494,7 +2510,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                     children: "Recurrente"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 349,
+                                                    lineNumber: 356,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2504,19 +2520,19 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                     className: "hidden"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 350,
+                                                    lineNumber: 357,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 345,
+                                            lineNumber: 352,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 336,
+                                    lineNumber: 343,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 isRecurring && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2527,7 +2543,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                             children: "Frecuencia"
                                         }, void 0, false, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 357,
+                                            lineNumber: 364,
                                             columnNumber: 33
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2540,12 +2556,12 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                         children: "repeat"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/TransactionModal.tsx",
-                                                        lineNumber: 360,
+                                                        lineNumber: 367,
                                                         columnNumber: 41
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 359,
+                                                    lineNumber: 366,
                                                     columnNumber: 37
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -2558,7 +2574,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                             children: "Diariamente"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 367,
+                                                            lineNumber: 374,
                                                             columnNumber: 41
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -2566,7 +2582,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                             children: "Semanalmente"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 368,
+                                                            lineNumber: 375,
                                                             columnNumber: 41
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -2574,7 +2590,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                             children: "Cada 2 semanas"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 369,
+                                                            lineNumber: 376,
                                                             columnNumber: 41
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -2582,7 +2598,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                             children: "Cada 3 semanas"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 370,
+                                                            lineNumber: 377,
                                                             columnNumber: 41
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -2590,7 +2606,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                             children: "Cada 4 semanas"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 371,
+                                                            lineNumber: 378,
                                                             columnNumber: 41
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -2598,7 +2614,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                             children: "Mensual"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 372,
+                                                            lineNumber: 379,
                                                             columnNumber: 41
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -2606,7 +2622,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                             children: "Cada 2 meses"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 373,
+                                                            lineNumber: 380,
                                                             columnNumber: 41
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -2614,7 +2630,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                             children: "Trimestral"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 374,
+                                                            lineNumber: 381,
                                                             columnNumber: 41
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -2622,7 +2638,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                             children: "Semestral"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 375,
+                                                            lineNumber: 382,
                                                             columnNumber: 41
                                                         }, ("TURBOPACK compile-time value", void 0)),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -2630,13 +2646,13 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                             children: "Anual"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/TransactionModal.tsx",
-                                                            lineNumber: 376,
+                                                            lineNumber: 383,
                                                             columnNumber: 41
                                                         }, ("TURBOPACK compile-time value", void 0))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 362,
+                                                    lineNumber: 369,
                                                     columnNumber: 37
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2646,24 +2662,24 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                         children: "expand_more"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/TransactionModal.tsx",
-                                                        lineNumber: 379,
+                                                        lineNumber: 386,
                                                         columnNumber: 41
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 378,
+                                                    lineNumber: 385,
                                                     columnNumber: 37
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 358,
+                                            lineNumber: 365,
                                             columnNumber: 33
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 356,
+                                    lineNumber: 363,
                                     columnNumber: 29
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 isRecurring && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2674,7 +2690,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                             children: "Fecha de Finalización (Opcional)"
                                         }, void 0, false, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 388,
+                                            lineNumber: 395,
                                             columnNumber: 33
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2687,12 +2703,12 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                         children: "event_busy"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/TransactionModal.tsx",
-                                                        lineNumber: 391,
+                                                        lineNumber: 398,
                                                         columnNumber: 41
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 390,
+                                                    lineNumber: 397,
                                                     columnNumber: 37
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2703,7 +2719,7 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                     className: "w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-[#252b36] border border-gray-200 dark:border-gray-700/50 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white dark:focus:bg-[#252b36] transition-all outline-none font-medium text-gray-700 dark:text-white placeholder-gray-400"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 393,
+                                                    lineNumber: 400,
                                                     columnNumber: 37
                                                 }, ("TURBOPACK compile-time value", void 0)),
                                                 endDate && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2716,24 +2732,24 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                                         children: "close"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/TransactionModal.tsx",
-                                                        lineNumber: 407,
+                                                        lineNumber: 414,
                                                         columnNumber: 45
                                                     }, ("TURBOPACK compile-time value", void 0))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 401,
+                                                    lineNumber: 408,
                                                     columnNumber: 41
                                                 }, ("TURBOPACK compile-time value", void 0))
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 389,
+                                            lineNumber: 396,
                                             columnNumber: 33
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 387,
+                                    lineNumber: 394,
                                     columnNumber: 29
                                 }, ("TURBOPACK compile-time value", void 0)),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2746,44 +2762,44 @@ const TransactionModal = ({ isOpen, onClose, transactionToEdit })=>{
                                             children: "Cancelar"
                                         }, void 0, false, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 416,
+                                            lineNumber: 423,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                             type: "submit",
-                                            className: "flex-[2] py-3.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/30 transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2",
+                                            className: "flex-1 py-3.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/30 transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                     className: "material-symbols-outlined",
                                                     children: "save"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/TransactionModal.tsx",
-                                                    lineNumber: 427,
+                                                    lineNumber: 434,
                                                     columnNumber: 33
                                                 }, ("TURBOPACK compile-time value", void 0)),
-                                                "Guardar Transacción"
+                                                "Guardar"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/TransactionModal.tsx",
-                                            lineNumber: 423,
+                                            lineNumber: 430,
                                             columnNumber: 29
                                         }, ("TURBOPACK compile-time value", void 0))
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/TransactionModal.tsx",
-                                    lineNumber: 415,
+                                    lineNumber: 422,
                                     columnNumber: 25
                                 }, ("TURBOPACK compile-time value", void 0))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/TransactionModal.tsx",
-                            lineNumber: 230,
+                            lineNumber: 237,
                             columnNumber: 21
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/TransactionModal.tsx",
-                    lineNumber: 222,
+                    lineNumber: 229,
                     columnNumber: 17
                 }, ("TURBOPACK compile-time value", void 0))
             ]

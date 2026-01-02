@@ -350,7 +350,7 @@ export default function Transactions() {
 
                                 <button
                                     onClick={openTransactionModal}
-                                    className="bg-primary hover:bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5"
+                                    className="hidden md:flex bg-primary hover:bg-blue-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm items-center gap-2 shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5"
                                 >
                                     <span className="material-symbols-outlined text-[20px]">add</span>
                                     Nueva
@@ -392,12 +392,12 @@ export default function Transactions() {
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto pr-2 pb-20 space-y-8 scrollbar-hide animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                    <div className="flex-1 overflow-y-auto pr-2 pb-40 space-y-8 scrollbar-hide animate-fade-in" style={{ animationDelay: '0.1s' }}>
                         {groupedTransactions.map((group, gIdx) => {
                             // Currency handled by CurrencyDisplay
                             return (
                                 <div key={group.date}>
-                                    <div className="sticky top-0 z-10 py-3 bg-[#f2f6fa]/95 dark:bg-[#020617]/95 backdrop-blur-md flex justify-between items-center border-b border-slate-200/50 dark:border-slate-800/50 mb-3">
+                                    <div className="sticky top-0 z-10 py-3 px-4 rounded-xl bg-[#f2f6fa]/95 dark:bg-[#020617]/95 backdrop-blur-md flex justify-between items-center border-b border-slate-200/50 dark:border-slate-800/50 mb-3">
                                         <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest capitalize">{group.date}</h3>
                                         <div className={`text-xs font-semibold px-2 py-1 rounded flex items-center gap-1 ${group.total >= 0 ? 'bg-emerald-100/50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-rose-100/50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'}`}>
                                             {group.total < 0 && <span>-</span>}

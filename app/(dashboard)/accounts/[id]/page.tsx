@@ -206,7 +206,7 @@ export default function AccountDetails() {
     if (!account) return null;
 
     return (
-        <div className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative scrollbar-hide pb-24">
+        <div className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative scrollbar-hide pb-40">
             {/* Background decoration */}
             <div className="fixed inset-0 -z-10 pointer-events-none opacity-40 dark:opacity-10">
                 <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-100 rounded-full blur-[120px]"></div>
@@ -245,15 +245,15 @@ export default function AccountDetails() {
                             </div>
                         </div>
                     </div>
-                    <div className="flex gap-2">
-                        <button onClick={() => setIsEditModalOpen(true)} className="flex items-center gap-2 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-medium text-sm hover:border-primary hover:text-primary transition-colors h-12">
+                    <div className="flex gap-2 w-full md:w-auto">
+                        <button onClick={() => setIsEditModalOpen(true)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-medium text-sm hover:border-primary hover:text-primary transition-colors h-12">
                             <span className="material-symbols-outlined text-[18px]">edit</span>
                             Editar
                         </button>
                         <button
                             disabled={!pendingCommitment}
                             onClick={() => pendingCommitment && setViewingCommitment(pendingCommitment)}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all h-12 ${pendingCommitment
+                            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all h-12 ${pendingCommitment
                                 ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 active:scale-95'
                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
                                 }`}
@@ -327,14 +327,15 @@ export default function AccountDetails() {
                                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Línea Disponible</p>
                                         <MoneyDisplay amount={creditMetrics.available} currency={currencySymbol} size="5xl" weight="font-black" color="text-emerald-500 dark:text-emerald-400" />
                                     </div>
-                                    <div className="flex flex-col items-end gap-1">
-                                        <div className="text-right">
+                                    <div className="w-full md:w-auto flex flex-row md:flex-col items-center md:items-end justify-between md:justify-end gap-0 md:gap-1 mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800 md:border-none">
+                                        <div className="flex-1 md:flex-auto text-center md:text-right">
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Línea Utilizada</p>
                                             <p className="text-lg font-bold text-slate-700 dark:text-slate-300 tabular-nums">
                                                 {currencySymbol}{creditMetrics.usedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                             </p>
                                         </div>
-                                        <div className="text-right">
+                                        <div className="w-px h-10 bg-slate-200 dark:bg-slate-700 block md:hidden mx-4"></div>
+                                        <div className="flex-1 md:flex-auto text-center md:text-right">
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Línea Total</p>
                                             <p className="text-lg font-bold text-slate-400 dark:text-slate-500 tabular-nums">
                                                 {currencySymbol}{creditMetrics.limit.toLocaleString('en-US', { minimumFractionDigits: 2 })}
@@ -354,29 +355,29 @@ export default function AccountDetails() {
 
                         {/* Row 2: Billing Metrics Consolidated */}
                         {account.type === 'CREDIT' && (
-                            <div className="glass-card p-0 rounded-3xl border border-white/60 dark:border-slate-800 flex flex-col md:flex-row overflow-hidden divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800">
+                            <div className="glass-card p-0 rounded-3xl border border-white/60 dark:border-slate-800 flex flex-row flex-wrap md:flex-nowrap overflow-hidden md:divide-x divide-slate-100 dark:divide-slate-800">
                                 {/* Fecha de Cierre */}
-                                <div className="flex-1 p-6 flex flex-col justify-center items-center text-center">
+                                <div className="w-1/2 md:w-auto md:flex-1 p-4 md:p-6 flex flex-col justify-center items-center text-center border-r md:border-r-0 border-slate-100 dark:border-slate-800">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Fecha de Cierre</p>
                                     <div className="flex items-center gap-3">
                                         <div className="size-10 rounded-xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
                                             <span className="material-symbols-outlined">calendar_month</span>
                                         </div>
                                         <div>
-                                            <span className="text-2xl font-black text-slate-800 dark:text-white">Día {account.cutoffDay || '--'}</span>
+                                            <span className="text-xl md:text-2xl font-black text-slate-800 dark:text-white">Día {account.cutoffDay || '--'}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Fecha de Pago */}
-                                <div className="flex-1 p-6 flex flex-col justify-center items-center text-center">
+                                <div className="w-1/2 md:w-auto md:flex-1 p-4 md:p-6 flex flex-col justify-center items-center text-center">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Fecha de Pago</p>
                                     <div className="flex items-center gap-3">
                                         <div className="size-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400">
                                             <span className="material-symbols-outlined">event_upcoming</span>
                                         </div>
                                         <div>
-                                            <span className="text-2xl font-black text-slate-800 dark:text-white">Día {account.payDay || '--'}</span>
+                                            <span className="text-xl md:text-2xl font-black text-slate-800 dark:text-white">Día {account.payDay || '--'}</span>
                                             <p className="text-[10px] font-bold text-orange-500 mt-0.5">Próximo a vencer</p>
                                         </div>
                                     </div>
@@ -384,7 +385,7 @@ export default function AccountDetails() {
 
                                 {/* Pago del Mes */}
                                 {billingInfo && (
-                                    <div className="flex-1 p-6 flex flex-col justify-center items-center text-center min-w-[200px]">
+                                    <div className="w-full md:w-auto md:flex-1 p-6 flex flex-col justify-center items-center text-center min-w-[200px] border-t md:border-t-0 border-slate-100 dark:border-slate-800">
                                         <div className="flex items-center gap-2 mb-2">
                                             <span className="material-symbols-outlined text-slate-400 text-sm">receipt_long</span>
                                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pago del Mes</p>
@@ -403,7 +404,7 @@ export default function AccountDetails() {
                 {/* ANALYTICS SECTION */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Usage Chart */}
-                    <div className="col-span-2 glass-card p-6 rounded-3xl border border-white/40 dark:border-slate-800">
+                    <div className="lg:col-span-2 glass-card p-6 rounded-3xl border border-white/40 dark:border-slate-800">
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="font-bold text-slate-800 dark:text-white">Uso del Crédito <span className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">(Mes Actual)</span></h3>
                             <span className="text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-1 rounded-full">Tendencia</span>
@@ -453,7 +454,7 @@ export default function AccountDetails() {
                     </div>
 
                     {/* Top Categories */}
-                    <div className="glass-card p-6 rounded-3xl border border-white/40 dark:border-slate-800">
+                    <div className="glass-card p-6 rounded-3xl border border-white/40 dark:border-slate-800 w-full">
                         <h3 className="font-bold text-slate-800 dark:text-white mb-6">Gastos por Categoría <span className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1">(Mes Actual)</span></h3>
 
                         <div className="space-y-5">
@@ -491,42 +492,58 @@ export default function AccountDetails() {
                     <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                         <h3 className="font-bold text-lg text-slate-800 dark:text-white">Movimientos Recientes</h3>
 
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            {/* Date Filter */}
-                            <button
-                                onClick={() => setIsDateModalOpen(true)}
-                                className={`px-4 py-2 rounded-xl text-xs font-bold border transition-colors flex items-center gap-2 ${dateRange.from ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
-                                    }`}
-                            >
-                                <span className="material-symbols-outlined text-[18px]">calendar_today</span>
-                                {dateRange.from && dateRange.to
-                                    ? `${format(dateRange.from, 'dd MMM', { locale: es })} - ${format(dateRange.to, 'dd MMM', { locale: es })}`
-                                    : 'Por Fecha'}
-                                {dateRange.from && (
-                                    <span
-                                        className="ml-1 hover:text-red-500"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setDateRange({ from: null, to: null });
-                                        }}
-                                    >×</span>
-                                )}
-                            </button>
+                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                            {/* Filters Row */}
+                            <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto scrollbar-hide pb-1 sm:pb-0">
+                                {/* Date Filter */}
+                                <button
+                                    onClick={() => setIsDateModalOpen(true)}
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold border transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${dateRange.from ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                                        }`}
+                                >
+                                    <span className="material-symbols-outlined text-[18px]">calendar_today</span>
+                                    {dateRange.from && dateRange.to
+                                        ? `${format(dateRange.from, 'dd MMM', { locale: es })} - ${format(dateRange.to, 'dd MMM', { locale: es })}`
+                                        : 'Por Fecha'}
+                                    {dateRange.from && (
+                                        <span
+                                            className="ml-1 hover:text-red-500"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setDateRange({ from: null, to: null });
+                                            }}
+                                        >×</span>
+                                    )}
+                                </button>
 
-                            {/* Category Filter */}
-                            <select
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-400 outline-none focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer max-w-[140px]"
-                            >
-                                <option value="ALL">Todas Categorías</option>
-                                {availableCategories.map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
+                                {/* Category Filter */}
+                                <select
+                                    value={selectedCategory}
+                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                    className="px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-400 outline-none focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer max-w-[140px] flex-shrink-0"
+                                >
+                                    <option value="ALL">Todas</option>
+                                    {availableCategories.map(cat => (
+                                        <option key={cat} value={cat}>{cat}</option>
+                                    ))}
+                                </select>
+
+                                {/* Reset Filters */}
+                                <button
+                                    onClick={() => {
+                                        setSelectedCategory('ALL');
+                                        setSearchTerm('');
+                                        setDateRange({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) });
+                                    }}
+                                    className="text-xs font-bold text-slate-500 hover:text-primary transition-colors flex items-center gap-1 whitespace-nowrap px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex-shrink-0"
+                                >
+                                    <span className="material-symbols-outlined text-[16px]">restart_alt</span>
+                                    <span className="hidden sm:inline">Reset</span>
+                                </button>
+                            </div>
 
                             {/* Search */}
-                            <div className="relative">
+                            <div className="relative w-full sm:w-auto">
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
                                 <input
                                     type="text"
@@ -536,19 +553,6 @@ export default function AccountDetails() {
                                     className="pl-10 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border-none outline-none text-sm font-medium w-full sm:w-64 focus:ring-2 focus:ring-primary/20"
                                 />
                             </div>
-
-                            {/* Reset Filters */}
-                            <button
-                                onClick={() => {
-                                    setSelectedCategory('ALL');
-                                    setSearchTerm('');
-                                    setDateRange({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) });
-                                }}
-                                className="text-xs font-bold text-slate-500 hover:text-primary transition-colors flex items-center gap-1"
-                            >
-                                <span className="material-symbols-outlined text-[16px]">restart_alt</span>
-                                Reset
-                            </button>
                         </div>
                     </div>
 

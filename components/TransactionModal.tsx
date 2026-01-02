@@ -159,9 +159,16 @@ export const TransactionModal = ({ isOpen, onClose, transactionToEdit }: Transac
             onClick={finalOnClose}
         >
             <div
-                className="bg-white dark:bg-[#1e2530] w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh]"
+                className="bg-white dark:bg-[#1e2530] w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh] relative"
                 onClick={(e) => e.stopPropagation()}
             >
+                {/* Mobile Close Button (Subtle, Top Right) */}
+                <button
+                    onClick={finalOnClose}
+                    className="absolute top-4 right-4 z-20 p-2 bg-black/5 dark:bg-white/10 rounded-full text-gray-500 dark:text-gray-300 md:hidden hover:bg-black/10 transition-colors"
+                >
+                    <span className="material-symbols-outlined text-[18px]">close</span>
+                </button>
 
                 {/* Left Side - Amount & Type */}
                 <div className="w-full md:w-5/12 bg-gray-50 dark:bg-[#252b36] p-8 flex flex-col justify-center items-center relative border-b md:border-b-0 md:border-r border-gray-100 dark:border-white/5">
@@ -219,8 +226,8 @@ export const TransactionModal = ({ isOpen, onClose, transactionToEdit }: Transac
                 </div>
 
                 {/* Right Side - Details Form */}
-                <div className="w-full md:w-7/12 p-8 overflow-y-auto custom-scrollbar bg-white dark:bg-[#1e2530]">
-                    <div className="flex justify-between items-center mb-8">
+                <div className="w-full md:w-7/12 p-5 md:p-8 overflow-y-auto overflow-x-hidden custom-scrollbar bg-white dark:bg-[#1e2530]">
+                    <div className="hidden md:flex justify-between items-center mb-8">
                         <h2 className="text-xl font-bold text-gray-800 dark:text-white">Nueva Transacción</h2>
                         <button onClick={finalOnClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors">
                             <span className="material-symbols-outlined text-gray-500">close</span>
@@ -422,10 +429,10 @@ export const TransactionModal = ({ isOpen, onClose, transactionToEdit }: Transac
                             </button>
                             <button
                                 type="submit"
-                                className="flex-[2] py-3.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/30 transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                                className="flex-1 py-3.5 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/30 transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
                             >
                                 <span className="material-symbols-outlined">save</span>
-                                Guardar Transacción
+                                Guardar
                             </button>
                         </div>
 

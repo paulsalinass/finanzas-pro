@@ -407,7 +407,7 @@ export default function Dashboard() {
     }, [filteredTransactions, balanceAtEndOfRange, dateRange]);
 
     return (
-        <div className="flex-1 w-full h-full overflow-y-auto scrollbar-hide pb-28 lg:pb-8">
+        <div className="flex-1 w-full h-full overflow-y-auto scrollbar-hide pb-40 lg:pb-8">
             <div className="max-w-[1200px] mx-auto p-4 md:p-8 flex flex-col gap-8">
                 <header className="flex flex-wrap items-end justify-between gap-4 pt-4 md:pt-0 animate-fade-in">
                     <div className="flex flex-col gap-2">
@@ -438,19 +438,44 @@ export default function Dashboard() {
 
                 <section className="flex overflow-x-auto pb-2 scrollbar-hide animate-fade-in">
                     <div className="glass-card p-1.5 rounded-xl flex gap-1 whitespace-nowrap">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab}
-                                onClick={() => handleTabClick(tab)}
-                                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${activeTab === tab
-                                    ? 'bg-primary/20 text-primary dark:text-white border border-primary/20 shadow-sm'
-                                    : 'text-text-muted dark:text-dark-muted hover:bg-white/5 dark:hover:text-white'
-                                    }`}
-                            >
-                                {tab}
-                                {tab === 'Personalizado' && <span className="material-symbols-outlined text-[16px]">calendar_month</span>}
-                            </button>
-                        ))}
+                        <button
+                            onClick={() => handleTabClick('Este mes')}
+                            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'Este mes'
+                                ? 'bg-primary/20 text-primary dark:text-white border border-primary/20 shadow-sm'
+                                : 'text-text-muted dark:text-dark-muted hover:bg-white/5 dark:hover:text-white'
+                                }`}
+                        >
+                            Este mes
+                        </button>
+                        <button
+                            onClick={() => handleTabClick('Mes pasado')}
+                            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'Mes pasado'
+                                ? 'bg-primary/20 text-primary dark:text-white border border-primary/20 shadow-sm'
+                                : 'text-text-muted dark:text-dark-muted hover:bg-white/5 dark:hover:text-white'
+                                }`}
+                        >
+                            Mes pasado
+                        </button>
+                        <button
+                            onClick={() => handleTabClick('Últimos 3 meses')}
+                            className={`hidden md:block px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'Últimos 3 meses'
+                                ? 'bg-primary/20 text-primary dark:text-white border border-primary/20 shadow-sm'
+                                : 'text-text-muted dark:text-dark-muted hover:bg-white/5 dark:hover:text-white'
+                                }`}
+                        >
+                            Últimos 3 meses
+                        </button>
+                        <button
+                            onClick={() => handleTabClick('Personalizado')}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${activeTab === 'Personalizado'
+                                ? 'bg-primary/20 text-primary dark:text-white border border-primary/20 shadow-sm'
+                                : 'text-text-muted dark:text-dark-muted hover:bg-white/5 dark:hover:text-white'
+                                }`}
+                            title="Personalizado"
+                        >
+                            <span className="material-symbols-outlined text-[20px]">calendar_month</span>
+                            <span className="hidden md:inline">Personalizado</span>
+                        </button>
                     </div>
                 </section>
 

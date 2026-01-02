@@ -131,7 +131,7 @@ export default function Commitments() {
 
     return (
         <div className="flex-1 flex flex-col h-full overflow-hidden relative">
-            <main className="flex-1 overflow-y-auto p-6 md:p-10 scroll-smooth scrollbar-hide">
+            <main className="flex-1 overflow-y-auto p-6 md:p-10 pb-40 scroll-smooth scrollbar-hide">
                 <div className="max-w-[1200px] mx-auto pb-10">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 animate-fade-in">
                         <div className="flex flex-col gap-1">
@@ -141,13 +141,13 @@ export default function Commitments() {
                             <p className="text-[#637288] dark:text-slate-400 text-base">Planifica y controla tus pagos recurrentes sin estrés.</p>
                         </div>
                         <div className="flex gap-3">
-                            <button onClick={() => setIsDateModalOpen(true)} className="flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-white dark:bg-slate-800 border border-[#dce0e5] dark:border-slate-700 text-[#111418] dark:text-white text-sm font-semibold shadow-sm hover:bg-gray-50 dark:hover:bg-slate-700 transition-all">
-                                <span className="material-symbols-outlined text-[20px]">calendar_month</span>
+                            <button onClick={() => setIsDateModalOpen(true)} className="flex items-center justify-center gap-2 h-11 px-3 md:px-5 rounded-xl bg-white dark:bg-slate-800 border border-[#dce0e5] dark:border-slate-700 text-[#111418] dark:text-white text-xs md:text-sm font-semibold shadow-sm hover:bg-gray-50 dark:hover:bg-slate-700 transition-all whitespace-nowrap">
+                                <span className="material-symbols-outlined text-[18px] md:text-[20px]">calendar_month</span>
                                 <span className="capitalize">{dateRange.start ? dateRange.start.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : 'Ver Calendario'}</span>
-                                <span className="material-symbols-outlined text-[20px]">arrow_drop_down</span>
+                                <span className="material-symbols-outlined text-[18px] md:text-[20px]">arrow_drop_down</span>
                             </button>
-                            <button onClick={handleCreate} className="flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-primary text-white text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all">
-                                <span className="material-symbols-outlined text-[20px]">add</span>
+                            <button onClick={handleCreate} className="flex items-center justify-center gap-2 h-11 px-3 md:px-5 rounded-xl bg-primary text-white text-xs md:text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all whitespace-nowrap">
+                                <span className="material-symbols-outlined text-[18px] md:text-[20px]">add</span>
                                 <span>Nuevo Gasto Fijo</span>
                             </button>
                         </div>

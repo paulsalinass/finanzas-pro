@@ -1,1 +1,10 @@
-{}
+{
+  "[project]/components/books/EmojiPickerWrapper.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/components/books/EmojiPickerWrapper.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/node_modules_61500e40._.js",
+      "static/chunks/components_books_EmojiPickerWrapper_tsx_cca95bfb._.js",
+      "static/chunks/components_books_EmojiPickerWrapper_tsx_11502d94._.js"
+    ]
+  }
+}

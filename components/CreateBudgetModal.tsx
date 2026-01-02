@@ -184,7 +184,7 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex justify-between items-start pt-8 px-8 pb-2">
+                <div className="flex justify-between items-start pt-6 px-6 md:pt-8 md:px-8 pb-2">
                     <div>
                         <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1">Editor de Presupuesto</h2>
                         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Configura tus límites financieros con claridad y sin estrés.</p>
@@ -197,7 +197,7 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-6 scrollbar-hide">
+                <div className="flex-1 overflow-y-auto px-6 md:px-8 py-6 flex flex-col gap-6 scrollbar-hide">
 
                     {/* Amount Input */}
                     <div className="space-y-2">
@@ -305,24 +305,24 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
                     </div>
 
                     {/* Footer */}
-                    <div className="p-8 pt-0 flex justify-end items-center gap-4">
+                    <div className="p-6 md:p-8 pt-0 flex items-center gap-4">
                         <button
                             onClick={handleClose}
-                            className="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 font-bold text-sm transition-colors"
+                            className="flex-1 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-sm transition-all flex items-center justify-center"
                         >
                             Cancelar
                         </button>
                         <button
                             onClick={handleSubmit}
                             disabled={!amount || !categoryId || isSubmitting}
-                            className="px-8 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-xl shadow-blue-600/20 transition-all flex items-center gap-2 active:scale-95"
+                            className="flex-1 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-xl shadow-blue-600/20 transition-all flex items-center justify-center gap-2 active:scale-95"
                         >
                             {isSubmitting ? (
                                 <span className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                             ) : (
                                 <span className="material-symbols-outlined text-[18px]">check</span>
                             )}
-                            Guardar Presupuesto
+                            Guardar
                         </button>
                     </div>
                 </div>

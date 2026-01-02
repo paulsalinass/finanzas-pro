@@ -54,7 +54,6 @@ export default function MenuPage() {
             title: "Configuración",
             items: [
                 { href: "/profile", icon: User, label: "Perfil de Usuario" },
-                { href: "/settings", icon: Settings, label: "Ajustes" },
             ]
         }
     ];

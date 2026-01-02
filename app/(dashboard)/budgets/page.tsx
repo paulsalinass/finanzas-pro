@@ -220,7 +220,7 @@ export default function Budgets() {
     };
 
     return (
-        <div className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative scrollbar-hide pb-24">
+        <div className="flex-1 flex flex-col h-full overflow-y-auto overflow-x-hidden relative scrollbar-hide pb-40">
             {/* Background Decor */}
             <div className="fixed inset-0 -z-10 pointer-events-none opacity-40 dark:opacity-10">
                 <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-100 rounded-full blur-[120px]"></div>
@@ -232,25 +232,25 @@ export default function Budgets() {
                 <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-fade-in">
                     <div className="flex flex-col gap-1">
                         <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-[#111418] dark:text-white">Presupuestos</h1>
-                        <p className="text-gray-500 dark:text-gray-400 text-lg font-normal capitalize">
+                        <p className="text-gray-500 dark:text-gray-400 text-lg font-normal first-letter:capitalize">
                             Planificación de {dateRange.start.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
                         </p>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <div className="flex flex-row items-center gap-3 w-full md:w-auto">
                         <button
                             onClick={() => setIsDateModalOpen(true)}
-                            className="flex items-center gap-2 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-medium text-sm hover:border-primary hover:text-primary transition-colors h-12"
+                            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-medium text-sm hover:border-primary hover:text-primary transition-colors h-12"
                         >
                             <span className="material-symbols-outlined text-[20px]">calendar_month</span>
-                            <span>{dateRange.start.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} - {dateRange.end.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>
+                            <span className="whitespace-nowrap text-xs sm:text-sm">{dateRange.start.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} - {dateRange.end.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>
                         </button>
 
                         <button
                             onClick={() => setIsCreateModalOpen(true)}
-                            className="flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 h-12"
+                            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white font-bold py-3 px-3 md:px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 h-12"
                         >
                             <span className="material-symbols-outlined text-[20px]">add</span>
-                            <span className="text-sm">Nuevo Presupuesto</span>
+                            <span className="text-xs sm:text-sm whitespace-nowrap">Nuevo <span className="hidden sm:inline">Presupuesto</span></span>
                         </button>
                     </div>
                 </header>

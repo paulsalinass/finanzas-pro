@@ -36,7 +36,7 @@ export default function CardDetails() {
     };
 
     return (
-        <div className="flex-1 w-full h-full overflow-y-auto scrollbar-hide pb-28 lg:pb-12 bg-background-light dark:bg-background-dark relative z-10">
+        <div className="flex-1 w-full h-full overflow-y-auto scrollbar-hide pb-40 lg:pb-12 bg-background-light dark:bg-background-dark relative z-10">
             {/* Background Mesh Gradient */}
             <div className="fixed inset-0 pointer-events-none opacity-40 dark:opacity-10 -z-10">
                 <div className="absolute top-0 left-0 w-[40vw] h-[40vh] bg-primary/10 rounded-full blur-[100px]"></div>
