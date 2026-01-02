@@ -7,8 +7,11 @@ import Link from 'next/link';
 import { DateRangeModal } from '@/components/DateRangeModal';
 import { NotificationsModal } from '@/components/NotificationsModal';
 import { CategoryIcon } from '@/components/CategoryIcon';
+import { CommitmentDetailsModal } from '@/components/CommitmentDetailsModal';
+import { CommitmentModal } from '@/components/CommitmentModal';
+import { Commitment } from '@/types';
 import { useFinance } from '@/context/FinanceContext';
-import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, BarChart, Bar, Cell, Legend } from 'recharts';
 import { startOfMonth, endOfMonth, differenceInCalendarDays, addDays, startOfDay, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { MoneyDisplay } from '@/components/MoneyDisplay';
@@ -37,7 +40,7 @@ const COLOR_MAP: Record<string, { bg: string, text: string, ring: string, border
 
 export default function Dashboard() {
     const router = useRouter();
-    const { transactions, accounts, totalBalance, budgets, commitments, recurringRules, categories, openTransactionModal, formatAmount, ledgers, activeBookId, unreadCount, userProfile } = useFinance();
+    const { transactions, accounts, totalBalance, budgets, commitments, recurringRules, categories, openTransactionModal, formatAmount, ledgers, activeBookId, unreadCount, userProfile, deleteCommitment } = useFinance();
     const [showBalance, setShowBalance] = useState(true);
     const [activeTab, setActiveTab] = useState('Este mes');
     const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({
@@ -46,6 +49,11 @@ export default function Dashboard() {
     });
     const [isDateModalOpen, setIsDateModalOpen] = useState(false);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
+    // Commitment Modals State
+    const [viewingCommitment, setViewingCommitment] = useState<Commitment | null>(null);
+    const [editingCommitment, setEditingCommitment] = useState<Commitment | null>(null);
+    const [isCommitmentModalOpen, setIsCommitmentModalOpen] = useState(false);
 
     const displayName = userProfile?.full_name || userProfile?.username || 'Usuario';
     const displayAvatar = userProfile?.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(displayName) + '&background=random';
@@ -126,6 +134,17 @@ export default function Dashboard() {
 
     const handleCustomDateApply = (start: Date, end: Date) => {
         setDateRange({ start, end });
+    };
+
+    const handleEditCommitment = (commitment: Commitment) => {
+        setViewingCommitment(null);
+        setEditingCommitment(commitment);
+        setIsCommitmentModalOpen(true);
+    };
+
+    const handleDeleteCommitment = async (id: string) => {
+        await deleteCommitment(id);
+        setViewingCommitment(null); // Close details modal
     };
 
     const filteredTransactions = transactions.filter(t => {
@@ -214,18 +233,81 @@ export default function Dashboard() {
         });
     }, [transactions, currentMonthStart, currentMonthEnd]);
 
-    const upcomingBills = React.useMemo(() => {
-        const start = startOfDay(today);
-        const limit = addDays(start, 5);
-        return commitments
-            .map(commitment => ({
-                ...commitment,
-                dueDateObj: commitment.nextDueDate ? new Date(commitment.nextDueDate) : null
+    const nextCommitments = React.useMemo(() => {
+        // Filter pending commitments
+        const pending = commitments
+            .filter(c => c.status === 'PENDING')
+            .map(c => ({
+                ...c,
+                dueDateObj: c.nextDueDate ? new Date(c.nextDueDate) : null
             }))
-            .filter(c => c.dueDateObj && c.dueDateObj >= start && c.dueDateObj <= limit)
-            .sort((a, b) => (a.dueDateObj!.getTime() - b.dueDateObj!.getTime()))
-            .slice(0, 5);
-    }, [commitments, today]);
+            .filter(c => c.dueDateObj) // Ensure date exists
+            .sort((a, b) => (a.dueDateObj!.getTime() - b.dueDateObj!.getTime()));
+
+        return {
+            top5: pending.slice(0, 5),
+            remainingCount: Math.max(0, pending.length - 5)
+        };
+    }, [commitments]);
+
+    // Expenses by Account and Category
+    const { expensesByAccount, expensesByCategory } = React.useMemo(() => {
+        const accMap = new Map<string, number>();
+        const catMap = new Map<string, number>();
+
+        // Filter transactions by current dateRange/activeTab
+        // Note: filteredTransactions might already be filtered by dateRange if it depends on 'dateRange' state?
+        // Let's verify 'transactions' raw data. 'transactions' from useFinance is usually ALL transactions. 
+        // We need to filter by the CURRENT dashboard date range.
+
+        const start = dateRange.start || startOfMonth(new Date());
+        const end = dateRange.end || endOfMonth(new Date());
+        // Adjust end to include full day
+        const endInclusive = new Date(end);
+        endInclusive.setHours(23, 59, 59, 999);
+
+        // Filter transactions within range and type EXPENSE
+        const relevantTransactions = transactions.filter(t => {
+            if (t.type !== 'EXPENSE') return false;
+            const tDate = new Date(t.date);
+            return tDate >= start && tDate <= endInclusive;
+        });
+
+        relevantTransactions.forEach(t => {
+            // By Account
+            if (t.account_id) {
+                accMap.set(t.account_id, (accMap.get(t.account_id) || 0) + t.amount);
+            }
+            // By Category
+            if (t.category) {
+                catMap.set(t.category, (catMap.get(t.category) || 0) + t.amount);
+            }
+        });
+
+        const accData = Array.from(accMap.entries()).map(([id, amount]) => {
+            const acc = accounts.find(a => a.id === id);
+            return {
+                id, // Added ID for navigation
+                name: acc?.name || 'Desconocida',
+                amount,
+                type: acc?.type || 'CASH',
+                color: '#6366f1'
+            };
+        }).sort((a, b) => b.amount - a.amount).slice(0, 5); // Top 5
+
+        const catData = Array.from(catMap.entries()).map(([name, amount]) => {
+            const cat = categories.find(c => c.name === name);
+            const colorKey = cat?.color || 'slate';
+            return {
+                name,
+                amount,
+                colorKey,
+                icon: cat?.icon || 'category'
+            };
+        }).sort((a, b) => b.amount - a.amount).slice(0, 5);
+
+        return { expensesByAccount: accData, expensesByCategory: catData };
+    }, [transactions, accounts, categories, dateRange]);
 
     const nextIncomeInfo = React.useMemo(() => {
         const start = startOfDay(today);
@@ -372,15 +454,20 @@ export default function Dashboard() {
                         <div className="absolute top-0 right-0 p-6 opacity-5 dark:opacity-10 group-hover:opacity-10 dark:group-hover:opacity-20 transition-opacity">
                             <span className="material-symbols-outlined text-7xl">account_balance_wallet</span>
                         </div>
-                        <div className="flex flex-col gap-1 z-10">
-                            <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Saldo Total (Presupuesto Restante)</p>
-                            <div className="flex items-center gap-2">
-                                <div className={`transition-all duration-300 ${!showBalance && 'blur-md select-none'}`}>
+                        <div className="flex flex-col gap-1 z-10 w-full">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="size-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                    <span className="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+                                </div>
+                                <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Saldo Restante</p>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <div className={`transition-all duration-300 ${!showBalance && 'filter blur-md select-none'}`}>
                                     <MoneyDisplay amount={calculatedSaldo} currency={currencySymbol} size="5xl" color="text-text-main dark:text-white" />
                                 </div>
                                 <button
                                     onClick={() => setShowBalance(!showBalance)}
-                                    className="btn-interact text-text-muted dark:text-dark-muted hover:text-primary transition-colors"
+                                    className="btn-interact text-text-muted dark:text-dark-muted hover:text-primary transition-colors p-2"
                                 >
                                     <span className="material-symbols-outlined text-[20px]">{showBalance ? 'visibility' : 'visibility_off'}</span>
                                 </button>
@@ -394,125 +481,72 @@ export default function Dashboard() {
                             <p className="text-text-light dark:text-dark-muted/60 text-xs font-medium">vs periodo anterior</p>
                         </div>
                     </div>
+
                     <div className="glass-card rounded-3xl p-6 flex flex-col justify-between min-h-[160px] relative group hover:shadow-soft transition-all duration-300">
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="size-8 rounded-full bg-success/10 flex items-center justify-center text-success">
-                                <span className="material-symbols-outlined text-[20px]">arrow_downward</span>
+                            <div className="size-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                                <span className="material-symbols-outlined text-[20px]">savings</span>
                             </div>
-                            <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Ingresos</p>
+                            <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Patrimonio Neto</p>
                         </div>
-                        <MoneyDisplay amount={monthlyIncome} currency={currencySymbol} size="5xl" color="text-text-main dark:text-white" />
+                        <MoneyDisplay amount={totalBalance} currency={currencySymbol} size="5xl" color="text-text-main dark:text-white" />
                         <div className="flex items-center gap-2 mt-4">
-                            <span className="text-success text-sm font-medium">+12%</span>
-                            <p className="text-text-light dark:text-dark-muted/60 text-xs font-medium shrink-0">que lo habitual</p>
-                            <div className="h-1.5 flex-1 bg-gray-100 dark:bg-[#292f38] rounded-full overflow-hidden ml-2">
-                                <div className="h-full bg-success w-[75%] rounded-full transition-all duration-1000"></div>
+                            <div className={`px-2 py-0.5 rounded-md border flex items-center gap-1 ${(monthlyIncome - monthlyExpense) >= 0 ? 'bg-emerald-100 dark:bg-emerald-900/30 border-emerald-200 text-emerald-600' : 'bg-red-100 dark:bg-red-900/30 border-red-200 text-red-600'}`}>
+                                <span className="material-symbols-outlined text-[14px]">{(monthlyIncome - monthlyExpense) >= 0 ? 'trending_up' : 'trending_down'}</span>
+                                <span className="text-xs font-bold">{(monthlyIncome - monthlyExpense) >= 0 ? 'Positivo' : 'Negativo'}</span>
                             </div>
+                            <p className="text-text-light dark:text-dark-muted/60 text-xs font-medium shrink-0">Flujo neto este mes</p>
                         </div>
                     </div>
+
                     <div className="glass-card rounded-3xl p-6 flex flex-col justify-between min-h-[160px] relative group hover:shadow-soft transition-all duration-300">
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="size-8 rounded-full bg-danger/10 flex items-center justify-center text-danger">
-                                <span className="material-symbols-outlined text-[20px]">arrow_upward</span>
+                            <div className="size-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                                <span className="material-symbols-outlined text-[20px]">upcoming</span>
                             </div>
-                            <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Gastos</p>
+                            <p className="text-text-muted dark:text-dark-muted text-sm font-semibold">Por Pagar Restante</p>
                         </div>
-                        <MoneyDisplay amount={monthlyExpense} currency={currencySymbol} size="5xl" color="text-text-main dark:text-white" />
-                        <div className="flex items-center gap-2 mt-4">
-                            <span className="text-danger text-sm font-medium">-5%</span>
-                            <p className="text-text-light dark:text-dark-muted/60 text-xs font-medium shrink-0">ahorro vs promedio</p>
-                            <div className="h-1.5 flex-1 bg-gray-100 dark:bg-[#292f38] rounded-full overflow-hidden ml-2">
-                                <div className="h-full bg-danger w-[35%] rounded-full transition-all duration-1000"></div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
 
-                <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 glass-card rounded-3xl p-6 md:p-8 flex flex-col border border-white/5">
-                        <div className="flex items-center justify-between mb-6">
-                            <div>
-                                <h3 className="text-text-main dark:text-white text-lg font-bold">Historial de Saldo</h3>
-                                <p className="text-text-muted dark:text-dark-muted text-sm font-medium">Agregar Cuenta</p>
-                            </div>
-                            <button className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors">
-                                <span className="material-symbols-outlined text-text-muted dark:text-dark-muted">more_horiz</span>
-                            </button>
-                        </div>
-                        <div className="flex-1 h-[260px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                    <defs>
-                                        <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#10B981" stopOpacity={0.2} />
-                                            <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9da9b8', fontWeight: 500 }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9da9b8' }} />
-                                    <Tooltip
-                                        contentStyle={{
-                                            borderRadius: '12px',
-                                            border: 'none',
-                                            boxShadow: '0 8px 30px rgba(0,0,0,0.1)',
-                                            backgroundColor: '#111821',
-                                            color: '#fff'
-                                        }}
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="total"
-                                        stroke="#10B981"
-                                        strokeWidth={3}
-                                        fillOpacity={1}
-                                        fill="url(#colorTotal)"
-                                        className="chart-glow"
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
+                        {(() => {
+                            const now = new Date();
+                            // Logic Fix: Look until END OF CURRENT MONTH context, regardless of 'end' being today.
+                            let periodEnd = dateRange.end || endOfMonth(now);
 
-                    <div className="glass-card rounded-3xl p-0 flex flex-col overflow-hidden">
-                        <div className="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
-                            <h3 className="text-text-main dark:text-white text-lg font-bold">Actividad Reciente</h3>
-                            <Link href="/transactions" className="text-primary text-xs font-bold hover:text-primary-hover transition-colors">VER TODO</Link>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
-                            <div className="flex flex-col gap-1">
-                                {filteredTransactions.slice(0, 8).map((t) => {
-                                    const category = categories.find(c => c.name === t.category);
-                                    const colorKey = category?.color || 'slate';
-                                    const colors = COLOR_MAP[colorKey] || COLOR_MAP.slate;
+                            // Heuristic: If periodEnd is TODAY (or very close), and view is 'Este mes', extend to EOM.
+                            if ((differenceInCalendarDays(periodEnd, now) <= 1 && activeTab === 'Este mes') || !dateRange.end) {
+                                periodEnd = endOfMonth(now);
+                            }
+                            periodEnd.setHours(23, 59, 59, 999);
 
-                                    return (
-                                        <div key={t.id} onClick={() => router.push(`/transaction/${t.id}`)} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-white/5 transition-colors cursor-pointer group">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`size-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 border ${colors.bg} ${colors.text} ${colors.border}`}>
-                                                    <CategoryIcon icon={t.icon || 'payments'} className="text-[20px]" />
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <p className="text-text-main dark:text-white text-sm font-medium group-hover:text-primary transition-colors">{t.description || t.category}</p>
-                                                    <p className={`text-[11px] font-semibold ${colors.text}`}>{t.category || 'General'}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col items-end">
-                                                <p className={`text-sm font-bold ${t.type === 'INCOME' ? 'text-success' : 'text-text-main dark:text-white'}`}>
-                                                    {t.type === 'EXPENSE' ? '-' : '+'}
-                                                    <span className="text-xs align-baseline mr-0.5">{currencySymbol}</span>
-                                                    {t.amount.toFixed(2)}
-                                                </p>
-                                                <p className="text-text-light dark:text-dark-muted text-[10px] font-medium">Hoy</p>
-                                            </div>
+                            const pendingCommitments = commitments.filter(c => {
+                                if (c.status !== 'PENDING') return false;
+                                if (c.transaction_type === 'INCOME') return false; // Filter out income (Credit Card Payments etc)
+                                if (!c.nextDueDate) return false;
+                                const dueDate = new Date(c.nextDueDate);
+
+                                // Show all FUTURE pending commitments up to the period end.
+                                return dueDate >= startOfDay(now) && dueDate <= periodEnd;
+                            });
+
+                            const totalPending = pendingCommitments.reduce((sum, c) => sum + c.amount, 0);
+
+                            return (
+                                <>
+                                    <MoneyDisplay amount={totalPending} currency={currencySymbol} size="5xl" color="text-text-main dark:text-white" />
+                                    <div className="flex items-center gap-2 mt-4">
+                                        <div className="bg-indigo-100 dark:bg-indigo-900/30 px-2 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+                                            <span className="text-xs font-bold">{pendingCommitments.length} pendientes</span>
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
+                                        <p className="text-text-light dark:text-dark-muted/60 text-xs font-medium shrink-0">hasta fin de periodo</p>
+                                    </div>
+                                </>
+                            );
+                        })()}
                     </div>
                 </section>
 
                 <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Seguimiento de gastos */}
                     <div className="lg:col-span-2 glass-card rounded-3xl p-6 md:p-8 flex flex-col gap-4 border border-white/5">
                         <div className="flex items-center justify-between">
                             <div>
@@ -566,97 +600,204 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    <div className="glass-card rounded-3xl p-6 border border-white/5 flex flex-col gap-4">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-bold text-text-main dark:text-white">Próximas facturas</h3>
-                            <span className="text-xs font-semibold text-text-muted dark:text-dark-muted/70">Próx. 5 días</span>
+                    {/* Actividad Reciente */}
+                    <div className="glass-card rounded-3xl p-0 flex flex-col overflow-hidden">
+                        <div className="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                            <h3 className="text-text-main dark:text-white text-lg font-bold">Actividad Reciente</h3>
+                            <Link href="/transactions" className="text-primary text-xs font-bold hover:text-primary-hover transition-colors">VER TODO</Link>
                         </div>
-                        {upcomingBills.length === 0 ? (
-                            <div className="flex-1 flex flex-col items-center justify-center text-center text-text-muted dark:text-dark-muted/70 text-sm">
-                                <span className="material-symbols-outlined text-3xl mb-2">event_available</span>
-                                No tienes pagos pendientes en los próximos días.
-                            </div>
-                        ) : (
-                            <div className="flex flex-col gap-3">
-                                {upcomingBills.map((bill) => (
-                                    <div key={bill.id} className="flex items-center justify-between rounded-2xl border border-gray-100 dark:border-white/10 px-4 py-3">
-                                        <div>
-                                            <p className="text-sm font-semibold text-text-main dark:text-white">{bill.name}</p>
-                                            <p className="text-xs text-text-muted dark:text-dark-muted">{bill.dueDateObj ? format(bill.dueDateObj, "EEE d 'de' MMM", { locale: es }) : 'Sin fecha'}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-base font-bold text-text-main dark:text-white">
-                                                <span className="text-xs align-baseline mr-0.5">{currencySymbol}</span>
-                                                {bill.amount.toFixed(2)}
-                                            </p>
-                                            <p className="text-[10px] text-primary font-semibold uppercase tracking-widest">{bill.frequency}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                        <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
+                            <div className="flex flex-col gap-1">
+                                {filteredTransactions.slice(0, 8).map((t) => {
+                                    const category = categories.find(c => c.name === t.category);
+                                    const colorKey = category?.color || 'slate';
+                                    const colors = COLOR_MAP[colorKey] || COLOR_MAP.slate;
 
-                    <div className="glass-card rounded-3xl p-6 border border-white/5 flex flex-col gap-4">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-bold text-text-main dark:text-white">Próximo pago</h3>
-                            <button onClick={() => router.push('/rules')} className="text-xs font-bold text-primary hover:text-primary-hover">Configurar</button>
-                        </div>
-                        {nextIncomeInfo ? (
-                            <>
-                                <div>
-                                    <p className="text-4xl font-black text-primary">{daysUntilNextPay ?? 0}<span className="text-base font-medium text-text-muted dark:text-dark-muted ml-2">días</span></p>
-                                    <p className="text-sm text-text-muted dark:text-dark-muted/70">para {nextIncomeInfo.rule.name}</p>
-                                </div>
-                                <div className="bg-primary/10 text-primary rounded-2xl px-4 py-3">
-                                    <p className="text-sm font-semibold">{currencySymbol}{nextIncomeInfo.rule.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })} entrarán a {nextIncomeInfo.rule.account}</p>
-                                    <p className="text-xs opacity-80">Fecha estimada: {format(nextIncomeInfo.date, "EEEE d 'de' MMMM", { locale: es })}</p>
-                                </div>
-                            </>
-                        ) : (
-                            <div className="flex-1 flex flex-col items-center justify-center text-center text-text-muted dark:text-dark-muted/70 text-sm">
-                                <span className="material-symbols-outlined text-3xl mb-2">hourglass_empty</span>
-                                Aún no registras reglas de ingresos activas.
+                                    return (
+                                        <div key={t.id} onClick={() => router.push(`/transaction/${t.id}`)} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-white/5 transition-colors cursor-pointer group">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`size-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 border ${colors.bg} ${colors.text} ${colors.border}`}>
+                                                    <CategoryIcon icon={t.icon || 'payments'} className="text-[20px]" />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <p className="text-text-main dark:text-white text-sm font-medium group-hover:text-primary transition-colors line-clamp-1">{t.description || t.category}</p>
+                                                    <p className={`text-[11px] font-semibold ${colors.text}`}>{t.category || 'General'}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col items-end whitespace-nowrap ml-2">
+                                                <p className={`text-sm font-bold ${t.type === 'INCOME' ? 'text-success' : 'text-text-main dark:text-white'}`}>
+                                                    {t.type === 'EXPENSE' ? '-' : '+'}
+                                                    <span className="text-xs align-baseline mr-0.5">{currencySymbol}</span>
+                                                    {t.amount.toFixed(2)}
+                                                </p>
+                                                <p className="text-text-light dark:text-dark-muted text-[10px] font-medium">{format(new Date(t.date), 'd MMM', { locale: es })}</p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                        )}
+                        </div>
                     </div>
                 </section>
 
-                <section className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                    <div className="flex items-center justify-between mb-5">
-                        <h3 className="text-text-main dark:text-white text-lg font-bold">Mis Cuentas</h3>
-                        <div className="flex gap-2">
-                            <button className="size-8 rounded-full border border-gray-200 dark:border-white/10 flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 text-text-muted dark:text-dark-muted transition-colors"><span className="material-symbols-outlined text-[18px]">chevron_left</span></button>
-                            <button className="size-8 rounded-full border border-gray-200 dark:border-white/10 flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 text-text-main dark:text-white transition-colors"><span className="material-symbols-outlined text-[18px]">chevron_right</span></button>
+                <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Desglose de Gastos - Por Cuenta */}
+                    <div className="glass-card rounded-3xl p-0 flex flex-col overflow-hidden border border-white/5">
+                        <div className="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-text-main dark:text-white">Gastos por Cuenta</h3>
+                            <button className="text-xs font-bold text-primary hover:text-primary-hover transition-colors">VER TODO</button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
+                            <div className="flex flex-col gap-4">
+                                {expensesByAccount.map((acc, idx) => {
+                                    const styles = {
+                                        CASH: { icon: 'payments', bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-600 dark:text-emerald-400', label: '+ Liquidez' },
+                                        BANK: { icon: 'account_balance', bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-600 dark:text-blue-400', label: 'Bancos' },
+                                        CREDIT: { icon: 'credit_card', bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-600 dark:text-orange-400', label: 'Deuda' },
+                                        INVESTMENT: { icon: 'savings', bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-600 dark:text-purple-400', label: 'Reserva' },
+                                    }[acc.type as string] || { icon: 'wallet', bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-600 dark:text-gray-400', label: 'Cuenta' };
+
+                                    return (
+                                        <div key={idx} onClick={() => router.push(`/accounts/${acc.id}`)} className="flex items-center justify-between p-4 rounded-2xl border border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group">
+                                            <div className="flex items-center gap-4">
+                                                <div className={`size-12 rounded-xl flex items-center justify-center ${styles.bg} ${styles.text}`}>
+                                                    <span className="material-symbols-outlined">{styles.icon}</span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[15px] font-bold text-text-main dark:text-white">{acc.name}</span>
+                                                    <span className="text-xs text-text-muted dark:text-dark-muted font-medium">{styles.label}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-lg font-black text-text-main dark:text-white">{currencySymbol}{acc.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                                {expensesByAccount.length === 0 && (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-text-muted dark:text-dark-muted text-xs min-h-[150px]">
+                                        <span className="material-symbols-outlined text-3xl opacity-50 mb-2">account_balance_wallet</span>
+                                        No hay gastos registrados
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {accounts.map((acc) => (
-                            <div key={acc.id} onClick={() => router.push('/accounts')} className="btn-interact glass-card p-5 rounded-xl border border-gray-200 dark:border-white/5 hover:-translate-y-1 hover:shadow-soft transition-transform duration-300 cursor-pointer group">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="size-10 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center text-text-main dark:text-white border border-gray-100 dark:border-white/5 group-hover:bg-primary/20 group-hover:text-primary transition-colors">
-                                        <span className="material-symbols-outlined">account_balance</span>
+
+                    {/* Desglose de Gastos - Por Categoría */}
+                    <div className="glass-card rounded-3xl p-0 flex flex-col overflow-hidden border border-white/5">
+                        <div className="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                            <div className="flex flex-col">
+                                <h3 className="text-lg font-bold text-text-main dark:text-white">Gastos por Categoría</h3>
+                                <p className="text-xs text-text-muted dark:text-dark-muted font-medium mt-1">¿En qué se fue el dinero?</p>
+                            </div>
+                            <button onClick={() => router.push('/budgets')} className="text-xs font-bold text-primary hover:text-primary-hover transition-colors">VER TODO</button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
+                            <div className="flex flex-col gap-6">
+                                {expensesByCategory.map((item, idx) => {
+                                    const colors = COLOR_MAP[item.colorKey] || COLOR_MAP.slate;
+                                    const maxAmount = Math.max(...expensesByCategory.map(i => i.amount), 1);
+                                    const percent = (item.amount / maxAmount) * 100; // Relative to max bar - visual scaling
+                                    const totalShare = (item.amount / (monthlyExpense || 1)) * 100; // Actual share of displayed period
+
+                                    return (
+                                        <div key={idx} className="flex flex-col gap-1.5">
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`flex items-center justify-center size-8 rounded-full ${colors.bg} ${colors.text}`}>
+                                                        <CategoryIcon icon={item.icon} className="text-[16px]" />
+                                                    </div>
+                                                    <span className="font-semibold text-text-main dark:text-white text-[15px]">{item.name}</span>
+                                                </div>
+                                                <span className="font-bold text-text-main dark:text-white text-[15px]">{totalShare.toFixed(0)}%</span>
+                                            </div>
+                                            <div className="h-2.5 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
+                                                <div className={`h-full rounded-full ${colors.bg.replace('bg-', 'bg-').replace('dark:bg-', '')} ${colors.solid}`} style={{ width: `${Math.max(percent, 5)}%` }}></div>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="text-sm font-medium text-gray-400">{currencySymbol}{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                                {expensesByCategory.length === 0 && (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-text-muted dark:text-dark-muted text-xs min-h-[150px]">
+                                        <span className="material-symbols-outlined text-3xl opacity-50 mb-2">donut_small</span>
+                                        No hay gastos por categoría
                                     </div>
-                                    <span className="text-xs font-bold bg-gray-100 dark:bg-[#292f38] text-text-muted dark:text-dark-muted px-2 py-1 rounded uppercase tracking-widest">{acc.type}</span>
-                                </div>
-                                <div>
-                                    <p className="text-text-muted dark:text-dark-muted text-xs mb-1 font-medium">{acc.name}</p>
-                                    <p className="text-text-main dark:text-white text-xl font-bold tracking-tight">**** {acc.lastFour}</p>
-                                    <p className="mt-2">
-                                        <MoneyDisplay amount={acc.balance} currency={currencySymbol} size="3xl" color="text-text-main dark:text-white" weight="font-medium" />
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="glass-card rounded-3xl p-0 flex flex-col overflow-hidden border border-white/5">
+                        <div className="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                            <h3 className="text-lg font-bold text-text-main dark:text-white">Próximos compromisos</h3>
+                            <button onClick={() => router.push('/commitments')} className="text-xs font-bold text-primary hover:text-primary-hover transition-colors">VER TODO</button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
+                            <div className="flex flex-col gap-3">
+                                {nextCommitments.top5.length === 0 ? (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-center text-text-muted dark:text-dark-muted/70 text-sm min-h-[200px]">
+                                        <span className="material-symbols-outlined text-3xl mb-2">event_available</span>
+                                        No tienes compromisos pendientes.
+                                    </div>
+                                ) : (
+                                    nextCommitments.top5.map((c) => {
+                                        // Resolve Category Icon & Color
+                                        const category = categories.find(cat => cat.id === c.categoryId) || categories.find(cat => cat.name === c.category);
+                                        const categoryIcon = category?.icon || 'event';
+                                        const colorKey = category?.color || 'slate';
+                                        const colors = COLOR_MAP[colorKey] || COLOR_MAP.slate;
+
+                                        // Correct Date Parsing (Local Time)
+                                        const [y, m, d] = c.nextDueDate.split('-').map(Number);
+                                        const dateObj = new Date(y, m - 1, d);
+
+                                        return (
+                                            <div
+                                                key={c.id}
+                                                onClick={() => setViewingCommitment(c)}
+                                                className="flex items-center justify-between rounded-2xl border border-gray-100 dark:border-white/10 px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`size-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 border ${colors.bg} ${colors.text} ${colors.border}`}>
+                                                        <CategoryIcon icon={categoryIcon} className="text-[20px]" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-semibold text-text-main dark:text-white line-clamp-1">{c.name || 'Sin nombre'}</p>
+                                                        <p className="text-xs text-text-muted dark:text-dark-muted capitalize">
+                                                            {format(dateObj, "EEE d 'de' MMM", { locale: es })}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right shrink-0 ml-2">
+                                                    <p className="text-base font-bold text-text-main dark:text-white">
+                                                        <span className="text-xs align-baseline mr-0.5">{currencySymbol}</span>
+                                                        {c.amount.toFixed(2)}
+                                                    </p>
+                                                    <p className="text-[10px] text-primary font-semibold uppercase tracking-widest leading-none">PENDIENTE</p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+                            {nextCommitments.remainingCount > 0 && (
+                                <div className="mt-2 pt-3 border-t border-gray-100 dark:border-white/10 text-center">
+                                    <p className="text-xs font-medium text-text-muted dark:text-dark-muted">
+                                        Faltan <span className="text-text-main dark:text-white font-bold">{nextCommitments.remainingCount}</span> de compromisos
                                     </p>
                                 </div>
-                            </div>
-                        ))}
-                        <div onClick={() => router.push('/accounts/add')} className="btn-interact p-5 rounded-xl border border-dashed border-gray-300 dark:border-white/10 flex flex-col items-center justify-center gap-3 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors min-h-[160px] group">
-                            <div className="size-12 rounded-full bg-gray-50 dark:bg-[#292f38] flex items-center justify-center text-text-muted dark:text-dark-muted">
-                                <span className="material-symbols-outlined">add</span>
-                            </div>
-                            <p className="text-text-muted dark:text-dark-muted text-sm font-medium">Agregar Cuenta</p>
+                            )}
                         </div>
                     </div>
                 </section>
-            </div>
+
+
+            </div >
 
             <button onClick={openTransactionModal} className="btn-interact hidden lg:flex fixed z-50 bottom-12 right-12 size-16 bg-gradient-primary text-white rounded-full shadow-[0_8px_30px_rgba(16,185,129,0.4)] items-center justify-center transition-all hover:scale-110 active:scale-95 group hover:shadow-primary/50">
                 <span className="material-symbols-outlined text-4xl group-hover:rotate-90 transition-transform duration-500">add</span>
@@ -669,6 +810,20 @@ export default function Dashboard() {
                 initialEndDate={dateRange.end}
             />
             <NotificationsModal isOpen={isNotificationsOpen} onClose={() => setIsNotificationsOpen(false)} />
+
+            {/* Commitment Modals */}
+            <CommitmentDetailsModal
+                isOpen={!!viewingCommitment}
+                onClose={() => setViewingCommitment(null)}
+                commitment={viewingCommitment}
+                onEdit={handleEditCommitment}
+                onDelete={handleDeleteCommitment}
+            />
+            <CommitmentModal
+                isOpen={isCommitmentModalOpen}
+                onClose={() => setIsCommitmentModalOpen(false)}
+                commitmentToEdit={editingCommitment}
+            />
         </div >
     );
 }
