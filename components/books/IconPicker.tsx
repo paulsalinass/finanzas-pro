@@ -76,18 +76,15 @@ const ICON_CATEGORIES = {
     ]
 }
 
+import { BOOK_COLORS } from "./ColorPicker"
+
 type IconType = 'classic' | 'emoji';
 
-export function IconPicker({ value, onChange }: { value: string, onChange: (icon: string) => void }) {
+export function IconPicker({ value, onChange, color }: { value: string, onChange: (icon: string) => void, color?: string }) {
     // Robust icon resolution
     const IconComponent = (Icons as any)[value];
-    // It's a lucide icon if the component exists
     const isLucide = !!IconComponent;
-    // It's an emoji if it's not Lucide AND it's short (likely a char or two). 
-    // If it's a long string (like "cottage") and not in Lucide, it's a legacy/invalid value.
     const isEmoji = !isLucide && value && value.length <= 4;
-
-    // Fallback for "cottage" or other legacy values -> use HelpCircle or just generic fallback
     const DisplayIcon = isLucide ? IconComponent : (isEmoji ? null : Icons.HelpCircle);
 
     const [isOpen, setIsOpen] = useState(false);
@@ -96,15 +93,16 @@ export function IconPicker({ value, onChange }: { value: string, onChange: (icon
     const [selectedCategory, setSelectedCategory] = useState<keyof typeof ICON_CATEGORIES>('General');
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Resolve color
+    const resolvedColor = BOOK_COLORS.Classic.find(c => c.value === color)?.hex || color;
+    // Determine if we have a specific color to show (not default/undefined)
+    const hasColor = !!color && color !== 'slate' && color !== 'gray';
+
     useEffect(() => {
         if (isOpen) {
-            // Trigger animation frame for smooth entry
             requestAnimationFrame(() => setIsVisible(true));
-
-            // If it's a lucide icon, open tab 'classic', otherwise 'emoji'
             setActiveTab(isLucide ? 'classic' : 'emoji');
 
-            // Handle Escape key to close ONLY this modal
             const handleKeyDown = (e: KeyboardEvent) => {
                 if (e.key === 'Escape') {
                     e.stopPropagation();
@@ -112,7 +110,6 @@ export function IconPicker({ value, onChange }: { value: string, onChange: (icon
                     handleClose();
                 }
             };
-
             window.addEventListener('keydown', handleKeyDown, true);
             return () => window.removeEventListener('keydown', handleKeyDown, true);
         } else {
@@ -124,7 +121,7 @@ export function IconPicker({ value, onChange }: { value: string, onChange: (icon
         setIsVisible(false);
         setTimeout(() => {
             setIsOpen(false);
-        }, 300); // Match transition duration
+        }, 300);
     };
 
     const handleSelect = (val: string) => {
@@ -141,11 +138,16 @@ export function IconPicker({ value, onChange }: { value: string, onChange: (icon
                 onClick={() => setIsOpen(true)}
                 className="flex items-center gap-4 w-full text-left group p-3 rounded-2xl border border-gray-200 dark:border-white/10 hover:border-primary/50 hover:bg-slate-50 dark:hover:bg-white/5 transition-all bg-white dark:bg-transparent"
             >
-                <div className="size-14 rounded-2xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden">
+                <div
+                    className={`size-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden
+                        ${!resolvedColor ? 'bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700' : ''}
+                    `}
+                    style={{ backgroundColor: resolvedColor }}
+                >
                     {DisplayIcon ? (
-                        <DisplayIcon size={28} className="text-primary" />
+                        <DisplayIcon size={28} className={resolvedColor ? "text-white drop-shadow-md" : "text-primary"} />
                     ) : (
-                        <span className="text-3xl leading-none select-none">{value || '😀'}</span>
+                        <span className="text-3xl leading-none select-none drop-shadow-sm">{value || '😀'}</span>
                     )}
                 </div>
 

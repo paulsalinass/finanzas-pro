@@ -173,7 +173,7 @@ export function CategoryModal({ isOpen, onClose, folders, activeBookId, defaultF
 
                         <div className="space-y-6 pt-4 border-t border-gray-100 dark:border-white/5">
                             <ColorPicker value={color} onChange={setColor} />
-                            <IconPicker value={icon} onChange={setIcon} />
+                            <IconPicker value={icon} onChange={setIcon} color={color} />
                         </div>
 
                         <div className="pt-6 flex justify-end gap-2 sticky bottom-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 -mx-6 -mb-6 border-t border-gray-100 dark:border-white/5">

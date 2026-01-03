@@ -262,6 +262,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$category$2
 ;
 ;
 ;
+;
 }),
 "[project]/.next-internal/server/app/(dashboard)/categories/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/category-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -276,7 +277,9 @@ __turbopack_context__.s([
     "40a680bceef55496edf0f120787b0ff31a2336938a",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$category$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateCategory"],
     "40ef68b1e954541f24d8a4aaa3cade72ef55cd2e67",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$category$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createCategory"]
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$category$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createCategory"],
+    "60c23372b8b45b596ffd1839aa760061a49fe9f017",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$category$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["moveCategory"]
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f2e$next$2d$internal$2f$server$2f$app$2f28$dashboard$292f$categories$2f$page$2f$actions$2e$js__$7b$__ACTIONS_MODULE0__$3d3e$__$225b$project$5d2f$app$2f$actions$2f$category$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$2922$__$7d$__$5b$app$2d$rsc$5d$__$28$server__actions__loader$2c$__ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i('[project]/.next-internal/server/app/(dashboard)/categories/page/actions.js { ACTIONS_MODULE0 => "[project]/app/actions/category-actions.ts [app-rsc] (ecmascript)" } [app-rsc] (server actions loader, ecmascript) <locals>');
 var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$category$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/app/actions/category-actions.ts [app-rsc] (ecmascript)");

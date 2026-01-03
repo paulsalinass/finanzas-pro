@@ -17,32 +17,12 @@ import { useFinance } from '@/context/FinanceContext';
 import { startOfMonth, endOfMonth, differenceInCalendarDays, addDays, startOfDay, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { MoneyDisplay } from '@/components/MoneyDisplay';
+import { COLOR_MAP } from '@/lib/category-colors';
 
 const DashboardChart = dynamic(() => import('@/components/DashboardChart'), {
     ssr: false,
     loading: () => <div className="h-full w-full bg-gray-100 dark:bg-white/5 animate-pulse rounded-xl" />
 });
-
-const COLOR_MAP: Record<string, { bg: string, text: string, ring: string, border: string, solid: string }> = {
-    red: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-600 dark:text-red-400', ring: 'ring-red-500/10', border: 'border-red-200', solid: 'bg-red-500' },
-    orange: { bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-600 dark:text-orange-400', ring: 'ring-orange-500/10', border: 'border-orange-200', solid: 'bg-orange-500' },
-    amber: { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-600 dark:text-amber-400', ring: 'ring-amber-500/10', border: 'border-amber-200', solid: 'bg-amber-500' },
-    yellow: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-600 dark:text-yellow-400', ring: 'ring-yellow-500/10', border: 'border-yellow-200', solid: 'bg-yellow-500' },
-    lime: { bg: 'bg-lime-100 dark:bg-lime-900/30', text: 'text-lime-600 dark:text-lime-400', ring: 'ring-lime-500/10', border: 'border-lime-200', solid: 'bg-lime-500' },
-    green: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-600 dark:text-green-400', ring: 'ring-green-500/10', border: 'border-green-200', solid: 'bg-green-500' },
-    emerald: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-600 dark:text-emerald-400', ring: 'ring-emerald-500/10', border: 'border-emerald-200', solid: 'bg-emerald-500' },
-    teal: { bg: 'bg-teal-100 dark:bg-teal-900/30', text: 'text-teal-600 dark:text-teal-400', ring: 'ring-teal-500/10', border: 'border-teal-200', solid: 'bg-teal-500' },
-    cyan: { bg: 'bg-cyan-100 dark:bg-cyan-900/30', text: 'text-cyan-600 dark:text-cyan-400', ring: 'ring-cyan-500/10', border: 'border-cyan-200', solid: 'bg-cyan-500' },
-    sky: { bg: 'bg-sky-100 dark:bg-sky-900/30', text: 'text-sky-600 dark:text-sky-400', ring: 'ring-sky-500/10', border: 'border-sky-200', solid: 'bg-sky-500' },
-    blue: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-600 dark:text-blue-400', ring: 'ring-blue-500/10', border: 'border-blue-200', solid: 'bg-blue-500' },
-    indigo: { bg: 'bg-indigo-100 dark:bg-indigo-900/30', text: 'text-indigo-600 dark:text-indigo-400', ring: 'ring-indigo-500/10', border: 'border-indigo-200', solid: 'bg-indigo-500' },
-    violet: { bg: 'bg-violet-100 dark:bg-violet-900/30', text: 'text-violet-600 dark:text-violet-400', ring: 'ring-violet-500/10', border: 'border-violet-200', solid: 'bg-violet-500' },
-    purple: { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-600 dark:text-purple-400', ring: 'ring-purple-500/10', border: 'border-purple-200', solid: 'bg-purple-500' },
-    fuchsia: { bg: 'bg-fuchsia-100 dark:bg-fuchsia-900/30', text: 'text-fuchsia-600 dark:text-fuchsia-400', ring: 'ring-fuchsia-500/10', border: 'border-fuchsia-200', solid: 'bg-fuchsia-500' },
-    pink: { bg: 'bg-pink-100 dark:bg-pink-900/30', text: 'text-pink-600 dark:text-pink-400', ring: 'ring-pink-500/10', border: 'border-pink-200', solid: 'bg-pink-500' },
-    rose: { bg: 'bg-rose-100 dark:bg-rose-900/30', text: 'text-rose-600 dark:text-rose-400', ring: 'ring-rose-500/10', border: 'border-rose-200', solid: 'bg-rose-500' },
-    slate: { bg: 'bg-slate-100 dark:bg-slate-800', text: 'text-slate-600 dark:text-slate-400', ring: 'ring-slate-500/10', border: 'border-slate-200', solid: 'bg-slate-500' },
-};
 
 
 
@@ -644,17 +624,21 @@ export default function Dashboard() {
                                 {filteredTransactions.slice(0, 8).map((t) => {
                                     const category = categories.find(c => c.name === t.category);
                                     const colorKey = category?.color || 'slate';
+                                    const isCustomColor = !COLOR_MAP[colorKey];
                                     const colors = COLOR_MAP[colorKey] || COLOR_MAP.slate;
 
                                     return (
                                         <div key={t.id} onClick={() => { setSelectedTrx(t); setIsDetailsOpen(true); }} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-white/5 transition-colors cursor-pointer group">
                                             <div className="flex items-center gap-3">
-                                                <div className={`size-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 border ${colors.bg} ${colors.text} ${colors.border}`}>
-                                                    <CategoryIcon icon={t.icon || 'payments'} className="text-[20px]" />
+                                                <div
+                                                    className={`size-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 border ${isCustomColor ? 'border-black/5 dark:border-white/10' : `${colors.bg} ${colors.text} ${colors.border}`}`}
+                                                    style={isCustomColor ? { backgroundColor: colorKey } : {}}
+                                                >
+                                                    <CategoryIcon icon={t.icon || 'payments'} className={`text-[20px] ${isCustomColor ? 'text-white' : ''}`} />
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <p className="text-text-main dark:text-white text-sm font-medium group-hover:text-primary transition-colors line-clamp-1">{t.description || t.category}</p>
-                                                    <p className={`text-[11px] font-semibold ${colors.text}`}>{t.category || 'General'}</p>
+                                                    <p className={`text-[11px] font-semibold ${isCustomColor ? 'text-text-muted dark:text-dark-muted' : colors.text}`}>{t.category || 'General'}</p>
                                                 </div>
                                             </div>
                                             <div className="flex flex-col items-end whitespace-nowrap ml-2">
@@ -740,6 +724,7 @@ export default function Dashboard() {
                         <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
                             <div className="flex flex-col gap-6">
                                 {expensesByCategory.map((item, idx) => {
+                                    const isCustomColor = !COLOR_MAP[item.colorKey];
                                     const colors = COLOR_MAP[item.colorKey] || COLOR_MAP.slate;
                                     const maxAmount = Math.max(...expensesByCategory.map(i => i.amount), 1);
                                     const percent = (item.amount / maxAmount) * 100; // Relative to max bar - visual scaling
@@ -749,7 +734,10 @@ export default function Dashboard() {
                                         <div key={idx} className="flex flex-col gap-1.5">
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center gap-2">
-                                                    <div className={`flex items-center justify-center size-8 rounded-full ${colors.bg} ${colors.text}`}>
+                                                    <div
+                                                        className={`flex items-center justify-center size-8 rounded-full ${isCustomColor ? 'text-white' : `${colors.bg} ${colors.text}`}`}
+                                                        style={isCustomColor ? { backgroundColor: item.colorKey } : {}}
+                                                    >
                                                         <CategoryIcon icon={item.icon} className="text-[16px]" />
                                                     </div>
                                                     <span className="font-semibold text-text-main dark:text-white text-[15px]">{item.name}</span>
@@ -757,7 +745,10 @@ export default function Dashboard() {
                                                 <span className="font-bold text-text-main dark:text-white text-[15px]">{totalShare.toFixed(0)}%</span>
                                             </div>
                                             <div className="h-2.5 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
-                                                <div className={`h-full rounded-full ${colors.bg.replace('bg-', 'bg-').replace('dark:bg-', '')} ${colors.solid}`} style={{ width: `${Math.max(percent, 5)}%` }}></div>
+                                                <div
+                                                    className={`h-full rounded-full ${!isCustomColor ? `${colors.solid}` : ''}`}
+                                                    style={{ width: `${Math.max(percent, 5)}%`, backgroundColor: isCustomColor ? item.colorKey : undefined }}
+                                                ></div>
                                             </div>
                                             <div className="text-right">
                                                 <span className="text-sm font-medium text-gray-400">{currencySymbol}{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
@@ -798,6 +789,7 @@ export default function Dashboard() {
                                         const category = categories.find(cat => cat.id === c.categoryId) || categories.find(cat => cat.name === c.category);
                                         const categoryIcon = category?.icon || 'event';
                                         const colorKey = category?.color || 'slate';
+                                        const isCustomColor = !COLOR_MAP[colorKey];
                                         const colors = COLOR_MAP[colorKey] || COLOR_MAP.slate;
 
                                         // Correct Date Parsing (Local Time)
@@ -811,8 +803,11 @@ export default function Dashboard() {
                                                 className="flex items-center justify-between rounded-2xl border border-gray-100 dark:border-white/10 px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`size-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 border ${colors.bg} ${colors.text} ${colors.border}`}>
-                                                        <CategoryIcon icon={categoryIcon} className="text-[20px]" />
+                                                    <div
+                                                        className={`size-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 border ${isCustomColor ? 'border-black/5 dark:border-white/10' : `${colors.bg} ${colors.text} ${colors.border}`}`}
+                                                        style={isCustomColor ? { backgroundColor: colorKey } : {}}
+                                                    >
+                                                        <CategoryIcon icon={categoryIcon} className={`text-[20px] ${isCustomColor ? 'text-white' : ''}`} />
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-semibold text-text-main dark:text-white line-clamp-1">{c.name || 'Sin nombre'}</p>

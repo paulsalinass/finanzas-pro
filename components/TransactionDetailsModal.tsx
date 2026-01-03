@@ -6,6 +6,7 @@ import { Transaction } from '@/types';
 import { useFinance } from '@/context/FinanceContext';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
 import { CategoryIcon } from './CategoryIcon';
+import { COLOR_MAP } from '@/lib/category-colors';
 
 interface TransactionDetailsModalProps {
     isOpen: boolean;
@@ -120,13 +121,32 @@ export const TransactionDetailsModal = ({ isOpen, onClose, transaction, onEdit }
                                     ? 'bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-900/20 dark:border-rose-900/30 dark:text-rose-400'
                                     : 'bg-emerald-50 border-emerald-100 text-emerald-600 dark:bg-emerald-900/20 dark:border-emerald-900/30 dark:text-emerald-400'
                                     }`}>
-                                    <span className="material-symbols-outlined text-base">{trx.type === 'EXPENSE' ? 'trending_down' : 'trending_up'}</span>
                                     <span className="text-[10px] font-black uppercase tracking-widest">{trx.type === 'EXPENSE' ? 'Gasto' : 'Ingreso'}</span>
                                 </div>
-                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm">
-                                    <CategoryIcon icon={trx.icon || 'category'} className="text-base text-amber-500" />
-                                    <span className="text-[10px] font-black text-text-muted dark:text-slate-400 uppercase tracking-widest">{trx.category}</span>
-                                </div>
+                                {(() => {
+                                    const categoryObj = categories.find(c => c.id === trx.category_id || c.name === trx.category);
+                                    const categoryColor = categoryObj?.color || 'slate';
+                                    const isCustomColor = !COLOR_MAP[categoryColor];
+                                    const colorStyles = isCustomColor ? null : COLOR_MAP[categoryColor];
+
+                                    return (
+                                        <div
+                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border shadow-sm ${isCustomColor
+                                                    ? 'border-black/5 dark:border-white/10'
+                                                    : `${colorStyles?.bg} ${colorStyles?.border}`
+                                                }`}
+                                            style={isCustomColor ? { backgroundColor: categoryColor } : {}}
+                                        >
+                                            <CategoryIcon
+                                                icon={trx.icon || 'category'}
+                                                className={`text-base ${isCustomColor ? 'text-white drop-shadow-sm' : colorStyles?.text}`}
+                                            />
+                                            <span className={`text-[10px] font-black uppercase tracking-widest ${isCustomColor ? 'text-white' : 'text-slate-600 dark:text-slate-400'}`}>
+                                                {trx.category}
+                                            </span>
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </div>
 
