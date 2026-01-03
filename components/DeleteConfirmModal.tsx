@@ -1,5 +1,7 @@
+"use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from "react-dom";
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -18,26 +20,64 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
   message = "Estás a punto de eliminar este elemento. Esta acción no se puede deshacer.",
   itemName
 }) => {
-  // Close on Escape key
-  React.useEffect(() => {
+  const [isMounted, setIsMounted] = useState(false);
+  const [portalElement, setPortalElement] = useState<HTMLElement | null>(null);
+
+  // Controls the CSS transition (opacity/scale)
+  const [isVisible, setIsVisible] = useState(false);
+  // Controls the rendering in DOM (to allow exit animation)
+  const [isRendered, setIsRendered] = useState(isOpen);
+
+  useEffect(() => {
+    setIsMounted(true);
+    setPortalElement(document.body);
+    return () => setIsMounted(false);
+  }, []);
+
+  // Animation and Rendering handling
+  useEffect(() => {
+    if (isOpen) {
+      setIsRendered(true);
+      // Double rAF to ensure browser paints initial state (opacity-0) before switching to active
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setIsVisible(true));
+      });
+    } else {
+      setIsVisible(false);
+      // Wait for transition to finish before removing from DOM
+      const timer = setTimeout(() => {
+        setIsRendered(false);
+      }, 300); // Matches transition-duration
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  // Close on Escape key (Capture Phase)
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
+        // Stop propagation to prevent closing parent modals (e.g. TransactionModal)
+        e.stopPropagation();
+        e.stopImmediatePropagation();
         onClose();
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    // Use { capture: true } to intercept the event before it reaches underlying listeners
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isMounted || !portalElement) return null;
+  // If not supposed to render (closed and animation finished), return null
+  if (!isRendered) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-[110] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm animate-fade-in transition-[left] duration-300"
+      className={`fixed inset-0 z-40 flex items-center justify-center p-4 lg:pl-[var(--sidebar-width)] bg-black/10 backdrop-blur-md transition-all duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
       onClick={onClose}
     >
       <div
-        className="glass-card relative w-full max-w-md transform overflow-hidden rounded-[2.5rem] shadow-premium transition-all animate-slide-up flex flex-col items-center pt-10 pb-8 px-8 sm:px-10 border border-white/80 dark:border-slate-800"
+        className={`glass-card relative w-full max-w-md transform overflow-hidden rounded-[2.5rem] shadow-premium flex flex-col items-center pt-10 pb-8 px-8 sm:px-10 border border-white/80 dark:border-slate-800 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${isVisible ? 'scale-100 translate-y-0 opacity-100' : 'scale-95 translate-y-4 opacity-0'}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Icon Container */}
@@ -63,7 +103,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
         <div className="flex w-full gap-3">
           <button
             onClick={onClose}
-            className="flex-1 cursor-pointer items-center justify-center rounded-xl h-12 px-6 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-bold transition-all focus:outline-none"
+            className="flex-1 cursor-pointer items-center justify-center rounded-xl h-12 px-6 bg-white text-gray-700 border border-gray-200 hover:bg-gray-800 hover:text-white dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10 dark:border-white/10 transition-all focus:outline-none text-sm font-bold"
           >
             Cancelar
           </button>
@@ -78,6 +118,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    portalElement
   );
 };

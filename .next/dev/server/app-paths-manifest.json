@@ -4,10 +4,10 @@
   "/(dashboard)/books/[id]/settings/page": "app/(dashboard)/books/[id]/settings/page.js",
   "/(dashboard)/books/create/page": "app/(dashboard)/books/create/page.js",
   "/(dashboard)/budgets/page": "app/(dashboard)/budgets/page.js",
+  "/(dashboard)/cards/page": "app/(dashboard)/cards/page.js",
   "/(dashboard)/categories/page": "app/(dashboard)/categories/page.js",
   "/(dashboard)/commitments/page": "app/(dashboard)/commitments/page.js",
   "/(dashboard)/ledgers/page": "app/(dashboard)/ledgers/page.js",
-  "/(dashboard)/menu/page": "app/(dashboard)/menu/page.js",
   "/(dashboard)/page": "app/(dashboard)/page.js",
   "/(dashboard)/profile/page": "app/(dashboard)/profile/page.js",
   "/(dashboard)/transactions/page": "app/(dashboard)/transactions/page.js"

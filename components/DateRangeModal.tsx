@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useLayoutEffect } from 'react';
+import { createPortal } from "react-dom";
 import { DayPicker, DateRange } from 'react-day-picker';
 import { format, startOfDay, endOfDay, subDays, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -82,11 +83,12 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
         from: initialStartDate || undefined,
         to: initialEndDate || undefined
     });
+    const [isVisible, setIsVisible] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+    const [portalElement, setPortalElement] = useState<HTMLElement | null>(null);
     const [activePreset, setActivePreset] = useState<string | null>(null);
     const [leftMonth, setLeftMonth] = useState<Date>(() => startOfMonth(initialStartDate || new Date()));
     const [rightMonth, setRightMonth] = useState<Date>(() => addMonths(startOfMonth(initialStartDate || new Date()), 1));
-    const [isVisible, setIsVisible] = useState(false);
-    const [isClosing, setIsClosing] = useState(false);
 
     const syncCalendarMonths = (fromDate?: Date | null, toDate?: Date | null) => {
         const baseLeft = startOfMonth(fromDate || new Date());
@@ -99,15 +101,30 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
     };
 
     useEffect(() => {
+        setIsMounted(true);
+        setPortalElement(document.body);
+        return () => setIsMounted(false);
+    }, []);
+
+    useEffect(() => {
         if (isOpen) {
-            setIsVisible(true);
-            setIsClosing(false);
+            setIsMounted(true);
             setRange({
                 from: initialStartDate || undefined,
                 to: initialEndDate || undefined
             });
             setActivePreset(null);
             syncCalendarMonths(initialStartDate || undefined, initialEndDate || undefined);
+
+            // Double rAF ensures the browser validates the 'closed' state first, then transitions to 'open' in the next frame
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => setIsVisible(true));
+            });
+        } else {
+            setIsVisible(false);
+            // Wait for animation to finish before unmounting (300ms matches CSS transition)
+            const timer = setTimeout(() => setIsMounted(false), 300);
+            return () => clearTimeout(timer);
         }
     }, [isOpen, initialStartDate, initialEndDate]);
 
@@ -123,11 +140,7 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
     }, [isOpen]);
 
     const handleClose = () => {
-        setIsClosing(true);
-        setTimeout(() => {
-            setIsVisible(false);
-            onClose();
-        }, 300);
+        onClose();
     };
 
     const years = useMemo(() => {
@@ -266,61 +279,55 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
         </div>
     );
 
-    if (!isOpen && !isVisible) return null;
+    if (!isMounted || !portalElement) return null;
 
-    return (
+    return createPortal(
         <div
-            className={`fixed inset-0 z-[120] flex transition-opacity duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
+            className={`fixed inset-0 z-40 flex items-center justify-center p-4 lg:pl-[var(--sidebar-width)] bg-black/10 backdrop-blur-md transition-all duration-300 ease-out ${isVisible ? "opacity-100" : "opacity-0"
+                }`}
             onClick={handleClose}
         >
             <div
-                className="hidden lg:block h-full"
-                style={{ width: 'var(--sidebar-width, 280px)' }}
-            />
-            <div
-                className={`flex-1 w-full relative flex items-center justify-center bg-slate-900/35 p-3 sm:p-4 backdrop-blur-sm transition-all duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
+                className={`date-range-modal w-full md:max-w-5xl bg-white dark:bg-[#101828] rounded-[28px] shadow-2xl border border-slate-200/80 dark:border-white/10 p-5 sm:p-6 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] max-h-[90dvh] overflow-y-auto ${isVisible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-4 scale-95"}`}
+                onClick={(e) => e.stopPropagation()}
             >
-                <div
-                    className={`date-range-modal w-full md:max-w-5xl bg-white dark:bg-[#101828] rounded-[28px] shadow-2xl border border-slate-200/80 dark:border-white/10 p-5 sm:p-6 transition-all duration-300 transform max-h-[90dvh] overflow-y-auto ${isVisible && !isClosing ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <div className="flex items-start justify-between gap-3 mb-4">
-                        <h3 className="text-base font-black text-slate-900 dark:text-white">Seleccionar Rango</h3>
-                        <button
-                            onClick={handleClose}
-                            className="size-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-primary hover:bg-primary/10 transition-colors dark:bg-white/10 dark:text-white"
-                        >
-                            <span className="material-symbols-outlined text-lg">close</span>
-                        </button>
-                    </div>
+                <div className="flex items-start justify-between gap-3 mb-4">
+                    <h3 className="text-base font-black text-slate-900 dark:text-white">Seleccionar Rango</h3>
+                    <button
+                        onClick={handleClose}
+                        className="size-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-primary hover:bg-primary/10 transition-colors dark:bg-white/10 dark:text-white"
+                    >
+                        <span className="material-symbols-outlined text-lg">close</span>
+                    </button>
+                </div>
 
-                    <div className="flex flex-col lg:flex-row gap-4">
-                        <aside className="flex flex-col gap-2 w-full lg:w-56">
-                            <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-wide">Rangos rápidos</p>
-                            <div className="grid grid-cols-2 lg:grid-cols-1 gap-2">
-                                {quickRanges.map((preset) => {
-                                    const isActive = activePreset === preset.label;
-                                    // Hide 'Últimos 3 meses' on mobile
-                                    const isHiddenOnMobile = preset.label === 'Últimos 3 meses';
+                <div className="flex flex-col lg:flex-row gap-4">
+                    <aside className="flex flex-col gap-2 w-full lg:w-56">
+                        <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-wide">Rangos rápidos</p>
+                        <div className="grid grid-cols-2 lg:grid-cols-1 gap-2">
+                            {quickRanges.map((preset) => {
+                                const isActive = activePreset === preset.label;
+                                // Hide 'Últimos 3 meses' on mobile
+                                const isHiddenOnMobile = preset.label === 'Últimos 3 meses';
 
-                                    return (
-                                        <button
-                                            key={preset.label}
-                                            onClick={() => handlePresetClick(preset)}
-                                            className={`text-left px-3 py-1.5 rounded-2xl border text-[11px] font-semibold transition-all ${isActive
-                                                ? 'bg-primary/10 border-primary/40 text-primary'
-                                                : 'border-slate-200 text-slate-600 hover:border-primary/30 hover:text-primary'
-                                                } ${isHiddenOnMobile ? 'hidden md:block' : ''}`}
-                                        >
-                                            {preset.label}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </aside>
+                                return (
+                                    <button
+                                        key={preset.label}
+                                        onClick={() => handlePresetClick(preset)}
+                                        className={`text-left px-3 py-1.5 rounded-2xl border text-[11px] font-semibold transition-all ${isActive
+                                            ? 'bg-primary/10 border-primary/40 text-primary'
+                                            : 'border-slate-200 text-slate-600 hover:border-primary/30 hover:text-primary'
+                                            } ${isHiddenOnMobile ? 'hidden md:block' : ''}`}
+                                    >
+                                        {preset.label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </aside>
 
-                        <div className="flex-1 overflow-hidden px-2 md:px-4">
-                            <style>{`
+                    <div className="flex-1 overflow-hidden px-2 md:px-4">
+                        <style>{`
                                 .date-range-modal .rdp {
                                     --rdp-cell-size: 30px;
                                     --rdp-accent-color: #10B981;
@@ -364,78 +371,78 @@ export const DateRangeModal: React.FC<DateRangeModalProps> = ({ isOpen, onClose,
                                     display: none;
                                 }
                             `}</style>
-                            <div className="w-full flex flex-col md:flex-row gap-3 md:gap-6 justify-between">
-                                <div className="flex-1 border border-slate-100 rounded-2xl p-2 shadow-sm dark:border-white/10 backdrop-blur-sm">
-                                    <MonthControls
-                                        month={leftMonth}
-                                        onChange={handleLeftMonthChange}
-                                    />
-                                    <DayPicker
-                                        mode="range"
-                                        selected={range}
-                                        onSelect={handleRangeSelect}
-                                        month={leftMonth}
-                                        onMonthChange={handleLeftMonthChange}
-                                        numberOfMonths={1}
-                                        locale={es}
-                                    />
-                                </div>
-                                <div className="hidden md:block flex-1 border border-slate-100 rounded-2xl p-2 shadow-sm dark:border-white/10 backdrop-blur-sm">
-                                    <MonthControls
-                                        month={rightMonth}
-                                        onChange={handleRightMonthChange}
-                                        disablePrev={rightMonth <= addMonths(leftMonth, 1)}
-                                    />
-                                    <DayPicker
-                                        mode="range"
-                                        selected={range}
-                                        onSelect={handleRangeSelect}
-                                        month={rightMonth}
-                                        onMonthChange={handleRightMonthChange}
-                                        numberOfMonths={1}
-                                        locale={es}
-                                    />
-                                </div>
+                        <div className="w-full flex flex-col md:flex-row gap-3 md:gap-6 justify-between">
+                            <div className="flex-1 border border-slate-100 rounded-2xl p-2 shadow-sm dark:border-white/10 backdrop-blur-sm">
+                                <MonthControls
+                                    month={leftMonth}
+                                    onChange={handleLeftMonthChange}
+                                />
+                                <DayPicker
+                                    mode="range"
+                                    selected={range}
+                                    onSelect={handleRangeSelect}
+                                    month={leftMonth}
+                                    onMonthChange={handleLeftMonthChange}
+                                    numberOfMonths={1}
+                                    locale={es}
+                                />
                             </div>
-                        </div>
-                    </div>
-
-                    <div className="mt-5 border-t border-slate-100 dark:border-white/10 pt-3 flex flex-col gap-3">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
-                                <div className="flex items-center gap-2 w-full sm:w-auto">
-                                    <input
-                                        readOnly
-                                        value={range?.from ? format(range.from, 'dd/MM/yyyy') : ''}
-                                        placeholder="Inicio"
-                                        className="flex-1 sm:w-32 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-700 focus:border-primary focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
-                                    />
-                                    <span className="text-slate-400 text-xs">-</span>
-                                    <input
-                                        readOnly
-                                        value={range?.to ? format(range.to, 'dd/MM/yyyy') : ''}
-                                        placeholder="Fin"
-                                        className="flex-1 sm:w-32 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-700 focus:border-primary focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
-                                    />
-                                </div>
-                                <p className="text-[11px] text-slate-400 dark:text-white/60">{formattedRange}</p>
-                            </div>
-                            <div className="flex flex-row items-center gap-2 justify-end w-full sm:w-auto mt-2 sm:mt-0">
-                                <button onClick={handleClose} className="flex-1 sm:flex-none px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-[11px] font-semibold hover:border-slate-300 dark:border-white/10 dark:text-white justify-center">
-                                    Cancelar
-                                </button>
-                                <button
-                                    onClick={handleApply}
-                                    disabled={!range?.from || !range?.to}
-                                    className="flex-1 sm:flex-none px-6 py-2 rounded-xl bg-primary text-white text-[11px] font-bold shadow-lg shadow-primary/30 hover:bg-primary-hover transition disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none justify-center"
-                                >
-                                    Aplicar
-                                </button>
+                            <div className="hidden md:block flex-1 border border-slate-100 rounded-2xl p-2 shadow-sm dark:border-white/10 backdrop-blur-sm">
+                                <MonthControls
+                                    month={rightMonth}
+                                    onChange={handleRightMonthChange}
+                                    disablePrev={rightMonth <= addMonths(leftMonth, 1)}
+                                />
+                                <DayPicker
+                                    mode="range"
+                                    selected={range}
+                                    onSelect={handleRangeSelect}
+                                    month={rightMonth}
+                                    onMonthChange={handleRightMonthChange}
+                                    numberOfMonths={1}
+                                    locale={es}
+                                />
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div className="mt-5 border-t border-slate-100 dark:border-white/10 pt-3 flex flex-col gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
+                            <div className="flex items-center gap-2 w-full sm:w-auto">
+                                <input
+                                    readOnly
+                                    value={range?.from ? format(range.from, 'dd/MM/yyyy') : ''}
+                                    placeholder="Inicio"
+                                    className="flex-1 sm:w-32 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-700 focus:border-primary focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
+                                />
+                                <span className="text-slate-400 text-xs">-</span>
+                                <input
+                                    readOnly
+                                    value={range?.to ? format(range.to, 'dd/MM/yyyy') : ''}
+                                    placeholder="Fin"
+                                    className="flex-1 sm:w-32 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] text-slate-700 focus:border-primary focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
+                                />
+                            </div>
+                            <p className="text-[11px] text-slate-400 dark:text-white/60">{formattedRange}</p>
+                        </div>
+                        <div className="flex flex-row items-center gap-2 justify-end w-full sm:w-auto mt-2 sm:mt-0">
+                            <button onClick={handleClose} className="flex-1 sm:flex-none px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-[11px] font-semibold hover:border-slate-300 dark:border-white/10 dark:text-white justify-center">
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleApply}
+                                disabled={!range?.from || !range?.to}
+                                className="flex-1 sm:flex-none px-6 py-2 rounded-xl bg-primary text-white text-[11px] font-bold shadow-lg shadow-primary/30 hover:bg-primary-hover transition disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none justify-center"
+                            >
+                                Aplicar
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </div>,
+        portalElement
     );
 };

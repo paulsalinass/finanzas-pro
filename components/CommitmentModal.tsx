@@ -1,8 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from "react-dom";
 import { useFinance } from '@/context/FinanceContext';
 import { Commitment } from '@/types';
+import { format } from 'date-fns';
+import CustomDatePicker from './CustomDatePicker';
 
 interface CommitmentModalProps {
     isOpen: boolean;
@@ -20,6 +23,9 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
         activeBookId
     } = useFinance();
 
+    const [isMounted, setIsMounted] = useState(false);
+    const [portalElement, setPortalElement] = useState<HTMLElement | null>(null);
+
     const [name, setName] = useState('');
     const [amount, setAmount] = useState('');
     const [frequency, setFrequency] = useState<'MONTHLY' | 'WEEKLY' | 'ANNUAL' | 'DAILY' | 'BIWEEKLY' | 'QUARTERLY' | 'SEMIANNUAL'>('MONTHLY');
@@ -33,15 +39,24 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
     const [isActive, setIsActive] = useState(true);
     const [isAutoPay, setIsAutoPay] = useState(false);
 
+    const [activeDatePicker, setActiveDatePicker] = useState<'NEXT_DUE' | 'END_DATE' | null>(null);
+
     const [isVisible, setIsVisible] = useState(false);
     const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+        setPortalElement(document.body);
+        return () => setIsMounted(false);
+    }, []);
 
     useEffect(() => {
         if (isOpen) {
             setShowModal(true);
             // Small delay to ensure DOM is present before opacity transition
-            const timer = setTimeout(() => setIsVisible(true), 10);
-            return () => clearTimeout(timer);
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => setIsVisible(true));
+            });
         } else {
             setIsVisible(false);
             const timer = setTimeout(() => setShowModal(false), 300);
@@ -143,7 +158,8 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, onClose]);
 
-    if (!showModal) return null;
+    if (!isMounted || !portalElement) return null;
+    if (!showModal && !isOpen) return null;
 
     const activeLedger = ledgers.find(l => l.id === activeBookId);
     const currencyCode = activeLedger?.currency || 'USD';
@@ -166,13 +182,13 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
     const categoryName = categories.find(c => c.id === categoryId)?.name || '...';
     const startDateFormatted = nextDueDate ? new Date(nextDueDate).toLocaleDateString('es-ES') : '...';
 
-    return (
+    return createPortal(
         <div
-            className={`fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+            className={`fixed inset-0 z-40 flex items-center justify-center p-4 lg:pl-[var(--sidebar-width)] bg-black/10 backdrop-blur-md transition-all duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
             onClick={onClose}
         >
             <div
-                className={`bg-white dark:bg-[#1e2530] w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] transition-all duration-300 transform ${isVisible ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4'}`}
+                className={`bg-white/95 dark:bg-[#0B1120]/95 backdrop-blur-xl w-full max-w-2xl rounded-3xl shadow-glass border border-white/20 dark:border-white/10 overflow-hidden flex flex-col max-h-[90dvh] transition-all duration-300 transform ${isVisible ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -183,7 +199,7 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                         </h2>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Configura los detalles de tus transacciones automáticas.</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors">
+                    <button onClick={onClose} className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors cursor-pointer">
                         <span className="material-symbols-outlined text-gray-500 text-2xl">close</span>
                     </button>
                 </div>
@@ -196,14 +212,14 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                             <button
                                 type="button"
                                 onClick={() => setTransactionType('INCOME')}
-                                className={`flex-1 py-1.5 rounded-xl text-sm font-bold transition-all ${transactionType === 'INCOME' ? 'bg-white dark:bg-[#1e2530] text-success shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
+                                className={`flex-1 py-1.5 rounded-xl text-sm font-bold transition-all cursor-pointer ${transactionType === 'INCOME' ? 'bg-white dark:bg-[#1e2530] text-success shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                             >
                                 Ingreso
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setTransactionType('EXPENSE')}
-                                className={`flex-1 py-1.5 rounded-xl text-sm font-bold transition-all ${transactionType === 'EXPENSE' ? 'bg-white dark:bg-[#1e2530] text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
+                                className={`flex-1 py-1.5 rounded-xl text-sm font-bold transition-all cursor-pointer ${transactionType === 'EXPENSE' ? 'bg-white dark:bg-[#1e2530] text-danger shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                             >
                                 Gasto
                             </button>
@@ -219,7 +235,7 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                                 type="text"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full bg-white dark:bg-[#252b36] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/50 transition-all dark:text-white"
+                                className="w-full bg-gray-50/50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all dark:text-white"
                                 placeholder="Ej. Netflix Premium"
                             />
                         </div>
@@ -228,12 +244,11 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                         <div className="col-span-1">
                             <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2">Monto</label>
                             <div className="relative">
-                                <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-bold ${transactionType === 'INCOME' ? 'text-success' : 'text-gray-500'}`}>{currencySymbol}</span>
+                                <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-bold ${transactionType === 'INCOME' ? 'text-success' : 'text-danger'}`}>{currencySymbol}</span>
                                 <input
-                                    type="number"
                                     value={amount}
                                     onChange={(e) => setAmount(e.target.value)}
-                                    className={`w-full bg-white dark:bg-[#252b36] border border-gray-200 dark:border-gray-700 rounded-xl pl-12 pr-4 py-3 outline-none focus:ring-2 focus:ring-primary/50 transition-all dark:text-white font-mono font-bold ${transactionType === 'INCOME' ? 'text-success' : ''}`}
+                                    className={`w-full bg-gray-50/50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-2xl pl-12 pr-4 py-3 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all dark:text-white font-mono font-bold ${transactionType === 'INCOME' ? 'text-success' : 'text-danger'}`}
                                     placeholder="0.00"
                                 />
                             </div>
@@ -257,7 +272,7 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                                         <select
                                             value={frequency}
                                             onChange={(e: any) => setFrequency(e.target.value)}
-                                            className="flex-1 bg-white dark:bg-[#252b36] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/50 transition-all dark:text-white cursor-pointer"
+                                            className="flex-1 bg-gray-50/50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all dark:text-white cursor-pointer"
                                         >
                                             <option value="WEEKLY">Semana(s)</option>
                                             <option value="BIWEEKLY">Quincena(s)</option>
@@ -269,19 +284,17 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                                     </div>
                                 </div>
 
-                                {/* Próxima ocurrencia */}
+                                {/* Próxima ocurrencia - UPDATED */}
                                 <div>
                                     <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2">Próxima ocurrencia</label>
-                                    <div className="relative">
-                                        <input
-                                            type="date"
-                                            value={nextDueDate}
-                                            onChange={(e) => setNextDueDate(e.target.value)}
-                                            className="w-full bg-white dark:bg-[#252b36] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/50 transition-all dark:text-white"
-                                        />
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                                            <span className="material-symbols-outlined text-[20px]">calendar_today</span>
-                                        </div>
+                                    <div
+                                        onClick={() => setActiveDatePicker('NEXT_DUE')}
+                                        className="w-full bg-gray-50/50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 outline-none ring-offset-2 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all dark:text-white cursor-pointer flex items-center justify-between"
+                                    >
+                                        <span className={`font-bold ${!nextDueDate && 'text-gray-400'}`}>
+                                            {nextDueDate ? format(new Date(nextDueDate), 'dd/MM/yyyy') : 'dd/mm/aaaa'}
+                                        </span>
+                                        <span className="material-symbols-outlined text-[20px] text-gray-400">calendar_today</span>
                                     </div>
                                 </div>
                             </div>
@@ -290,8 +303,8 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                             <div className="mt-4 flex items-center gap-3">
                                 <button
                                     type="button"
-                                    onClick={() => setEndDate(endDate ? '' : new Date().toISOString().split('T')[0])}
-                                    className={`relative w-11 h-6 rounded-full transition-colors ${endDate ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'}`}
+                                    onClick={() => setEndDate(endDate ? '' : new Date().toISOString())}
+                                    className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer ${endDate ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-700'}`}
                                 >
                                     <span className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${endDate ? 'translate-x-5' : ''}`} />
                                 </button>
@@ -301,12 +314,15 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                             {endDate && (
                                 <div className="mt-4 animate-fade-in-down">
                                     <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-2">Fecha de Finalización</label>
-                                    <input
-                                        type="date"
-                                        value={endDate}
-                                        onChange={(e) => setEndDate(e.target.value)}
-                                        className="w-full md:w-1/2 bg-white dark:bg-[#252b36] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary/50 transition-all dark:text-white"
-                                    />
+                                    <div
+                                        onClick={() => setActiveDatePicker('END_DATE')}
+                                        className="w-full md:w-1/2 bg-white dark:bg-[#252b36] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none ring-offset-2 focus-within:ring-2 focus-within:ring-primary/50 transition-all dark:text-white cursor-pointer flex items-center justify-between"
+                                    >
+                                        <span className="font-bold">
+                                            {format(new Date(endDate), 'dd/MM/yyyy')}
+                                        </span>
+                                        <span className="material-symbols-outlined text-[20px] text-gray-400">calendar_today</span>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -400,18 +416,34 @@ export const CommitmentModal = ({ isOpen, onClose, commitmentToEdit }: Commitmen
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 px-4 py-3 rounded-xl font-bold text-gray-500 bg-gray-50 hover:bg-gray-100 dark:bg-white/5 dark:text-gray-400 dark:hover:text-white transition-colors"
+                        className="flex-1 px-4 py-3 rounded-xl font-bold text-gray-500 bg-gray-50 hover:bg-gray-100 dark:bg-white/5 dark:text-gray-400 dark:hover:text-white transition-colors cursor-pointer"
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={handleSubmit}
-                        className={`flex-1 px-4 py-3 rounded-xl font-bold text-white shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 ${transactionType === 'INCOME' ? 'bg-green-600 shadow-green-600/30 hover:bg-green-700' : 'bg-primary shadow-primary/30 hover:bg-primary/90'}`}
+                        className="flex-1 px-4 py-3 rounded-xl font-bold text-white shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer bg-primary shadow-primary/30 hover:bg-gray-800"
                     >
                         {commitmentToEdit ? 'Guardar' : 'Crear'}
                     </button>
                 </div>
+
+                <CustomDatePicker
+                    isOpen={!!activeDatePicker}
+                    onClose={() => setActiveDatePicker(null)}
+                    value={
+                        activeDatePicker === 'NEXT_DUE' && nextDueDate ? new Date(nextDueDate) :
+                            activeDatePicker === 'END_DATE' && endDate ? new Date(endDate) :
+                                new Date()
+                    }
+                    onChange={(date) => {
+                        if (activeDatePicker === 'NEXT_DUE') setNextDueDate(date.toISOString());
+                        if (activeDatePicker === 'END_DATE') setEndDate(date.toISOString());
+                        setActiveDatePicker(null);
+                    }}
+                />
             </div>
-        </div>
+        </div>,
+        portalElement
     );
 };

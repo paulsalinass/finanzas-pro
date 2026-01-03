@@ -34,7 +34,7 @@ export default function Reports() {
             {/* Decorative background blob */}
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-100/30 dark:bg-blue-900/10 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
 
-            <div className="container mx-auto max-w-[1200px] p-6 lg:p-10 flex flex-col gap-8">
+            <div className="container mx-auto max-w-[1200px] p-4 md:p-8 flex flex-col gap-8">
                 {/* Page Header */}
                 <header className="flex flex-wrap justify-between items-end gap-6 animate-fade-in">
                     <div className="flex flex-col gap-1">
@@ -65,7 +65,7 @@ export default function Reports() {
                 {/* Key Metrics Stats */}
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
                     {/* Income Card */}
-                    <div className="glass-card p-6 rounded-2xl flex flex-col gap-4 group hover:-translate-y-1 transition-all duration-300 border border-white/40 dark:border-slate-800">
+                    <div className="glass-card p-6 rounded-3xl flex flex-col gap-4 group hover:-translate-y-1 transition-all duration-300 border border-white/40 dark:border-slate-800">
                         <div className="flex justify-between items-start">
                             <div className="flex flex-col gap-1">
                                 <span className="text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-[0.15em]">Ingresos Totales</span>
@@ -82,7 +82,7 @@ export default function Reports() {
                     </div>
 
                     {/* Expenses Card */}
-                    <div className="glass-card p-6 rounded-2xl flex flex-col gap-4 group hover:-translate-y-1 transition-all duration-300 border border-white/40 dark:border-slate-800">
+                    <div className="glass-card p-6 rounded-3xl flex flex-col gap-4 group hover:-translate-y-1 transition-all duration-300 border border-white/40 dark:border-slate-800">
                         <div className="flex justify-between items-start">
                             <div className="flex flex-col gap-1">
                                 <span className="text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-[0.15em]">Gastos Totales</span>
@@ -99,7 +99,7 @@ export default function Reports() {
                     </div>
 
                     {/* Net Savings Card */}
-                    <div className="glass-card p-6 rounded-2xl flex flex-col gap-4 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 border border-white/40 dark:border-slate-800">
+                    <div className="glass-card p-6 rounded-3xl flex flex-col gap-4 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 border border-white/40 dark:border-slate-800">
                         <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary/10 rounded-full blur-xl"></div>
                         <div className="flex justify-between items-start relative z-10">
                             <div className="flex flex-col gap-1">
@@ -120,7 +120,7 @@ export default function Reports() {
                 {/* Charts Section */}
                 <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
                     {/* Main Trend Chart */}
-                    <div className="lg:col-span-2 glass-card p-6 lg:p-8 rounded-[2.5rem] flex flex-col justify-between min-h-[450px] border border-white/40 dark:border-slate-800 shadow-soft">
+                    <div className="lg:col-span-2 glass-card p-6 lg:p-8 rounded-3xl flex flex-col justify-between min-h-[450px] border border-white/40 dark:border-slate-800 shadow-soft">
                         <div className="flex justify-between items-start mb-8">
                             <div>
                                 <h3 className="text-slate-900 dark:text-white text-xl font-black tracking-tight">Flujo de Dinero</h3>
@@ -169,7 +169,7 @@ export default function Reports() {
                     </div>
 
                     {/* Category Breakdown */}
-                    <div className="glass-card p-8 rounded-[2.5rem] flex flex-col gap-8 border border-white/40 dark:border-slate-800 shadow-soft">
+                    <div className="glass-card p-8 rounded-3xl flex flex-col gap-8 border border-white/40 dark:border-slate-800 shadow-soft">
                         <div className="flex justify-between items-start">
                             <div>
                                 <h3 className="text-slate-900 dark:text-white text-xl font-black tracking-tight">Gastos por Categoría</h3>
@@ -202,7 +202,7 @@ export default function Reports() {
                 </section>
 
                 {/* Insights Section */}
-                <section className="glass-card p-6 rounded-[2rem] border-l-[6px] border-primary flex flex-col md:flex-row gap-5 items-center animate-fade-in shadow-soft" style={{ animationDelay: '0.3s' }}>
+                <section className="glass-card p-6 rounded-3xl border-l-[6px] border-primary flex flex-col md:flex-row gap-5 items-center animate-fade-in shadow-soft" style={{ animationDelay: '0.3s' }}>
                     <div className="size-14 rounded-2xl bg-primary/10 flex-shrink-0 flex items-center justify-center text-primary shadow-inner">
                         <span className="material-symbols-outlined text-3xl">lightbulb</span>
                     </div>
@@ -216,7 +216,7 @@ export default function Reports() {
                 </section>
 
                 {/* Recent Transactions Mini-Table */}
-                <section className="glass-card rounded-[2.5rem] overflow-hidden border border-white/40 dark:border-slate-800 animate-fade-in shadow-soft" style={{ animationDelay: '0.4s' }}>
+                <section className="glass-card rounded-3xl overflow-hidden border border-white/40 dark:border-slate-800 animate-fade-in shadow-soft" style={{ animationDelay: '0.4s' }}>
                     <div className="px-8 py-6 border-b border-white/50 dark:border-slate-800 flex flex-wrap justify-between items-center bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm gap-4">
                         <h3 className="font-black text-slate-800 dark:text-white uppercase text-[12px] tracking-[0.2em]">Movimientos Relevantes</h3>
                         <button className="text-xs font-black text-primary hover:text-primary/80 uppercase tracking-widest bg-primary/10 px-4 py-2 rounded-xl transition-all">Ver Reporte Detallado</button>

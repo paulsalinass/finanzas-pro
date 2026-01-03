@@ -172,7 +172,7 @@ export default function Budgets() {
             <div
                 key={budget.id}
                 onClick={() => handleBudgetClick(budget)}
-                className={`glass-card rounded-3xl p-6 hover:shadow-xl transition-all duration-300 group cursor-pointer border-l-4 border-l-transparent hover:${status.borderClass}`}
+                className={`glass-card rounded-3xl p-6 hover:shadow-md transition-all duration-300 group cursor-pointer border-l-4 border-l-transparent hover:${status.borderClass}`}
             >
                 <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
@@ -227,7 +227,7 @@ export default function Budgets() {
                 <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-100 rounded-full blur-[120px]"></div>
             </div>
 
-            <div className="container mx-auto max-w-[1200px] p-6 lg:p-10 flex flex-col gap-8">
+            <div className="container mx-auto max-w-[1200px] p-4 md:p-8 flex flex-col gap-8">
                 {/* Page Header */}
                 <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-fade-in">
                     <div className="flex flex-col gap-1">
@@ -239,7 +239,7 @@ export default function Budgets() {
                     <div className="flex flex-row items-center gap-3 w-full md:w-auto">
                         <button
                             onClick={() => setIsDateModalOpen(true)}
-                            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-medium text-sm hover:border-primary hover:text-primary transition-colors h-12"
+                            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-medium text-sm hover:border-primary hover:text-primary transition-colors h-12 cursor-pointer"
                         >
                             <span className="material-symbols-outlined text-[20px]">calendar_month</span>
                             <span className="whitespace-nowrap text-xs sm:text-sm">{dateRange.start.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} - {dateRange.end.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>
@@ -247,9 +247,9 @@ export default function Budgets() {
 
                         <button
                             onClick={() => setIsCreateModalOpen(true)}
-                            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white font-bold py-3 px-3 md:px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 h-12"
+                            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-primary hover:bg-gray-800 text-white font-bold py-3 px-3 md:px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 h-12 group cursor-pointer"
                         >
-                            <span className="material-symbols-outlined text-[20px]">add</span>
+                            <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-300">add</span>
                             <span className="text-xs sm:text-sm whitespace-nowrap">Nuevo <span className="hidden sm:inline">Presupuesto</span></span>
                         </button>
                     </div>
@@ -257,7 +257,7 @@ export default function Budgets() {
 
                 {/* Summary Stats */}
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-5 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                    <div className="glass-card rounded-3xl p-6 flex flex-col gap-3 group hover:shadow-lg transition-all duration-300">
+                    <div className="glass-card rounded-3xl p-6 flex flex-col gap-3 group transition-all duration-300">
                         <div className="flex items-center justify-between">
                             <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-primary">
                                 <span className="material-symbols-outlined">assignment</span>
@@ -272,7 +272,7 @@ export default function Budgets() {
                         </div>
                     </div>
 
-                    <div className="glass-card rounded-3xl p-6 flex flex-col gap-3 group hover:shadow-lg transition-all duration-300">
+                    <div className="glass-card rounded-3xl p-6 flex flex-col gap-3 group transition-all duration-300">
                         <div className="flex items-center justify-between">
                             <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg text-emerald-600">
                                 <span className="material-symbols-outlined">savings</span>
@@ -290,7 +290,7 @@ export default function Budgets() {
                         </div>
                     </div>
 
-                    <div className="glass-card rounded-3xl p-6 flex flex-col gap-3 group hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+                    <div className="glass-card rounded-3xl p-6 flex flex-col gap-3 group transition-all duration-300 relative overflow-hidden">
                         <div className="absolute -right-4 -top-4 w-20 h-20 bg-orange-100 dark:bg-orange-900/20 rounded-full blur-2xl"></div>
                         <div className="flex items-center justify-between relative z-10">
                             <div className="p-2 bg-orange-50 dark:bg-orange-900/30 rounded-lg text-orange-500">

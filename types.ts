@@ -7,6 +7,7 @@ export interface Category {
   color?: string;
   icon?: string;
   folder_id?: string;
+  order?: number;
 }
 
 export interface CategoryFolder {

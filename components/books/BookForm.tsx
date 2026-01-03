@@ -73,14 +73,14 @@ export function BookForm({ mode, defaultValues, bookId }: BookFormProps) {
                     <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
                         <Link
                             href="/ledgers"
-                            className="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
+                            className="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 transition-colors cursor-pointer"
                         >
                             Cancelar
                         </Link>
                         <button
                             type="submit"
                             disabled={isPending}
-                            className="px-4 py-2 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-xl shadow-lg shadow-primary/20 flex items-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="px-4 py-2 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-xl shadow-lg shadow-primary/20 flex items-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
                         >
                             {isPending ? (
                                 <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

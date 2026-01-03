@@ -129,10 +129,17 @@ export default function Commitments() {
         return Math.ceil(diff / (1000 * 60 * 60 * 24));
     };
 
+    const frequencyMap: Record<string, string> = {
+        'MONTHLY': 'Mensual',
+        'WEEKLY': 'Semanal',
+        'YEARLY': 'Anual',
+        'DAILY': 'Diario'
+    };
+
     return (
         <div className="flex-1 flex flex-col h-full overflow-hidden relative">
-            <main className="flex-1 overflow-y-auto p-6 md:p-10 pb-40 scroll-smooth scrollbar-hide">
-                <div className="max-w-[1200px] mx-auto pb-10">
+            <main className="flex-1 overflow-y-auto pb-40 scroll-smooth scrollbar-hide">
+                <div className="max-w-[1200px] mx-auto p-4 md:p-8 pb-10">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 animate-fade-in">
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-3">
@@ -141,13 +148,13 @@ export default function Commitments() {
                             <p className="text-[#637288] dark:text-slate-400 text-base">Planifica y controla tus pagos recurrentes sin estrés.</p>
                         </div>
                         <div className="flex gap-3">
-                            <button onClick={() => setIsDateModalOpen(true)} className="flex items-center justify-center gap-2 h-11 px-3 md:px-5 rounded-xl bg-white dark:bg-slate-800 border border-[#dce0e5] dark:border-slate-700 text-[#111418] dark:text-white text-xs md:text-sm font-semibold shadow-sm hover:bg-gray-50 dark:hover:bg-slate-700 transition-all whitespace-nowrap">
+                            <button onClick={() => setIsDateModalOpen(true)} className="flex items-center justify-center gap-2 h-11 px-3 md:px-5 rounded-xl bg-white dark:bg-slate-800 border border-[#dce0e5] dark:border-slate-700 text-[#111418] dark:text-white text-xs md:text-sm font-semibold shadow-sm hover:bg-gray-50 dark:hover:bg-slate-700 transition-all whitespace-nowrap cursor-pointer">
                                 <span className="material-symbols-outlined text-[18px] md:text-[20px]">calendar_month</span>
                                 <span className="capitalize">{dateRange.start ? dateRange.start.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : 'Ver Calendario'}</span>
                                 <span className="material-symbols-outlined text-[18px] md:text-[20px]">arrow_drop_down</span>
                             </button>
-                            <button onClick={handleCreate} className="flex items-center justify-center gap-2 h-11 px-3 md:px-5 rounded-xl bg-primary text-white text-xs md:text-sm font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all whitespace-nowrap">
-                                <span className="material-symbols-outlined text-[18px] md:text-[20px]">add</span>
+                            <button onClick={handleCreate} className="group flex items-center justify-center gap-2 h-11 px-3 md:px-5 rounded-xl bg-primary text-white text-xs md:text-sm font-bold shadow-lg shadow-primary/25 hover:bg-gray-800 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all whitespace-nowrap cursor-pointer">
+                                <span className="material-symbols-outlined text-[18px] md:text-[20px] group-hover:rotate-90 transition-transform duration-300">add</span>
                                 <span>Nuevo Gasto Fijo</span>
                             </button>
                         </div>
@@ -155,10 +162,10 @@ export default function Commitments() {
 
                     <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10 animate-fade-in" style={{ animationDelay: '0.1s' }}>
                         {/* Next Payment Card */}
-                        <div className="glass-card p-6 rounded-2xl flex flex-col justify-between relative overflow-hidden group border-orange-100 dark:border-orange-900/30 bg-white/60 dark:bg-slate-900/60 min-h-[160px]">
-                            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <div className="glass-card p-6 rounded-3xl flex flex-col justify-between relative overflow-hidden group border-orange-100 dark:border-orange-900/30 bg-white/60 dark:bg-slate-900/60 min-h-[160px]">
+                            {/* <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                                 <span className="material-symbols-outlined text-8xl text-orange-500">calendar_clock</span>
-                            </div>
+                            </div> */}
                             <div className="h-6 flex items-center gap-2 mb-2">
                                 <div className="size-10 rounded-xl bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center text-orange-600">
                                     <span className="material-symbols-outlined text-[20px]">event_upcoming</span>
@@ -206,10 +213,10 @@ export default function Commitments() {
                             </div>
                         </div>
 
-                        <div className="glass-card p-6 rounded-2xl flex flex-col justify-between relative overflow-hidden group min-h-[160px]">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <div className="glass-card p-6 rounded-3xl flex flex-col justify-between relative overflow-hidden group min-h-[160px]">
+                            {/* <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <span className="material-symbols-outlined text-6xl text-primary">account_balance</span>
-                            </div>
+                            </div> */}
                             <div className="h-6 flex items-center gap-2">
                                 <div className="size-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-primary">
                                     <span className="material-symbols-outlined text-sm">savings</span>
@@ -224,10 +231,10 @@ export default function Commitments() {
                             </div>
                         </div>
 
-                        <div className="glass-card p-6 rounded-2xl flex flex-col justify-between relative overflow-hidden group min-h-[160px]">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <div className="glass-card p-6 rounded-3xl flex flex-col justify-between relative overflow-hidden group min-h-[160px]">
+                            {/* <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <span className="material-symbols-outlined text-6xl text-success">check_circle</span>
-                            </div>
+                            </div> */}
                             <div className="h-6 flex items-center gap-2">
                                 <div className="size-8 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center text-success">
                                     <span className="material-symbols-outlined text-sm">payments</span>
@@ -245,10 +252,10 @@ export default function Commitments() {
                             </div>
                         </div>
 
-                        <div className="glass-card p-6 rounded-2xl flex flex-col justify-between relative overflow-hidden group border-orange-100 dark:border-orange-900/30 min-h-[160px]">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <div className="glass-card p-6 rounded-3xl flex flex-col justify-between relative overflow-hidden group border-orange-100 dark:border-orange-900/30 min-h-[160px]">
+                            {/* <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <span className="material-symbols-outlined text-6xl text-orange-500">pending_actions</span>
-                            </div>
+                            </div> */}
                             <div className="h-6 flex items-center gap-2">
                                 <div className="size-8 rounded-full bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center text-orange-600">
                                     <span className="material-symbols-outlined text-sm">hourglass_top</span>
@@ -264,7 +271,7 @@ export default function Commitments() {
                         </div>
                     </section>
 
-                    <section className="glass-card rounded-2xl shadow-glass overflow-hidden flex flex-col animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                    <section className="glass-card rounded-3xl shadow-glass overflow-hidden flex flex-col animate-fade-in" style={{ animationDelay: '0.2s' }}>
                         <div className="px-6 py-5 border-b border-[#f0f2f4] dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 bg-white/40 dark:bg-slate-900/40">
                             <h3 className="text-[#111418] dark:text-white text-lg font-bold">Listado de Compromisos</h3>
 
@@ -283,19 +290,19 @@ export default function Commitments() {
                                 <div className="flex bg-[#f0f2f4] dark:bg-slate-800 p-1 rounded-xl self-center">
                                     <button
                                         onClick={() => setFilter('all')}
-                                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${filter === 'all' ? 'bg-white dark:bg-slate-700 text-[#111418] dark:text-white shadow-sm' : 'text-[#637288] hover:text-[#111418] dark:hover:text-white'}`}
+                                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${filter === 'all' ? 'bg-white dark:bg-slate-700 text-[#111418] dark:text-white shadow-sm' : 'text-[#637288] hover:text-[#111418] dark:hover:text-white'}`}
                                     >
                                         Todos
                                     </button>
                                     <button
                                         onClick={() => setFilter('pending')}
-                                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${filter === 'pending' ? 'bg-white dark:bg-slate-700 text-[#111418] dark:text-white shadow-sm' : 'text-[#637288] hover:text-[#111418] dark:hover:text-white'}`}
+                                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${filter === 'pending' ? 'bg-white dark:bg-slate-700 text-[#111418] dark:text-white shadow-sm' : 'text-[#637288] hover:text-[#111418] dark:hover:text-white'}`}
                                     >
                                         Pendientes
                                     </button>
                                     <button
                                         onClick={() => setFilter('paid')}
-                                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${filter === 'paid' ? 'bg-white dark:bg-slate-700 text-[#111418] dark:text-white shadow-sm' : 'text-[#637288] hover:text-[#111418] dark:hover:text-white'}`}
+                                        className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${filter === 'paid' ? 'bg-white dark:bg-slate-700 text-[#111418] dark:text-white shadow-sm' : 'text-[#637288] hover:text-[#111418] dark:hover:text-white'}`}
                                     >
                                         Completados
                                     </button>
@@ -337,7 +344,7 @@ export default function Commitments() {
                                                             onClick={() => handleViewDetails(item)}
                                                             className={`flex items-center gap-4 cursor-pointer ${isPaid ? 'opacity-60' : ''}`}
                                                         >
-                                                            <div className={`size-10 rounded-full flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${isPaid ? 'bg-gray-200 dark:bg-slate-700 text-gray-500' : 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600'
+                                                            <div className={`size-10 rounded-full flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${isPaid ? 'bg-gray-200 dark:bg-slate-700 text-gray-500 grayscale opacity-50' : 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600'
                                                                 }`}>
                                                                 <span className="material-symbols-outlined text-[20px]">
                                                                     {categories.find(cat => cat.id === item.categoryId)?.icon || 'event_repeat'}
@@ -345,7 +352,7 @@ export default function Commitments() {
                                                             </div>
                                                             <div>
                                                                 <p className={`text-[#111418] dark:text-white text-sm font-bold group-hover:text-primary transition-colors ${isPaid ? 'line-through decoration-slate-400' : ''}`}>{item.name}</p>
-                                                                <p className="text-[#637288] dark:text-slate-500 text-xs">{item.frequency}</p>
+                                                                <p className="text-[#637288] dark:text-slate-500 text-xs text-transform: capitalize">{frequencyMap[item.frequency] || item.frequency}</p>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -371,7 +378,7 @@ export default function Commitments() {
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${isPaid
+                                                        <span className={`inline-flex items-center justify-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border min-w-[100px] ${isPaid
                                                             ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
                                                             : isOverdue
                                                                 ? 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
@@ -379,45 +386,47 @@ export default function Commitments() {
                                                             }`}>
                                                             {!isPaid && <span className={`size-1.5 rounded-full ${isOverdue ? 'bg-red-500 animate-pulse' : 'bg-yellow-500'}`}></span>}
                                                             {isPaid ? <span className="material-symbols-outlined text-[14px]">check</span> : ''}
-                                                            {isPaid ? 'Completado' : isOverdue ? 'Urgente' : 'Pendiente'}
+                                                            {isPaid ? 'Pagado' : isOverdue ? 'Urgente' : 'Pendiente'}
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
                                                         {isPaid ? (
                                                             <div className="flex items-center justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                                                                <span className="text-[10px] text-[#637288] dark:text-slate-500 italic bg-white/50 dark:bg-slate-800/50 px-2 py-1 rounded border border-gray-100 dark:border-slate-700">Transacción Generada</span>
-                                                                <button onClick={() => handleDelete(item.id)} className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-400 hover:text-red-500" title="Eliminar">
-                                                                    <span className="material-symbols-outlined text-[18px]">delete</span>
-                                                                </button>
-                                                                <button onClick={() => handleViewDetails(item)} className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 text-[#637288]" title="Ver Detalle">
-                                                                    <span className="material-symbols-outlined text-[18px]">visibility</span>
+                                                                <button onClick={() => handleViewDetails(item)} className="size-8 rounded-full flex items-center justify-center hover:bg-gray-200 dark:hover:bg-slate-700 text-[#637288] transition-colors cursor-pointer" title="Ver Detalle">
+                                                                    <span className="material-symbols-outlined text-[18px]" style={{ fontWeight: 200 }}>visibility</span>
                                                                 </button>
                                                             </div>
                                                         ) : (
                                                             <div className="flex justify-end gap-2">
                                                                 <button
                                                                     onClick={() => handleViewDetails(item)}
-                                                                    className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 text-[#637288]"
+                                                                    className="size-9 rounded-full flex items-center justify-center hover:bg-gray-200 dark:hover:bg-slate-700 text-[#637288] transition-colors cursor-pointer"
                                                                     title="Ver Detalle"
                                                                 >
-                                                                    <span className="material-symbols-outlined text-[20px]">visibility</span>
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDelete(item.id)}
-                                                                    className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 transition-colors"
-                                                                    title="Eliminar"
-                                                                >
-                                                                    <span className="material-symbols-outlined text-[20px]">delete</span>
+                                                                    <span className="material-symbols-outlined text-[20px]" style={{ fontWeight: 200 }}>visibility</span>
                                                                 </button>
                                                                 <button
                                                                     onClick={() => toggleCommitmentStatus(item.id, item.status)}
-                                                                    className={`group/btn relative inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-md active:scale-95 ${isOverdue
+                                                                    className={`group relative inline-flex items-center justify-center h-9 px-6 rounded-lg text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer overflow-hidden ${isOverdue
                                                                         ? 'bg-primary text-white hover:bg-blue-700 shadow-primary/20 hover:scale-105'
-                                                                        : 'border border-[#dce0e5] dark:border-slate-700 bg-white dark:bg-slate-800 text-[#111418] dark:text-white hover:text-green-600 hover:border-green-200'
+                                                                        : 'border border-[#dce0e5] dark:border-slate-700 bg-white dark:bg-slate-800 text-[#111418] dark:text-white hover:bg-primary hover:text-white hover:border-primary'
                                                                         }`}
                                                                 >
-                                                                    <span className="material-symbols-outlined text-[16px]">{isOverdue ? 'payments' : 'done'}</span>
-                                                                    <span>{isOverdue ? 'Pagar Ahora' : 'Marcar Pagado'}</span>
+                                                                    {/* Icon Container: Absolute, slides in from left */}
+                                                                    <div className={`absolute left-3 flex items-center justify-center transition-all duration-300 transform opacity-0 -translate-x-full group-hover:opacity-100 group-hover:translate-x-0`}>
+                                                                        {isOverdue ? (
+                                                                            <span className="material-symbols-outlined text-[16px]">payments</span>
+                                                                        ) : (
+                                                                            <svg className="size-4 animate-draw" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                                                                <path d="M5 12l5 5l10 -10" />
+                                                                            </svg>
+                                                                        )}
+                                                                    </div>
+
+                                                                    {/* Text Container: Slides right on hover */}
+                                                                    <span className="transition-transform duration-300 group-hover:translate-x-3">
+                                                                        {isOverdue ? 'Pagar Ahora' : 'Pagar'}
+                                                                    </span>
                                                                 </button>
                                                             </div>
                                                         )}
@@ -437,7 +446,7 @@ export default function Commitments() {
                         </div>
                     </section>
                 </div>
-            </main>
+            </main >
 
             <CommitmentModal
                 isOpen={isModalOpen}
@@ -469,6 +478,6 @@ export default function Commitments() {
                 onEdit={handleEdit}
                 onDelete={deleteCommitment}
             />
-        </div>
+        </div >
     );
 }

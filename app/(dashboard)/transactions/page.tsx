@@ -209,7 +209,7 @@ export default function Transactions() {
                 <div className="absolute top-[20%] -left-[10%] w-[600px] h-[600px] rounded-full bg-purple-100/50 dark:bg-purple-900/10 blur-[100px] mix-blend-multiply dark:mix-blend-screen"></div>
             </div>
 
-            <main className="flex-1 max-w-7xl mx-auto w-full p-4 lg:p-8 flex gap-8 overflow-hidden">
+            <main className="flex-1 max-w-[1200px] mx-auto w-full p-4 md:p-8 flex gap-8 overflow-hidden">
                 {/* Internal Filter Sidebar */}
                 <aside className="hidden lg:flex flex-col w-72 shrink-0 gap-6 h-full overflow-y-auto pr-2 scrollbar-hide">
                     <div className="glass-card p-6 rounded-2xl border border-white/40 dark:border-slate-800">

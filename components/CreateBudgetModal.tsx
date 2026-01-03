@@ -176,11 +176,11 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
 
     return (
         <div
-            className={`fixed top-0 right-0 bottom-0 left-0 lg:left-[var(--sidebar-width)] z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-all duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
+            className={`fixed inset-0 z-40 flex items-center justify-center p-4 lg:pl-[var(--sidebar-width)] bg-black/10 backdrop-blur-md transition-all duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
             onClick={handleBackdropClick}
         >
             <div
-                className={`w-full max-w-[500px] bg-white dark:bg-[#1e293b] rounded-[2rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border border-slate-200 dark:border-slate-700 transition-all duration-300 transform ${isVisible && !isClosing ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}
+                className={`w-full max-w-[500px] bg-white/95 dark:bg-[#0B1120]/95 backdrop-blur-xl rounded-[2.5rem] shadow-glass flex flex-col max-h-[90vh] overflow-hidden border border-white/20 dark:border-white/10 transition-all duration-300 transform ${isVisible && !isClosing ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -191,7 +191,7 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
                     </div>
                     <button
                         onClick={handleClose}
-                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
                     >
                         <span className="material-symbols-outlined text-xl">close</span>
                     </button>
@@ -201,8 +201,8 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
 
                     {/* Amount Input */}
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300 ml-1">Monto Límite</label>
-                        <div className="flex items-center rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 h-14 focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all shadow-sm">
+                        <label className="text-xs font-bold text-text-muted dark:text-dark-muted ml-1">Monto Límite</label>
+                        <div className="flex items-center rounded-2xl border border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 px-4 h-14 focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all shadow-sm">
                             <span className="text-slate-400 font-medium text-lg mr-2">{currencySymbol}</span>
                             <input
                                 value={amount}
@@ -227,7 +227,7 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
                                 <select
                                     value={categoryId}
                                     onChange={(e) => setCategoryId(e.target.value)}
-                                    className="w-full h-12 pl-4 pr-10 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-sm font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none shadow-sm transition-all"
+                                    className="w-full h-12 pl-4 pr-10 rounded-2xl bg-gray-50/50 dark:bg-white/5 border border-gray-100 dark:border-white/5 text-text-main dark:text-white text-sm font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none shadow-sm transition-all"
                                 >
                                     <option value="">Selecciona una...</option>
                                     {categories.map(cat => (
@@ -308,14 +308,14 @@ export default function CreateBudgetModal({ isOpen, onClose, budgetToEdit }: Bud
                     <div className="p-6 md:p-8 pt-0 flex items-center gap-4">
                         <button
                             onClick={handleClose}
-                            className="flex-1 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-sm transition-all flex items-center justify-center"
+                            className="flex-1 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/10 font-bold text-sm transition-all flex items-center justify-center cursor-pointer"
                         >
                             Cancelar
                         </button>
                         <button
                             onClick={handleSubmit}
                             disabled={!amount || !categoryId || isSubmitting}
-                            className="flex-1 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-xl shadow-blue-600/20 transition-all flex items-center justify-center gap-2 active:scale-95"
+                            className="flex-1 py-3.5 rounded-xl bg-primary hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-lg shadow-primary/30 transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
                         >
                             {isSubmitting ? (
                                 <span className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>

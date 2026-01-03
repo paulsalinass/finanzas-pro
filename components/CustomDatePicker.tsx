@@ -49,10 +49,15 @@ export default function CustomDatePicker({ isOpen, onClose, value, onChange }: C
     useEffect(() => {
         if (!isOpen) return;
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') handleClose();
+            if (e.key === 'Escape') {
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                handleClose();
+            }
         };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        // Use capture phase to intercept Esc before parent modals
+        window.addEventListener('keydown', handleKeyDown, { capture: true });
+        return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
     }, [isOpen]);
 
     const handleConfirm = () => {
@@ -74,11 +79,11 @@ export default function CustomDatePicker({ isOpen, onClose, value, onChange }: C
     const startDate = startOfWeek(monthStart);
     const endDate = endOfWeek(monthEnd);
     const calendarDays = eachDayOfInterval({ start: startDate, end: endDate });
-    const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    const weekDays = ['DOM', 'LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB'];
 
     const content = (
         <div
-            className={`fixed top-0 right-0 bottom-0 left-0 lg:left-[var(--sidebar-width)] z-[110] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm transition-opacity duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
+            className={`fixed top-0 right-0 bottom-0 left-0 lg:pl-[var(--sidebar-width)] z-[45] flex items-center justify-center p-4 bg-black/10 backdrop-blur-md transition-opacity duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
             onClick={handleClose}
         >
             <div
@@ -88,11 +93,11 @@ export default function CustomDatePicker({ isOpen, onClose, value, onChange }: C
                 {/* Header: Month and Year Selectors */}
                 <div className="flex justify-center gap-4 mb-8">
                     <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 rounded-2xl px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-700">
-                        <button onClick={handlePrevMonth} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                        <button onClick={handlePrevMonth} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
                             <span className="material-symbols-outlined text-[16px]">chevron_left</span>
                         </button>
                         <span className="min-w-[80px] text-center capitalize">{format(viewDate, 'MMMM', { locale: es })}</span>
-                        <button onClick={handleNextMonth} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                        <button onClick={handleNextMonth} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
                             <span className="material-symbols-outlined text-[16px]">chevron_right</span>
                         </button>
                     </div>
@@ -141,15 +146,15 @@ export default function CustomDatePicker({ isOpen, onClose, value, onChange }: C
                 <div className="flex justify-between items-center pt-2">
                     <button
                         onClick={handleClose}
-                        className="px-6 py-2.5 rounded-xl bg-red-50 text-red-500 font-bold text-xs hover:bg-red-100 transition-colors"
+                        className="px-6 py-2.5 rounded-xl bg-red-50 text-red-500 font-bold text-xs hover:bg-red-100 transition-colors cursor-pointer"
                     >
-                        Close
+                        Cancelar
                     </button>
                     <button
                         onClick={handleConfirm}
-                        className="px-6 py-2.5 rounded-xl bg-green-50 text-emerald-600 font-bold text-xs hover:bg-emerald-100 transition-colors"
+                        className="px-6 py-2.5 rounded-xl bg-green-50 text-emerald-600 font-bold text-xs hover:bg-emerald-100 transition-colors cursor-pointer"
                     >
-                        Confirm
+                        Confirmar
                     </button>
                 </div>
             </div>

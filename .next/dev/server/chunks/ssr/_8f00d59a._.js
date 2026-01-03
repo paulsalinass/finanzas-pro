@@ -34,7 +34,7 @@ async function createClient() {
 "[project]/app/actions/category-actions.ts [app-rsc] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
-/* __next_internal_action_entry_do_not_use__ [{"400285d5f64f41a0b5a98d63533612767647b44ce7":"deleteCategory","40452bb24bdf023b0d9b5df13f86b925633063bd9d":"deleteFolder","405a0688f2ad623ba4c7dd22759fc48431f55c7cd7":"updateFolder","409da29aca1f799ee873ce4b3e42a5dbc85a55b1d1":"createFolder","40a680bceef55496edf0f120787b0ff31a2336938a":"updateCategory","40ef68b1e954541f24d8a4aaa3cade72ef55cd2e67":"createCategory","60c23372b8b45b596ffd1839aa760061a49fe9f017":"moveCategory"},"",""] */ __turbopack_context__.s([
+/* __next_internal_action_entry_do_not_use__ [{"400285d5f64f41a0b5a98d63533612767647b44ce7":"deleteCategory","40452bb24bdf023b0d9b5df13f86b925633063bd9d":"deleteFolder","4059f211e7669debcee239463e8901699a7f2b7d5d":"reorderCategories","405a0688f2ad623ba4c7dd22759fc48431f55c7cd7":"updateFolder","409da29aca1f799ee873ce4b3e42a5dbc85a55b1d1":"createFolder","40a680bceef55496edf0f120787b0ff31a2336938a":"updateCategory","40ef68b1e954541f24d8a4aaa3cade72ef55cd2e67":"createCategory","60c23372b8b45b596ffd1839aa760061a49fe9f017":"moveCategory"},"",""] */ __turbopack_context__.s([
     "createCategory",
     ()=>createCategory,
     "createFolder",
@@ -45,6 +45,8 @@ async function createClient() {
     ()=>deleteFolder,
     "moveCategory",
     ()=>moveCategory,
+    "reorderCategories",
+    ()=>reorderCategories,
     "updateCategory",
     ()=>updateCategory,
     "updateFolder",
@@ -200,6 +202,36 @@ async function updateFolder(formData) {
         success: true
     };
 }
+async function reorderCategories(items) {
+    const supabase = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$utils$2f$supabase$2f$server$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createClient"])();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return {
+        error: 'Unauthorized'
+    };
+    try {
+        // Execute sequentially to avoid overwhelming the connection or hitting rate limits
+        // causing "snap back" on larger lists.
+        for (const item of items){
+            const { error } = await supabase.from('categories').update({
+                order: item.order
+            }).eq('id', item.id);
+            if (error) {
+                console.error(`Failed to update order for category ${item.id}:`, error);
+            // Choose to continue or throw? 
+            // If we throw, we stop. Partial updates might occur.
+            // Let's log and continue to try to save as much as possible.
+            }
+        }
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])('/categories');
+        return {
+            success: true
+        };
+    } catch (error) {
+        return {
+            error: error.message
+        };
+    }
+}
 ;
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$action$2d$validate$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ensureServerEntryExports"])([
     createCategory,
@@ -208,7 +240,8 @@ async function updateFolder(formData) {
     deleteCategory,
     deleteFolder,
     updateCategory,
-    updateFolder
+    updateFolder,
+    reorderCategories
 ]);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(createCategory, "40ef68b1e954541f24d8a4aaa3cade72ef55cd2e67", null);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(createFolder, "409da29aca1f799ee873ce4b3e42a5dbc85a55b1d1", null);
@@ -217,6 +250,7 @@ async function updateFolder(formData) {
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(deleteFolder, "40452bb24bdf023b0d9b5df13f86b925633063bd9d", null);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(updateCategory, "40a680bceef55496edf0f120787b0ff31a2336938a", null);
 (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(updateFolder, "405a0688f2ad623ba4c7dd22759fc48431f55c7cd7", null);
+(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$webpack$2f$loaders$2f$next$2d$flight$2d$loader$2f$server$2d$reference$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["registerServerReference"])(reorderCategories, "4059f211e7669debcee239463e8901699a7f2b7d5d", null);
 }),
 "[project]/.next-internal/server/app/(dashboard)/categories/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/category-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript) <locals>", ((__turbopack_context__) => {
 "use strict";
@@ -233,6 +267,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$category$2
 "use strict";
 
 __turbopack_context__.s([
+    "4059f211e7669debcee239463e8901699a7f2b7d5d",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$category$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["reorderCategories"],
     "405a0688f2ad623ba4c7dd22759fc48431f55c7cd7",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$category$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateFolder"],
     "409da29aca1f799ee873ce4b3e42a5dbc85a55b1d1",
@@ -240,9 +276,7 @@ __turbopack_context__.s([
     "40a680bceef55496edf0f120787b0ff31a2336938a",
     ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$category$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["updateCategory"],
     "40ef68b1e954541f24d8a4aaa3cade72ef55cd2e67",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$category$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createCategory"],
-    "60c23372b8b45b596ffd1839aa760061a49fe9f017",
-    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$category$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["moveCategory"]
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$category$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createCategory"]
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f2e$next$2d$internal$2f$server$2f$app$2f28$dashboard$292f$categories$2f$page$2f$actions$2e$js__$7b$__ACTIONS_MODULE0__$3d3e$__$225b$project$5d2f$app$2f$actions$2f$category$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$2922$__$7d$__$5b$app$2d$rsc$5d$__$28$server__actions__loader$2c$__ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i('[project]/.next-internal/server/app/(dashboard)/categories/page/actions.js { ACTIONS_MODULE0 => "[project]/app/actions/category-actions.ts [app-rsc] (ecmascript)" } [app-rsc] (server actions loader, ecmascript) <locals>');
 var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$actions$2f$category$2d$actions$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/app/actions/category-actions.ts [app-rsc] (ecmascript)");

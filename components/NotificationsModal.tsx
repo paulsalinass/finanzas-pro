@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useFinance } from "@/context/FinanceContext";
 
 interface NotificationsModalProps {
@@ -15,49 +16,52 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
   const { notifications, markNotificationAsRead, markAllNotificationsAsRead } = useFinance();
   const [isVisible, setIsVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [portalElement, setPortalElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (!isOpen) return;
     setIsMounted(true);
-    const micro = requestAnimationFrame(() => setIsVisible(true));
+    setPortalElement(document.body);
+    return () => setIsMounted(false);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsMounted(true);
+      // Double rAF ensures the browser validates the 'closed' state first, then transitions to 'open' in the next frame
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setIsVisible(true));
+      });
+    } else {
+      setIsVisible(false);
+      // Wait for animation to finish before unmounting (300ms matches CSS transition)
+      const timer = setTimeout(() => setIsMounted(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
+      if (event.key === "Escape") onClose();
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      cancelAnimationFrame(micro);
-      setIsVisible(false);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, onClose]);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
-  useEffect(() => {
-    if (!isOpen && isMounted) {
-      const timeout = setTimeout(() => {
-        setIsMounted(false);
-      }, 250);
-      return () => clearTimeout(timeout);
-    }
-  }, [isOpen, isMounted]);
+  if (!isMounted || !portalElement) return null;
 
-  if (!isMounted) return null;
-
-  // sort notifications: unread first
   const sortedNotifications = [...(notifications || [])].sort((a, b) => {
     if (a.read === b.read) return 0;
     return a.read ? 1 : -1;
   });
 
-  return (
+  return createPortal(
     <div
-      className={`fixed inset-0 z-[140] flex justify-end p-4 sm:p-6 bg-black/20 backdrop-blur-sm transition-opacity duration-300 ease-out ${isVisible ? "opacity-100" : "opacity-0"
+      className={`fixed inset-0 z-40 flex justify-end p-4 sm:p-6 bg-black/10 backdrop-blur-[2px] transition-opacity duration-300 ease-out ${isVisible ? "opacity-100" : "opacity-0"
         }`}
       onClick={onClose}
     >
       <div
-        className={`relative w-full max-w-md bg-white/95 dark:bg-slate-900 rounded-3xl shadow-2xl border border-white/60 dark:border-slate-800 flex flex-col gap-6 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-28 sm:translate-x-40"
+        className={`relative w-full max-w-md bg-white/95 dark:bg-slate-900 rounded-3xl shadow-xl border border-white/60 dark:border-slate-800 flex flex-col gap-6 overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${isVisible ? "opacity-100 translate-x-0 scale-100" : "opacity-0 translate-x-10 scale-95"
           }`}
         onClick={(e) => e.stopPropagation()}
       >
@@ -66,11 +70,11 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={markAllNotificationsAsRead}
-              className="text-[10px] font-black uppercase tracking-wider text-primary hover:text-primary-hover"
+              className="text-[10px] font-black uppercase tracking-wider text-primary hover:text-primary-hover transition-colors"
             >
               Marcar todo leído
             </button>
-            <button onClick={onClose} className="size-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-primary">
+            <button onClick={onClose} className="size-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-primary transition-colors">
               <span className="material-symbols-outlined text-base">close</span>
             </button>
           </div>
@@ -82,19 +86,19 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
               key={notif.id}
               onClick={() => markNotificationAsRead(notif.id)}
               className={`glass-card p-4 rounded-2xl border transition-all hover:bg-white dark:hover:bg-slate-800 cursor-pointer ${notif.read
-                  ? "border-transparent opacity-60"
-                  : "border-l-4 border-l-primary border-y-white/60 border-r-white/60 dark:border-y-slate-800 dark:border-r-slate-800 bg-white/70 dark:bg-slate-800/70 shadow-md transform hover:-translate-y-1"
+                ? "border-transparent opacity-60"
+                : "border-l-4 border-l-primary border-y-white/60 border-r-white/60 dark:border-y-slate-800 dark:border-r-slate-800 bg-white/70 dark:bg-slate-800/70 shadow-md transform hover:-translate-y-1"
                 }`}
             >
               <div className="flex items-start gap-4">
                 <div
                   className={`mt-1 size-10 rounded-xl flex items-center justify-center shrink-0 ${notif.type === "WARNING"
-                      ? "bg-orange-100 text-orange-600 dark:bg-orange-900/30"
-                      : notif.type === "SUCCESS"
-                        ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30"
-                        : notif.type === "ERROR"
-                          ? "bg-red-100 text-red-600 dark:bg-red-900/30"
-                          : "bg-blue-100 text-blue-600 dark:bg-blue-900/30"
+                    ? "bg-orange-100 text-orange-600 dark:bg-orange-900/30"
+                    : notif.type === "SUCCESS"
+                      ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30"
+                      : notif.type === "ERROR"
+                        ? "bg-red-100 text-red-600 dark:bg-red-900/30"
+                        : "bg-blue-100 text-blue-600 dark:bg-blue-900/30"
                     }`}
                 >
                   <span className="material-symbols-outlined text-[20px]">
@@ -123,6 +127,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    portalElement
   );
 };

@@ -15,12 +15,12 @@
       "filename": "app/actions/transaction-actions.ts",
       "exportedName": "resetAndSeedTransactions"
     },
-    "60c23372b8b45b596ffd1839aa760061a49fe9f017": {
+    "4059f211e7669debcee239463e8901699a7f2b7d5d": {
       "workers": {
         "app/(dashboard)/categories/page": {
           "moduleId": "[project]/.next-internal/server/app/(dashboard)/categories/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/category-actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
           "async": false,
-          "exportedName": "moveCategory",
+          "exportedName": "reorderCategories",
           "filename": "app/actions/category-actions.ts"
         }
       },
@@ -28,7 +28,7 @@
         "app/(dashboard)/categories/page": "action-browser"
       },
       "filename": "app/actions/category-actions.ts",
-      "exportedName": "moveCategory"
+      "exportedName": "reorderCategories"
     },
     "40ef68b1e954541f24d8a4aaa3cade72ef55cd2e67": {
       "workers": {

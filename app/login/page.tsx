@@ -8,6 +8,7 @@ export default function LoginPage() {
     const router = useRouter();
     const supabase = createClient();
     const [isLogin, setIsLogin] = useState(true);
+    const [rememberMe, setRememberMe] = useState(true);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
 
@@ -22,7 +23,13 @@ export default function LoginPage() {
         const fullName = formData.get("fullName") as string;
 
         if (isLogin) {
-            const { error } = await supabase.auth.signInWithPassword({
+            // Create a specific client for auth with the desired persistence
+            // If rememberMe is true, we use defaults (persistent)
+            // If rememberMe is false, we try to simulate a session cookie by omitting maxAge/expires
+            // Note: @supabase/ssr might have defaults, but we attempt to override.
+            const authClient = createClient(rememberMe ? undefined : { maxAge: undefined, expires: undefined, sameSite: 'lax', secure: true });
+
+            const { error } = await authClient.auth.signInWithPassword({
                 email,
                 password,
             });
@@ -77,8 +84,8 @@ export default function LoginPage() {
                     <button
                         onClick={() => setIsLogin(true)}
                         className={`flex-1 py-2 text-sm font-medium rounded-full transition-all duration-200 z-10 ${isLogin
-                                ? "bg-white dark:bg-slate-700 text-text-main dark:text-white shadow-sm"
-                                : "text-text-muted hover:text-text-main dark:hover:text-white"
+                            ? "bg-white dark:bg-slate-700 text-text-main dark:text-white shadow-sm"
+                            : "text-text-muted hover:text-text-main dark:hover:text-white"
                             }`}
                     >
                         Iniciar Sesión
@@ -86,8 +93,8 @@ export default function LoginPage() {
                     <button
                         onClick={() => setIsLogin(false)}
                         className={`flex-1 py-2 text-sm font-medium rounded-full transition-all duration-200 z-10 ${!isLogin
-                                ? "bg-white dark:bg-slate-700 text-text-main dark:text-white shadow-sm"
-                                : "text-text-muted hover:text-text-main dark:hover:text-white"
+                            ? "bg-white dark:bg-slate-700 text-text-main dark:text-white shadow-sm"
+                            : "text-text-muted hover:text-text-main dark:hover:text-white"
                             }`}
                     >
                         Registrarse
@@ -135,6 +142,28 @@ export default function LoginPage() {
                             required
                         />
                     </div>
+
+                    {isLogin && (
+                        <div className="flex items-center gap-2 ml-1">
+                            <button
+                                type="button"
+                                onClick={() => setRememberMe(!rememberMe)}
+                                className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${rememberMe
+                                    ? "bg-primary border-primary text-white"
+                                    : "bg-transparent border-slate-300 dark:border-slate-600"
+                                    }`}
+                            >
+                                {rememberMe && <span className="material-symbols-outlined text-[16px] font-bold">check</span>}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setRememberMe(!rememberMe)}
+                                className="text-xs text-text-muted hover:text-text-main dark:hover:text-white transition-colors"
+                            >
+                                Mantener sesión iniciada
+                            </button>
+                        </div>
+                    )}
 
                     <button
                         type="submit"

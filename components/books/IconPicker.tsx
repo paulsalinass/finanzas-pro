@@ -165,146 +165,155 @@ export function IconPicker({ value, onChange }: { value: string, onChange: (icon
 
             {/* Modal Overlay */}
             {isOpen && typeof document !== 'undefined' && createPortal(
-                <div
-                    className={`fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width,280px)] z-[9999] flex items-center justify-center transition-all duration-300 ${isVisible ? 'bg-black/60 backdrop-blur-sm' : 'bg-black/0 backdrop-blur-none'}`}
-                    onClick={handleClose}
-                >
+                <>
+                    {/* Backdrop */}
                     <div
-                        className={`bg-white dark:bg-slate-900 w-full max-w-[400px] rounded-xl shadow-2xl overflow-hidden flex flex-col h-[600px] max-h-[90vh] ring-4 ring-black/5 dark:ring-white/5 transition-all duration-300 ${isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4'}`}
-                        onClick={(e) => e.stopPropagation()}
+                        className={`fixed inset-0 z-40 bg-black/10 backdrop-blur-sm transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+                        onClick={handleClose}
+                    />
+
+                    {/* Container */}
+                    <div
+                        className={`fixed top-0 right-0 bottom-0 left-0 lg:left-[var(--sidebar-width)] z-[60] flex items-center justify-center transition-opacity duration-300 pointer-events-none ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+                        style={{ '--sidebar-width': '280px' } as React.CSSProperties}
                     >
-                        {/* Header Tabs */}
-                        <div className="p-2 grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-950/50 border-b border-gray-100 dark:border-white/5">
-                            <button
-                                type="button"
-                                onClick={() => setActiveTab('emoji')}
-                                className={`py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'emoji' ? 'bg-white dark:bg-slate-800 shadow-sm text-primary ring-1 ring-black/5' : 'text-slate-500 hover:bg-white/50 dark:hover:bg-white/5'}`}
-                            >
-                                <span>😀</span> Emoji
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setActiveTab('classic')}
-                                className={`py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'classic' ? 'bg-white dark:bg-slate-800 shadow-sm text-primary ring-1 ring-black/5' : 'text-slate-500 hover:bg-white/50 dark:hover:bg-white/5'}`}
-                            >
-                                <Icons.Shapes size={16} /> Iconos
-                            </button>
-                        </div>
+                        <div
+                            className={`bg-white dark:bg-slate-900 w-full max-w-[400px] rounded-xl shadow-2xl overflow-hidden flex flex-col h-[600px] max-h-[90vh] ring-4 ring-black/5 dark:ring-white/5 pointer-events-auto transition-all duration-300 transform ${isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Header Tabs */}
+                            <div className="p-2 grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-950/50 border-b border-gray-100 dark:border-white/5">
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveTab('emoji')}
+                                    className={`py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${activeTab === 'emoji' ? 'bg-white dark:bg-slate-800 shadow-sm text-primary ring-1 ring-black/5' : 'text-slate-500 hover:bg-white/50 dark:hover:bg-white/5'}`}
+                                >
+                                    <span>😀</span> Emoji
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveTab('classic')}
+                                    className={`py-2.5 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${activeTab === 'classic' ? 'bg-white dark:bg-slate-800 shadow-sm text-primary ring-1 ring-black/5' : 'text-slate-500 hover:bg-white/50 dark:hover:bg-white/5'}`}
+                                >
+                                    <Icons.Shapes size={16} /> Iconos
+                                </button>
+                            </div>
 
-                        {/* Content Area */}
-                        <div className="flex-1 overflow-hidden relative bg-white dark:bg-slate-900">
-                            {activeTab === 'emoji' ? (
-                                <div className="h-full w-full [&_.epr-preview]:!hidden [&_.epr-emoji-category-label]:!text-primary [&_.epr-emoji-category-label]:!text-sm [&_.epr-emoji-category-label]:!font-bold">
-                                    <EmojiPickerWrapper onEmojiSelect={handleSelect} />
-                                </div>
-                            ) : (
-                                <div className="h-full flex flex-col">
-                                    {/* Search & Categories */}
-                                    <div className="p-4 space-y-3 bg-white dark:bg-slate-900 z-10 shadow-sm border-b border-gray-100 dark:border-white/5">
-                                        <div className="relative">
-                                            <Icons.Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                            <input
-                                                type="text"
-                                                placeholder="Buscar icono..."
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 dark:border-white/10 bg-slate-50 dark:bg-slate-800 text-text-main focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm transition-all"
-                                            />
-                                        </div>
-
-                                        <div className="relative group/carousel">
-                                            {/* Scroll Container */}
-                                            <div
-                                                id="categories-container"
-                                                className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide scroll-smooth snap-x"
-                                            >
-                                                {Object.keys(ICON_CATEGORIES).map((cat) => (
-                                                    <button
-                                                        key={cat}
-                                                        type="button"
-                                                        onClick={() => {
-                                                            setSelectedCategory(cat as any)
-                                                            document.getElementById(`cat-${cat}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
-                                                        }}
-                                                        id={`cat-${cat}`}
-                                                        className={`
-                                                            px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all border snap-center
-                                                            ${selectedCategory === cat
-                                                                ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white'
-                                                                : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-slate-500 hover:border-gray-300 dark:hover:border-slate-600'}
-                                                        `}
-                                                    >
-                                                        {cat}
-                                                    </button>
-                                                ))}
+                            {/* Content Area */}
+                            <div className="flex-1 overflow-hidden relative bg-white dark:bg-slate-900">
+                                {activeTab === 'emoji' ? (
+                                    <div className="h-full w-full [&_.epr-preview]:!hidden [&_.epr-emoji-category-label]:!text-primary [&_.epr-emoji-category-label]:!text-sm [&_.epr-emoji-category-label]:!font-bold">
+                                        <EmojiPickerWrapper onEmojiSelect={handleSelect} />
+                                    </div>
+                                ) : (
+                                    <div className="h-full flex flex-col">
+                                        {/* Search & Categories */}
+                                        <div className="p-4 space-y-3 bg-white dark:bg-slate-900 z-10 shadow-sm border-b border-gray-100 dark:border-white/5">
+                                            <div className="relative">
+                                                <Icons.Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Buscar icono..."
+                                                    value={searchTerm}
+                                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 dark:border-white/10 bg-slate-50 dark:bg-slate-800 text-text-main focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm transition-all"
+                                                />
                                             </div>
 
-                                            {/* Navigation Shadows (Optional visual cues) */}
-                                            <div className="absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-white dark:from-slate-900 to-transparent pointer-events-none" />
-                                            <div className="absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-white dark:from-slate-900 to-transparent pointer-events-none" />
-
-                                            {/* Manual Nav Buttons (Visible on hover or always on mobile if needed) */}
-                                            <button
-                                                type="button"
-                                                onClick={() => document.getElementById('categories-container')?.scrollBy({ left: -150, behavior: 'smooth' })}
-                                                className="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 size-8 bg-white dark:bg-slate-800 shadow-md rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 opacity-0 group-hover/carousel:opacity-100 transition-opacity disabled:opacity-0"
-                                            >
-                                                <Icons.ChevronLeft size={16} />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => document.getElementById('categories-container')?.scrollBy({ left: 150, behavior: 'smooth' })}
-                                                className="absolute right-0 top-1/2 -translate-y-1/2 -mr-2 size-8 bg-white dark:bg-slate-800 shadow-md rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 opacity-0 group-hover/carousel:opacity-100 transition-opacity"
-                                            >
-                                                <Icons.ChevronRight size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {/* Grid */}
-                                    <div className="flex-1 overflow-y-auto p-4">
-                                        <div className="grid grid-cols-5 sm:grid-cols-6 gap-3">
-                                            {ICON_CATEGORIES[selectedCategory]
-                                                .filter(iconName => iconName.toLowerCase().includes(searchTerm.toLowerCase()))
-                                                .map((iconName) => {
-                                                    const Icon = (Icons as any)[iconName]
-                                                    if (!Icon) return null
-
-                                                    const isSelected = value === iconName
-                                                    return (
+                                            <div className="relative group/carousel">
+                                                {/* Scroll Container */}
+                                                <div
+                                                    id="categories-container"
+                                                    className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide scroll-smooth snap-x"
+                                                >
+                                                    {Object.keys(ICON_CATEGORIES).map((cat) => (
                                                         <button
-                                                            key={iconName}
+                                                            key={cat}
                                                             type="button"
-                                                            onClick={() => handleSelect(iconName)}
+                                                            onClick={() => {
+                                                                setSelectedCategory(cat as any)
+                                                                document.getElementById(`cat-${cat}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+                                                            }}
+                                                            id={`cat-${cat}`}
                                                             className={`
-                                                                aspect-square rounded-xl flex items-center justify-center transition-all delay-75 duration-300
-                                                                ${isSelected
-                                                                    ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-105'
-                                                                    : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-200'}
+                                                                px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all border snap-center cursor-pointer
+                                                                ${selectedCategory === cat
+                                                                    ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white'
+                                                                    : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-slate-500 hover:border-gray-300 dark:hover:border-slate-600'}
                                                             `}
-                                                            title={iconName}
                                                         >
-                                                            <Icon size={24} strokeWidth={2} />
+                                                            {cat}
                                                         </button>
-                                                    )
-                                                })}
+                                                    ))}
+                                                </div>
+
+                                                {/* Navigation Shadows (Optional visual cues) */}
+                                                <div className="absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-white dark:from-slate-900 to-transparent pointer-events-none" />
+                                                <div className="absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-white dark:from-slate-900 to-transparent pointer-events-none" />
+
+                                                {/* Manual Nav Buttons (Visible on hover or always on mobile if needed) */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => document.getElementById('categories-container')?.scrollBy({ left: -150, behavior: 'smooth' })}
+                                                    className="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 size-8 bg-white dark:bg-slate-800 shadow-md rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 opacity-0 group-hover/carousel:opacity-100 transition-opacity disabled:opacity-0 cursor-pointer"
+                                                >
+                                                    <Icons.ChevronLeft size={16} />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => document.getElementById('categories-container')?.scrollBy({ left: 150, behavior: 'smooth' })}
+                                                    className="absolute right-0 top-1/2 -translate-y-1/2 -mr-2 size-8 bg-white dark:bg-slate-800 shadow-md rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 opacity-0 group-hover/carousel:opacity-100 transition-opacity cursor-pointer"
+                                                >
+                                                    <Icons.ChevronRight size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Grid */}
+                                        <div className="flex-1 overflow-y-auto p-4">
+                                            <div className="grid grid-cols-5 sm:grid-cols-6 gap-3">
+                                                {ICON_CATEGORIES[selectedCategory]
+                                                    .filter(iconName => iconName.toLowerCase().includes(searchTerm.toLowerCase()))
+                                                    .map((iconName) => {
+                                                        const Icon = (Icons as any)[iconName]
+                                                        if (!Icon) return null
+
+                                                        const isSelected = value === iconName
+                                                        return (
+                                                            <button
+                                                                key={iconName}
+                                                                type="button"
+                                                                onClick={() => handleSelect(iconName)}
+                                                                className={`
+                                                                    aspect-square rounded-xl flex items-center justify-center transition-all delay-75 duration-300 cursor-pointer
+                                                                    ${isSelected
+                                                                        ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-105'
+                                                                        : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-200'}
+                                                                `}
+                                                                title={iconName}
+                                                            >
+                                                                <Icon size={24} strokeWidth={2} />
+                                                            </button>
+                                                        )
+                                                    })}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            )}
-                        </div>
+                                )}
+                            </div>
 
-                        {/* Close Button Mobile Friendly */}
-                        <div className="p-4 border-t border-gray-100 dark:border-white/5 bg-white dark:bg-slate-900">
-                            <button
-                                onClick={handleClose}
-                                className="w-full py-3.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                            >
-                                Cancelar
-                            </button>
+                            {/* Close Button Mobile Friendly */}
+                            <div className="p-4 border-t border-gray-100 dark:border-white/5 bg-white dark:bg-slate-900">
+                                <button
+                                    onClick={handleClose}
+                                    className="w-full py-3.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>,
+                </>,
                 document.body
             )}
 

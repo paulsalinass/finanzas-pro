@@ -97,7 +97,7 @@ function Reports() {
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "container mx-auto max-w-[1200px] p-6 lg:p-10 flex flex-col gap-8",
+                className: "container mx-auto max-w-[1200px] p-4 md:p-8 flex flex-col gap-8",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
                         className: "flex flex-wrap justify-between items-end gap-6 animate-fade-in",
@@ -194,7 +194,7 @@ function Reports() {
                         },
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "glass-card p-6 rounded-2xl flex flex-col gap-4 group hover:-translate-y-1 transition-all duration-300 border border-white/40 dark:border-slate-800",
+                                className: "glass-card p-6 rounded-3xl flex flex-col gap-4 group hover:-translate-y-1 transition-all duration-300 border border-white/40 dark:border-slate-800",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex justify-between items-start",
@@ -282,7 +282,7 @@ function Reports() {
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "glass-card p-6 rounded-2xl flex flex-col gap-4 group hover:-translate-y-1 transition-all duration-300 border border-white/40 dark:border-slate-800",
+                                className: "glass-card p-6 rounded-3xl flex flex-col gap-4 group hover:-translate-y-1 transition-all duration-300 border border-white/40 dark:border-slate-800",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex justify-between items-start",
@@ -370,7 +370,7 @@ function Reports() {
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "glass-card p-6 rounded-2xl flex flex-col gap-4 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 border border-white/40 dark:border-slate-800",
+                                className: "glass-card p-6 rounded-3xl flex flex-col gap-4 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 border border-white/40 dark:border-slate-800",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "absolute -right-6 -top-6 w-24 h-24 bg-primary/10 rounded-full blur-xl"
@@ -481,7 +481,7 @@ function Reports() {
                         },
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "lg:col-span-2 glass-card p-6 lg:p-8 rounded-[2.5rem] flex flex-col justify-between min-h-[450px] border border-white/40 dark:border-slate-800 shadow-soft",
+                                className: "lg:col-span-2 glass-card p-6 lg:p-8 rounded-3xl flex flex-col justify-between min-h-[450px] border border-white/40 dark:border-slate-800 shadow-soft",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex justify-between items-start mb-8",
@@ -681,7 +681,7 @@ function Reports() {
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "glass-card p-8 rounded-[2.5rem] flex flex-col gap-8 border border-white/40 dark:border-slate-800 shadow-soft",
+                                className: "glass-card p-8 rounded-3xl flex flex-col gap-8 border border-white/40 dark:border-slate-800 shadow-soft",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex justify-between items-start",
@@ -829,7 +829,7 @@ function Reports() {
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
-                        className: "glass-card p-6 rounded-[2rem] border-l-[6px] border-primary flex flex-col md:flex-row gap-5 items-center animate-fade-in shadow-soft",
+                        className: "glass-card p-6 rounded-3xl border-l-[6px] border-primary flex flex-col md:flex-row gap-5 items-center animate-fade-in shadow-soft",
                         style: {
                             animationDelay: '0.3s'
                         },
@@ -900,7 +900,7 @@ function Reports() {
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
-                        className: "glass-card rounded-[2.5rem] overflow-hidden border border-white/40 dark:border-slate-800 animate-fade-in shadow-soft",
+                        className: "glass-card rounded-3xl overflow-hidden border border-white/40 dark:border-slate-800 animate-fade-in shadow-soft",
                         style: {
                             animationDelay: '0.4s'
                         },

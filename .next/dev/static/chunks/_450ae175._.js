@@ -7,46 +7,71 @@ __turbopack_context__.s([
     ()=>DeleteConfirmModal
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 ;
-const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, title = "Confirmar Eliminación", message = "¿Estás seguro de que deseas eliminar este elemento?", itemName })=>{
+var _s = __turbopack_context__.k.signature();
+;
+const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, title = "¿Eliminar elemento?", message = "Estás a punto de eliminar este elemento. Esta acción no se puede deshacer.", itemName })=>{
+    _s();
+    // Close on Escape key
+    __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].useEffect({
+        "DeleteConfirmModal.useEffect": ()=>{
+            const handleKeyDown = {
+                "DeleteConfirmModal.useEffect.handleKeyDown": (e)=>{
+                    if (e.key === 'Escape' && isOpen) {
+                        onClose();
+                    }
+                }
+            }["DeleteConfirmModal.useEffect.handleKeyDown"];
+            window.addEventListener('keydown', handleKeyDown);
+            return ({
+                "DeleteConfirmModal.useEffect": ()=>window.removeEventListener('keydown', handleKeyDown)
+            })["DeleteConfirmModal.useEffect"];
+        }
+    }["DeleteConfirmModal.useEffect"], [
+        isOpen,
+        onClose
+    ]);
     if (!isOpen) return null;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm animate-fade-in",
+        className: "fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-[110] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-sm animate-fade-in transition-[left] duration-300",
+        onClick: onClose,
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "glass-card relative w-full max-w-md transform overflow-hidden rounded-[2.5rem] shadow-premium transition-all animate-slide-up flex flex-col items-center pt-10 pb-8 px-8 sm:px-10 border border-white/80 dark:border-slate-800",
+            onClick: (e)=>e.stopPropagation(),
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "mb-6 flex size-24 items-center justify-center rounded-full bg-danger/10 shadow-inner",
+                    className: "mb-6 flex size-20 items-center justify-center rounded-full bg-red-50 dark:bg-red-900/20",
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                        className: "material-symbols-outlined text-[48px] text-danger",
-                        children: "delete_forever"
+                        className: "material-symbols-outlined text-[40px] text-red-500",
+                        children: "priority_high"
                     }, void 0, false, {
                         fileName: "[project]/components/DeleteConfirmModal.tsx",
-                        lineNumber: 28,
+                        lineNumber: 45,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 }, void 0, false, {
                     fileName: "[project]/components/DeleteConfirmModal.tsx",
-                    lineNumber: 27,
+                    lineNumber: 44,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                    className: "text-slate-900 dark:text-white text-2xl font-black tracking-tight text-center mb-3 uppercase",
+                    className: "text-slate-900 dark:text-white text-xl font-bold tracking-tight text-center mb-2",
                     children: title
                 }, void 0, false, {
                     fileName: "[project]/components/DeleteConfirmModal.tsx",
-                    lineNumber: 32,
+                    lineNumber: 49,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "text-center mb-8",
+                    className: "text-center mb-8 px-4",
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                         className: "text-slate-500 dark:text-slate-400 text-sm font-medium leading-relaxed",
                         children: [
                             message,
                             " ",
                             itemName && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "font-black text-slate-900 dark:text-white",
+                                className: "font-bold text-slate-900 dark:text-white",
                                 children: [
                                     '"',
                                     itemName,
@@ -54,31 +79,30 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, title = "Confirmar Eli
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/DeleteConfirmModal.tsx",
-                                lineNumber: 40,
+                                lineNumber: 57,
                                 columnNumber: 15
-                            }, ("TURBOPACK compile-time value", void 0)),
-                            "? Esta acción no se puede deshacer y afectará tus reportes actuales."
+                            }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/DeleteConfirmModal.tsx",
-                        lineNumber: 38,
+                        lineNumber: 55,
                         columnNumber: 11
                     }, ("TURBOPACK compile-time value", void 0))
                 }, void 0, false, {
                     fileName: "[project]/components/DeleteConfirmModal.tsx",
-                    lineNumber: 37,
+                    lineNumber: 54,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0)),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "flex flex-col-reverse sm:flex-row w-full gap-3 sm:gap-4",
+                    className: "flex w-full gap-3",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                             onClick: onClose,
-                            className: "flex-1 cursor-pointer items-center justify-center rounded-2xl h-14 px-6 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-300 text-xs font-black uppercase tracking-widest transition-all focus:outline-none",
+                            className: "flex-1 cursor-pointer items-center justify-center rounded-xl h-12 px-6 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-bold transition-all focus:outline-none",
                             children: "Cancelar"
                         }, void 0, false, {
                             fileName: "[project]/components/DeleteConfirmModal.tsx",
-                            lineNumber: 48,
+                            lineNumber: 64,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -86,31 +110,32 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, title = "Confirmar Eli
                                 onConfirm();
                                 onClose();
                             },
-                            className: "flex-1 cursor-pointer items-center justify-center rounded-2xl h-14 px-6 bg-danger hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-danger/30 transition-all transform active:scale-95 focus:outline-none",
-                            children: "Confirmar Eliminación"
+                            className: "flex-1 cursor-pointer items-center justify-center rounded-xl h-12 px-6 bg-red-500 hover:bg-red-600 text-white text-sm font-bold shadow-lg shadow-red-500/30 transition-all transform active:scale-95 focus:outline-none",
+                            children: "Eliminar"
                         }, void 0, false, {
                             fileName: "[project]/components/DeleteConfirmModal.tsx",
-                            lineNumber: 54,
+                            lineNumber: 70,
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/DeleteConfirmModal.tsx",
-                    lineNumber: 47,
+                    lineNumber: 63,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             ]
         }, void 0, true, {
             fileName: "[project]/components/DeleteConfirmModal.tsx",
-            lineNumber: 25,
+            lineNumber: 39,
             columnNumber: 7
         }, ("TURBOPACK compile-time value", void 0))
     }, void 0, false, {
         fileName: "[project]/components/DeleteConfirmModal.tsx",
-        lineNumber: 24,
+        lineNumber: 35,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
+_s(DeleteConfirmModal, "OD7bBpZva5O2jO+Puf00hKivP7c=");
 _c = DeleteConfirmModal;
 var _c;
 __turbopack_context__.k.register(_c, "DeleteConfirmModal");

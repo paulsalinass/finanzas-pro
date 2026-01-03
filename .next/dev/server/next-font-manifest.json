@@ -15,6 +15,9 @@
     "[project]/app/(dashboard)/budgets/page": [
       "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
     ],
+    "[project]/app/(dashboard)/cards/page": [
+      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
+    ],
     "[project]/app/(dashboard)/categories/page": [
       "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
     ],
@@ -22,9 +25,6 @@
       "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
     ],
     "[project]/app/(dashboard)/ledgers/page": [
-      "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
-    ],
-    "[project]/app/(dashboard)/menu/page": [
       "static/media/fba5a26ea33df6a3-s.p.1bbdebe6.woff2"
     ],
     "[project]/app/(dashboard)/page": [

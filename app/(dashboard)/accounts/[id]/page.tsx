@@ -213,7 +213,7 @@ export default function AccountDetails() {
                 <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-100 rounded-full blur-[120px]"></div>
             </div>
 
-            <main className="container mx-auto max-w-[1200px] p-6 lg:p-10 flex flex-col gap-8">
+            <main className="container mx-auto max-w-[1200px] p-4 md:p-8 flex flex-col gap-8">
                 {/* Header */}
                 <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-fade-in">
                     <div className="flex items-center gap-4">

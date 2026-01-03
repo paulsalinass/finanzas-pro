@@ -10,7 +10,8 @@ import { NotificationsModal } from '@/components/NotificationsModal';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { CommitmentDetailsModal } from '@/components/CommitmentDetailsModal';
 import { CommitmentModal } from '@/components/CommitmentModal';
-import { Commitment } from '@/types';
+import { TransactionDetailsModal } from '@/components/TransactionDetailsModal';
+import { Commitment, Transaction } from '@/types';
 import { useFinance } from '@/context/FinanceContext';
 // Recharts removed, using dynamic component
 import { startOfMonth, endOfMonth, differenceInCalendarDays, addDays, startOfDay, format } from 'date-fns';
@@ -47,7 +48,7 @@ const COLOR_MAP: Record<string, { bg: string, text: string, ring: string, border
 
 export default function Dashboard() {
     const router = useRouter();
-    const { transactions, accounts, totalBalance, budgets, commitments, recurringRules, categories, openTransactionModal, formatAmount, ledgers, activeBookId, unreadCount, userProfile, deleteCommitment } = useFinance();
+    const { transactions, accounts, totalBalance, budgets, commitments, recurringRules, categories, openTransactionModal, formatAmount, ledgers, activeBookId, unreadCount, userProfile, deleteCommitment, selectTransaction } = useFinance();
     const [showBalance, setShowBalance] = useState(true);
     const [activeTab, setActiveTab] = useState('Este mes');
     const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({
@@ -160,8 +161,20 @@ export default function Dashboard() {
         return tDate >= dateRange.start && tDate <= dateRange.end;
     });
 
-    const monthlyIncome = filteredTransactions
-        .filter(t => t.type === 'INCOME')
+    // State for Details Modal
+    const [selectedTrx, setSelectedTrx] = useState<Transaction | null>(null);
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+    // Edit handler passed to details modal
+    const handleEditFromDetails = (t: Transaction) => {
+        setIsDetailsOpen(false);
+        setTimeout(() => {
+            selectTransaction(t); // From context, opens the edit/create modal
+        }, 300);
+    };
+
+    const monthlyIncome = transactions
+        .filter(t => t.type === 'INCOME' && new Date(t.date).getMonth() === new Date().getMonth())
         .reduce((sum, t) => sum + t.amount, 0);
 
     const monthlyExpense = filteredTransactions
@@ -579,7 +592,7 @@ export default function Dashboard() {
 
                 <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Seguimiento de gastos */}
-                    <div className="lg:col-span-2 glass-card rounded-3xl p-6 md:p-8 flex flex-col gap-4 border border-white/5">
+                    <div className="lg:col-span-2 glass-card rounded-3xl p-6 flex flex-col gap-4">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-xs font-semibold uppercase text-text-muted dark:text-dark-muted/70 tracking-widest">Límite mensual</p>
@@ -619,7 +632,12 @@ export default function Dashboard() {
                     <div className="glass-card rounded-3xl p-0 flex flex-col overflow-hidden">
                         <div className="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
                             <h3 className="text-text-main dark:text-white text-lg font-bold">Actividad Reciente</h3>
-                            <Link href="/transactions" className="text-primary text-xs font-bold hover:text-primary-hover transition-colors">VER TODO</Link>
+                            <Link href="/transactions" className="group rounded-lg transition-all cursor-pointer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-gray-300 group-hover:text-primary transition-colors duration-300">
+                                    <path d="M19 19H5V5h7V3H5c-1.11 0-2 .89-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.89 2-2v-7h-2v7z" />
+                                    <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" className="transition-transform duration-300 origin-center group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                                </svg>
+                            </Link>
                         </div>
                         <div className="flex-1 overflow-y-auto p-2 scrollbar-hide">
                             <div className="flex flex-col gap-1">
@@ -629,7 +647,7 @@ export default function Dashboard() {
                                     const colors = COLOR_MAP[colorKey] || COLOR_MAP.slate;
 
                                     return (
-                                        <div key={t.id} onClick={() => router.push(`/transaction/${t.id}`)} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-white/5 transition-colors cursor-pointer group">
+                                        <div key={t.id} onClick={() => { setSelectedTrx(t); setIsDetailsOpen(true); }} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50/80 dark:hover:bg-white/5 transition-colors cursor-pointer group">
                                             <div className="flex items-center gap-3">
                                                 <div className={`size-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 border ${colors.bg} ${colors.text} ${colors.border}`}>
                                                     <CategoryIcon icon={t.icon || 'payments'} className="text-[20px]" />
@@ -647,20 +665,25 @@ export default function Dashboard() {
                                                 </p>
                                                 <p className="text-text-light dark:text-dark-muted text-[10px] font-medium">{format(new Date(t.date), 'd MMM', { locale: es })}</p>
                                             </div>
-                                        </div>
+                                        </div >
                                     );
                                 })}
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                            </div >
+                        </div >
+                    </div >
+                </section >
 
                 <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Desglose de Gastos - Por Cuenta */}
-                    <div className="glass-card rounded-3xl p-0 flex flex-col overflow-hidden border border-white/5">
+                    <div className="glass-card rounded-3xl p-0 flex flex-col overflow-hidden">
                         <div className="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
                             <h3 className="text-lg font-bold text-text-main dark:text-white">Gastos por Cuenta</h3>
-                            <button className="text-xs font-bold text-primary hover:text-primary-hover transition-colors">VER TODO</button>
+                            <button onClick={() => router.push('/accounts')} className="group rounded-lg transition-all cursor-pointer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-gray-300 group-hover:text-primary transition-colors duration-300">
+                                    <path d="M19 19H5V5h7V3H5c-1.11 0-2 .89-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.89 2-2v-7h-2v7z" />
+                                    <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" className="transition-transform duration-300 origin-center group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                                </svg>
+                            </button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
                             <div className="flex flex-col gap-4">
@@ -700,13 +723,18 @@ export default function Dashboard() {
                     </div>
 
                     {/* Desglose de Gastos - Por Categoría */}
-                    <div className="glass-card rounded-3xl p-0 flex flex-col overflow-hidden border border-white/5">
+                    <div className="glass-card rounded-3xl p-0 flex flex-col overflow-hidden">
                         <div className="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
                             <div className="flex flex-col">
                                 <h3 className="text-lg font-bold text-text-main dark:text-white">Gastos por Categoría</h3>
                                 <p className="text-xs text-text-muted dark:text-dark-muted font-medium mt-1">¿En qué se fue el dinero?</p>
                             </div>
-                            <button onClick={() => router.push('/budgets')} className="text-xs font-bold text-primary hover:text-primary-hover transition-colors">VER TODO</button>
+                            <button onClick={() => router.push('/budgets')} className="group rounded-lg transition-all cursor-pointer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-gray-300 group-hover:text-primary transition-colors duration-300">
+                                    <path d="M19 19H5V5h7V3H5c-1.11 0-2 .89-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.89 2-2v-7h-2v7z" />
+                                    <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" className="transition-transform duration-300 origin-center group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                                </svg>
+                            </button>
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
@@ -747,10 +775,15 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    <div className="glass-card rounded-3xl p-0 flex flex-col overflow-hidden border border-white/5">
+                    <div className="glass-card rounded-3xl p-0 flex flex-col overflow-hidden">
                         <div className="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
                             <h3 className="text-lg font-bold text-text-main dark:text-white">Próximos compromisos</h3>
-                            <button onClick={() => router.push('/commitments')} className="text-xs font-bold text-primary hover:text-primary-hover transition-colors">VER TODO</button>
+                            <button onClick={() => router.push('/commitments')} className="group rounded-lg transition-all cursor-pointer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-gray-300 group-hover:text-primary transition-colors duration-300">
+                                    <path d="M19 19H5V5h7V3H5c-1.11 0-2 .89-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.89 2-2v-7h-2v7z" />
+                                    <path d="M14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" className="transition-transform duration-300 origin-center group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                                </svg>
+                            </button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
                             <div className="flex flex-col gap-3">
@@ -793,7 +826,7 @@ export default function Dashboard() {
                                                         <span className="text-xs align-baseline mr-0.5">{currencySymbol}</span>
                                                         {c.amount.toFixed(2)}
                                                     </p>
-                                                    <p className="text-[10px] text-primary font-semibold uppercase tracking-widest leading-none">PENDIENTE</p>
+                                                    <p className="text-[9px] text-primary font-bold uppercase tracking-tight leading-none mt-1">PENDIENTE</p>
                                                 </div>
                                             </div>
                                         );
@@ -814,7 +847,7 @@ export default function Dashboard() {
 
             </div >
 
-            <button onClick={openTransactionModal} className="btn-interact hidden lg:flex fixed z-50 bottom-12 right-12 size-16 bg-gradient-primary text-white rounded-full shadow-[0_8px_30px_rgba(16,185,129,0.4)] items-center justify-center transition-all hover:scale-110 active:scale-95 group hover:shadow-primary/50">
+            <button onClick={openTransactionModal} className="btn-interact hidden lg:flex fixed z-50 bottom-12 right-12 size-16 bg-gradient-primary text-white rounded-full shadow-lg shadow-black/20 items-center justify-center transition-all hover:scale-110 active:scale-95 group">
                 <span className="material-symbols-outlined text-4xl group-hover:rotate-90 transition-transform duration-500">add</span>
             </button>
             <DateRangeModal
@@ -838,6 +871,12 @@ export default function Dashboard() {
                 isOpen={isCommitmentModalOpen}
                 onClose={() => setIsCommitmentModalOpen(false)}
                 commitmentToEdit={editingCommitment}
+            />
+            <TransactionDetailsModal
+                isOpen={isDetailsOpen}
+                onClose={() => setIsDetailsOpen(false)}
+                transaction={selectedTrx}
+                onEdit={handleEditFromDetails}
             />
         </div >
     );

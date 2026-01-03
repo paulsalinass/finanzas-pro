@@ -1,7 +1,5 @@
-"use client";
-
 import React, { useEffect, useState } from 'react';
-import { Mail } from 'lucide-react';
+import { Mail, ArrowRight } from 'lucide-react';
 
 interface PasswordResetModalProps {
     isOpen: boolean;
@@ -65,77 +63,86 @@ export function PasswordResetModal({
     if (!isOpen && !isVisible) return null;
 
     return (
-        <div
-            className={`fixed top-0 right-0 bottom-0 left-0 lg:left-[var(--sidebar-width)] z-[200] flex items-center justify-center p-4 transition-all duration-300 ${isVisible && !isClosing ? 'bg-black/40 backdrop-blur-sm opacity-100' : 'bg-transparent pointer-events-none opacity-0'}`}
-            onClick={status !== 'loading' ? handleClose : undefined}
-        >
+        <>
+            {/* Backdrop: Covers full screen, but z-40 puts it behind z-50 Sidebar */}
             <div
-                className={`bg-white dark:bg-[#1e293b] w-full max-w-[400px] rounded-[2rem] shadow-2xl p-8 flex flex-col items-center text-center transition-all duration-300 transform ${isVisible && !isClosing ? 'scale-100 opacity-100' : 'scale-90 opacity-0'}`}
-                onClick={(e) => e.stopPropagation()}
-            >
-                {status === 'success' ? (
-                    <>
-                        {/* Success Icon */}
-                        <div className="size-20 bg-green-50 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-6 animate-scale-in">
-                            <span className="material-symbols-outlined text-green-500 text-4xl">check</span>
-                        </div>
+                className={`fixed inset-0 z-40 bg-black/10 backdrop-blur-sm transition-opacity duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
+                onClick={status !== 'loading' ? handleClose : undefined}
+            />
 
-                        <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2 leading-tight">
-                            ¡Correo Enviado!
-                        </h2>
+            {/* Modal Container: Positioned to respect sidebar width for centering */}
+            <div className={`fixed top-0 right-0 bottom-0 left-0 lg:left-[var(--sidebar-width)] z-[60] flex items-center justify-center p-4 pointer-events-none transition-all duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}>
+                <div
+                    className={`pointer-events-auto bg-white dark:bg-[#1e293b] w-full max-w-[400px] rounded-[2rem] shadow-2xl p-8 flex flex-col items-center text-center transition-all duration-300 transform ${isVisible && !isClosing ? 'scale-100' : 'scale-90'}`}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {status === 'success' ? (
+                        <>
+                            {/* Success Icon */}
+                            <div className="size-20 bg-green-50 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-6 animate-scale-in">
+                                <span className="material-symbols-outlined text-green-500 text-4xl">check</span>
+                            </div>
 
-                        <div className="text-slate-500 dark:text-slate-400 font-medium mb-8 leading-relaxed">
-                            Hemos enviado las instrucciones para restablecer tu contraseña a <span className="text-slate-900 dark:text-white font-bold">{email}</span>.
-                        </div>
+                            <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2 leading-tight">
+                                ¡Correo Enviado!
+                            </h2>
 
-                        <button
-                            onClick={handleClose}
-                            className="w-full px-4 py-3.5 rounded-2xl bg-primary hover:bg-blue-600 text-white font-bold text-sm shadow-xl shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                        >
-                            Entendido
-                        </button>
-                    </>
-                ) : (
-                    <>
-                        {/* Confirm Icon */}
-                        <div className="size-20 bg-primary/10 rounded-full flex items-center justify-center mb-6">
-                            <Mail className="text-primary" size={40} strokeWidth={2.5} />
-                        </div>
+                            <div className="text-slate-500 dark:text-slate-400 font-medium mb-8 leading-relaxed">
+                                Hemos enviado las instrucciones para restablecer tu contraseña a <span className="text-slate-900 dark:text-white font-bold">{email}</span>.
+                            </div>
 
-                        <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2 leading-tight">
-                            ¿Restablecer contraseña?
-                        </h2>
-
-                        <div className="text-slate-500 dark:text-slate-400 font-medium mb-8 leading-relaxed">
-                            Se enviará un correo de restablecimiento de contraseña a <span className="text-slate-900 dark:text-white font-bold">{email}</span>.
-                        </div>
-
-                        <div className="flex gap-4 w-full">
                             <button
                                 onClick={handleClose}
-                                disabled={status === 'loading'}
-                                className="flex-1 px-4 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-sm transition-colors disabled:opacity-50"
+                                className="w-full px-4 py-3.5 rounded-2xl bg-primary hover:bg-gray-800 text-white font-bold text-sm shadow-xl shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                             >
-                                Cancelar
+                                Entendido
                             </button>
-                            <button
-                                onClick={handleConfirm}
-                                disabled={status === 'loading'}
-                                className="flex-1 px-4 py-3.5 rounded-2xl bg-primary hover:bg-blue-600 text-white font-bold text-sm shadow-xl shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center justify-center gap-2"
-                            >
-                                {status === 'loading' ? (
-                                    <>
-                                        <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        <span>Enviando...</span>
-                                    </>
-                                ) : (
-                                    'Enviar Correo'
-                                )}
-                            </button>
-                        </div>
-                    </>
-                )}
+                        </>
+                    ) : (
+                        <>
+                            {/* Confirm Icon */}
+                            <div className="size-20 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                                <Mail className="text-primary" size={40} strokeWidth={2.5} />
+                            </div>
+
+                            <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2 leading-tight">
+                                ¿Restablecer contraseña?
+                            </h2>
+
+                            <div className="text-slate-500 dark:text-slate-400 font-medium mb-8 leading-relaxed">
+                                Se enviará un correo de restablecimiento de contraseña a <span className="text-slate-900 dark:text-white font-bold">{email}</span>.
+                            </div>
+
+                            <div className="flex gap-4 w-full">
+                                <button
+                                    onClick={handleClose}
+                                    disabled={status === 'loading'}
+                                    className="flex-1 px-4 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-sm transition-colors disabled:opacity-50 cursor-pointer"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleConfirm}
+                                    disabled={status === 'loading'}
+                                    className="group flex-1 relative px-4 py-3.5 rounded-2xl bg-primary hover:bg-gray-800 text-white font-bold text-sm shadow-xl shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait flex items-center justify-center overflow-hidden cursor-pointer"
+                                >
+                                    {status === 'loading' ? (
+                                        <div className="flex items-center gap-2">
+                                            <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            <span>Enviando...</span>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <span className="transition-transform duration-300 group-hover:-translate-x-3">Enviar Correo</span>
+                                            <ArrowRight size={18} className="absolute right-8 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300" />
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
-        </div>
+        </>
     );
 }

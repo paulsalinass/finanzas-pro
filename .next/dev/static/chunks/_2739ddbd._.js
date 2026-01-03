@@ -256,7 +256,7 @@ function CardDetails() {
         }, this);
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "flex-1 w-full h-full overflow-y-auto scrollbar-hide pb-28 lg:pb-12 bg-background-light dark:bg-background-dark relative z-10",
+        className: "flex-1 w-full h-full overflow-y-auto scrollbar-hide pb-40 lg:pb-12 bg-background-light dark:bg-background-dark relative z-10",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "fixed inset-0 pointer-events-none opacity-40 dark:opacity-10 -z-10",

@@ -1,6 +1,5 @@
-"use client";
-
 import React, { useState, useEffect } from 'react';
+import { createPortal } from "react-dom";
 import { Commitment } from '@/types';
 import { useFinance } from '@/context/FinanceContext';
 import { CategoryIcon } from './CategoryIcon';
@@ -41,6 +40,7 @@ const COLOR_MAP: Record<string, { bg: string, text: string }> = {
 
 export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, onDelete }: CommitmentDetailsModalProps) => {
     // ... context...
+
     const {
         ledgers,
         activeBookId,
@@ -56,41 +56,43 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
     const [isVisible, setIsVisible] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+    const [portalElement, setPortalElement] = useState<HTMLElement | null>(null);
     const [cachedCommitment, setCachedCommitment] = useState<Commitment | null>(null);
 
-    // Edit logic
     const [isEditingPaymentMethod, setIsEditingPaymentMethod] = useState(false);
     const [selectedFundingAccount, setSelectedFundingAccount] = useState<string>('');
 
-    // Handle open/close animations and caching data
-    // Handle open/close animations and caching data
-    const [isClosing, setIsClosing] = useState(false);
+    // Init Portal
+    useEffect(() => {
+        setIsMounted(true);
+        setPortalElement(document.body);
+        return () => setIsMounted(false);
+    }, []);
 
+    // Handle open/close animations and caching
     useEffect(() => {
         if (isOpen && commitment) {
+            setIsMounted(true);
             setCachedCommitment(commitment);
-            // Small delay to ensure browser paints initial state before animating
-            const timer = setTimeout(() => {
-                setIsVisible(true);
-                setIsClosing(false);
-            }, 10);
-            return () => clearTimeout(timer);
+            // Double rAF ensures the browser validates the 'closed' state first, then transitions to 'open' in the next frame
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => setIsVisible(true));
+            });
         } else {
-            setIsClosing(true);
             setIsVisible(false);
             const timer = setTimeout(() => {
                 setCachedCommitment(null);
-            }, 300); // 300ms matches existing transitions if any, or standard speed
+                // Only unmount if we're truly closing and not swapping commitments (though this modal works on single instances usually)
+                // Keeping it mounted is fine until caching is cleared, or we can clear mounted here if we want strict tearing down.
+                // Behaving like other modals:
+            }, 300);
             return () => clearTimeout(timer);
         }
     }, [isOpen, commitment]);
 
     const handleClose = () => {
-        setIsClosing(true);
-        setIsVisible(false);
-        setTimeout(() => {
-            onClose();
-        }, 300);
+        onClose();
     };
 
     // Handle ESC key
@@ -203,20 +205,23 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
         setIsDeleteConfirmOpen(true);
     };
 
+    // Confirm Close Logic
     const confirmDelete = () => {
         onDelete(commitmentToRender.id);
         setIsDeleteConfirmOpen(false);
         handleClose();
     };
 
-    return (
+    if (!isMounted || !portalElement) return null;
+
+    return createPortal(
         <>
             <div
-                className={`fixed top-0 bottom-0 right-0 left-0 lg:left-[var(--sidebar-width)] z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+                className={`fixed inset-0 z-40 flex items-center justify-center p-4 lg:pl-[var(--sidebar-width)] bg-black/10 backdrop-blur-md transition-all duration-300 ease-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
                 onClick={handleClose}
             >
                 <div
-                    className={`bg-white dark:bg-[#1e2530] w-full max-w-2xl rounded-3xl shadow-premium overflow-hidden flex flex-col max-h-[90vh] transition-all duration-300 transform ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                    className={`bg-white dark:bg-[#1e2530] w-full max-w-2xl rounded-3xl shadow-premium overflow-hidden flex flex-col max-h-[90vh] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${isVisible ? 'scale-100 translate-y-0 opacity-100' : 'scale-95 translate-y-4 opacity-0'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
@@ -241,10 +246,10 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
                                 }`}>
                                 {isPaid ? 'Pagado' : isOverdue ? 'Vencido' : 'Pendiente'}
                             </div>
-                            <button onClick={() => onEdit(commitmentToRender)} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl text-gray-400 hover:text-primary transition-colors">
+                            <button onClick={() => onEdit(commitmentToRender)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors cursor-pointer">
                                 <span className="material-symbols-outlined text-[20px]">edit</span>
                             </button>
-                            <button onClick={handleDeleteClick} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl text-gray-400 hover:text-rose-500 transition-colors">
+                            <button onClick={handleDeleteClick} className="w-10 h-10 flex items-center justify-center rounded-full text-gray-400 hover:bg-rose-500 hover:text-white transition-colors cursor-pointer">
                                 <span className="material-symbols-outlined text-[20px]">delete</span>
                             </button>
                         </div>
@@ -304,7 +309,7 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
                                                         setIsEditingPaymentMethod(!isEditingPaymentMethod);
                                                         setSelectedFundingAccount(commitmentToRender.fundingAccountId || '');
                                                     }}
-                                                    className="text-[10px] text-primary font-bold hover:underline"
+                                                    className="text-[10px] text-primary font-bold hover:underline cursor-pointer"
                                                 >
                                                     {isEditingPaymentMethod ? 'Cancelar' : 'Cambiar'}
                                                 </button>
@@ -363,7 +368,7 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
                         <div>
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="text-sm font-bold text-gray-800 dark:text-white">Historial de Pagos</h3>
-                                <button className="text-xs font-medium text-primary hover:underline">Ver todo</button>
+                                <button className="text-xs font-medium text-primary hover:underline cursor-pointer">Ver todo</button>
                             </div>
                             <div className="border border-gray-100 dark:border-white/5 rounded-2xl overflow-hidden">
                                 {history.length === 0 ? (
@@ -407,7 +412,7 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
                             disabled={isPaid}
                             className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] ${isPaid
                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
-                                : 'bg-primary text-white hover:bg-blue-600'
+                                : 'bg-primary text-white hover:bg-gray-800 cursor-pointer'
                                 }`}
                         >
                             {isPaid ? (
@@ -423,7 +428,7 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
                             )}
                         </button>
                         {!isPaid && (
-                            <button className="px-6 py-3.5 rounded-xl font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center gap-2">
+                            <button className="px-6 py-3.5 rounded-xl font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10 transition-all flex items-center gap-2 cursor-pointer">
                                 <span className="material-symbols-outlined">calendar_clock</span>
                                 Posponer
                             </button>
@@ -440,6 +445,7 @@ export const CommitmentDetailsModal = ({ isOpen, onClose, commitment, onEdit, on
                 message="Estás a punto de eliminar este compromiso. Si existen transacciones pasadas, se mantendrán en el historial."
                 itemName={commitmentToRender.name}
             />
-        </>
+        </>,
+        portalElement
     );
 };

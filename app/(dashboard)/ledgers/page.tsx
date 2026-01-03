@@ -52,7 +52,7 @@ export default function Ledgers() {
                 <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-100 rounded-full blur-[120px]"></div>
             </div>
 
-            <div className="container mx-auto max-w-[1200px] p-6 lg:p-10 flex flex-col gap-8">
+            <div className="container mx-auto max-w-[1200px] p-4 md:p-8 flex flex-col gap-8">
                 {/* Page Header */}
                 <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-fade-in">
                     <div className="flex flex-col gap-1">
@@ -62,8 +62,8 @@ export default function Ledgers() {
                         </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                        <Link href="/books/create" className="flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 h-12">
-                            <span className="material-symbols-outlined text-[20px]">add_circle</span>
+                        <Link href="/books/create" className="group flex items-center justify-center gap-2 bg-primary hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 h-12 cursor-pointer">
+                            <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-300">add</span>
                             <span className="text-sm">Nuevo Libro</span>
                         </Link>
                     </div>

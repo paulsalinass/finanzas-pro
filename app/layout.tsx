@@ -33,7 +33,7 @@ export default function RootLayout({
             <head>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
             </head>
-            <body className={`${plusJakarta.className} font-body selection:bg-primary/20 bg-background-page dark:bg-background-dark text-text-main dark:text-white h-screen overflow-hidden`}>
+            <body suppressHydrationWarning={true} className={`${plusJakarta.className} font-body selection:bg-primary/20 bg-background-page dark:bg-background-dark text-text-main dark:text-white h-screen overflow-hidden`}>
                 <FinanceProvider>
                     {children}
                     <TransactionModal />

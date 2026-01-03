@@ -271,7 +271,7 @@ export default function ProfilePage() {
                     {/* LEFT COLUMN: Avatar & Account Status */}
                     <div className="lg:col-span-4 space-y-6">
                         {/* Main Card */}
-                        <div className="bg-white dark:bg-[#1e293b] rounded-[2rem] p-8 shadow-premium border border-slate-100 dark:border-slate-800 flex flex-col items-center text-center relative overflow-hidden">
+                        <div className="glass-card rounded-3xl p-8 flex flex-col items-center text-center relative overflow-hidden group hover:shadow-soft transition-all duration-300">
 
                             {/* Background Pattern */}
                             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 dark:from-indigo-500/5 dark:to-purple-500/5"></div>
@@ -304,7 +304,7 @@ export default function ProfilePage() {
                         </div>
 
                         {/* Account Status */}
-                        <div className="bg-white dark:bg-[#1e293b] rounded-[2rem] p-8 shadow-premium border border-slate-100 dark:border-slate-800 space-y-5">
+                        <div className="glass-card rounded-3xl p-8 space-y-5 hover:shadow-soft transition-all duration-300">
                             <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                 Estado de la cuenta
                             </h3>
@@ -350,7 +350,7 @@ export default function ProfilePage() {
                     <div className="lg:col-span-8 space-y-6">
 
                         {/* Personal Information */}
-                        <div className="bg-white dark:bg-[#1e293b] rounded-[2rem] p-8 shadow-premium border border-slate-100 dark:border-slate-800">
+                        <div className="glass-card rounded-3xl p-8 hover:shadow-soft transition-all duration-300">
                             <div className="flex items-center justify-between mb-8">
                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                     Información Personal
@@ -417,7 +417,7 @@ export default function ProfilePage() {
                         </div>
 
                         {/* Security */}
-                        <div className="bg-white dark:bg-[#1e293b] rounded-[2rem] p-8 shadow-premium border border-slate-100 dark:border-slate-800">
+                        <div className="glass-card rounded-3xl p-8 hover:shadow-soft transition-all duration-300">
                             <div className="flex items-center justify-between mb-8">
                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                     Seguridad & Contraseña
@@ -493,7 +493,7 @@ export default function ProfilePage() {
                         </div>
 
                         {/* Preferences */}
-                        <div className="bg-white dark:bg-[#1e293b] rounded-[2rem] p-8 shadow-premium border border-slate-100 dark:border-slate-800">
+                        <div className="glass-card rounded-3xl p-8 hover:shadow-soft transition-all duration-300">
                             <div className="flex items-center justify-between mb-8">
                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                     Preferencias
@@ -679,7 +679,7 @@ export default function ProfilePage() {
                         </div>
 
                         {/* DANGER ZONE */}
-                        <div className="bg-red-50 dark:bg-red-900/10 rounded-[2rem] p-8 shadow-sm border border-red-100 dark:border-red-900/30">
+                        <div className="bg-red-50 dark:bg-red-900/10 rounded-3xl p-8 shadow-sm border border-red-100 dark:border-red-900/30">
                             <h3 className="text-lg font-bold text-red-600 dark:text-red-400 mb-2">Zona de Peligro</h3>
                             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 font-medium">
                                 Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate.

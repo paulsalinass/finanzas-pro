@@ -116,12 +116,19 @@ export function CategoryModal({ isOpen, onClose, folders, activeBookId, defaultF
 
     return (
         <>
+            {/* Backdrop: Covers full screen, but z-40 puts it behind z-50 Sidebar */}
             <div
-                className={`fixed top-0 right-0 bottom-0 left-0 lg:left-[var(--sidebar-width)] z-[100] flex items-center justify-center p-4 sm:p-8 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
+                className={`fixed inset-0 z-40 bg-black/10 backdrop-blur-sm transition-opacity duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
                 onClick={handleClose}
+            />
+
+            {/* Modal Container: Positioned to respect sidebar width on desktop, full width on mobile */}
+            <div
+                className={`fixed top-0 right-0 bottom-0 left-0 lg:left-[var(--sidebar-width)] z-[60] flex items-center justify-center p-4 sm:p-8 pointer-events-none transition-opacity duration-300 ${isVisible && !isClosing ? 'opacity-100' : 'opacity-0'}`}
+                style={{ '--sidebar-width': '280px' } as React.CSSProperties}
             >
                 <div
-                    className={`bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-premium overflow-hidden flex flex-col border border-slate-100 dark:border-slate-800 max-h-[90dvh] overflow-y-auto scrollbar-hide transition-all duration-300 transform ${isVisible && !isClosing ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                    className={`bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-premium overflow-hidden flex flex-col border border-slate-100 dark:border-slate-800 max-h-[90dvh] overflow-y-auto scrollbar-hide pointer-events-auto transition-all duration-300 transform ${isVisible && !isClosing ? 'scale-100' : 'scale-95'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex-shrink-0">
@@ -130,7 +137,7 @@ export function CategoryModal({ isOpen, onClose, folders, activeBookId, defaultF
                                 {initialData ? 'Editar Categoría' : 'Nueva Categoría'}
                             </h1>
                         </div>
-                        <button onClick={handleClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+                        <button onClick={handleClose} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
                             <span className="material-symbols-outlined text-2xl">close</span>
                         </button>
                     </div>
@@ -154,7 +161,7 @@ export function CategoryModal({ isOpen, onClose, folders, activeBookId, defaultF
                                 <select
                                     value={folderId}
                                     onChange={(e) => setFolderId(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium appearance-none"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-slate-900/50 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all font-medium appearance-none cursor-pointer"
                                 >
                                     <option value="ungrouped">General / Sin Carpeta</option>
                                     {folders.map(f => (
@@ -174,7 +181,7 @@ export function CategoryModal({ isOpen, onClose, folders, activeBookId, defaultF
                                 <button
                                     type="button"
                                     onClick={handleDeleteClick}
-                                    className="mr-auto px-3 h-10 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold transition-colors flex items-center gap-2 text-sm"
+                                    className="mr-auto px-3 h-10 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 font-bold transition-colors flex items-center gap-2 text-sm cursor-pointer"
                                 >
                                     <span className="material-symbols-outlined text-[18px]">delete</span>
                                     <span className="hidden sm:inline">Eliminar</span>
@@ -184,14 +191,14 @@ export function CategoryModal({ isOpen, onClose, folders, activeBookId, defaultF
                             <button
                                 type="button"
                                 onClick={handleClose}
-                                className="px-4 h-10 rounded-xl text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm"
+                                className="px-4 h-10 rounded-xl text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm cursor-pointer"
                             >
                                 Cancelar
                             </button>
                             <button
                                 type="submit"
                                 disabled={isPending}
-                                className="px-5 h-10 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/20 transition-all flex items-center gap-2 text-sm"
+                                className="px-5 h-10 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/20 transition-all flex items-center gap-2 text-sm cursor-pointer"
                             >
                                 {isPending && <div className="size-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
                                 Guardar

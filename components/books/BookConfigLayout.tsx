@@ -4,7 +4,7 @@ import { ArrowLeft, Book, Calendar, Eye, Bell, AlertTriangle } from "lucide-reac
 export function BookConfigLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="h-full w-full overflow-y-auto scrollbar-hide relative pb-20 scroll-smooth">
-            <div className="max-w-6xl mx-auto p-6 space-y-8">
+            <div className="max-w-[1200px] mx-auto p-4 md:p-8 flex flex-col gap-8">
                 {/* Breadcrumbs */}
                 <nav className="text-sm text-text-muted flex items-center gap-2">
                     <Link href="/dashboard" className="hover:text-primary transition-colors">Inicio</Link>
@@ -12,9 +12,9 @@ export function BookConfigLayout({ children }: { children: React.ReactNode }) {
                     <span className="text-text-main font-medium">Configuración del Libro</span>
                 </nav>
 
-                <div className="space-y-2">
-                    <h1 className="text-3xl font-bold tracking-tight text-text-main">Configuración del Libro</h1>
-                    <p className="text-text-muted">Gestiona los parámetros fundamentales, divisas y preferencias de visualización.</p>
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-text-main">Configuración del Libro</h1>
+                    <p className="text-text-muted text-lg font-normal">Gestiona los parámetros fundamentales, divisas y preferencias de visualización.</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">

@@ -53,8 +53,11 @@ interface FinanceContextType {
   refreshBooks: () => Promise<void>;
   formatAmount: (amount: number) => string;
   isTransactionModalOpen: boolean;
+  transactionToEdit: Transaction | null;
+  selectTransaction: (t: Transaction | null) => void;
   openTransactionModal: () => void;
   closeTransactionModal: () => void;
+  updateCategories: (newCategories: Category[]) => void;
   addBudget: (b: { amount: number; categoryId: string; recurrenceType?: string; recurrenceInterval?: number; startDate?: string; endDate?: string }) => Promise<void>;
   updateBudget: (id: string, updates: Partial<{ amount: number; categoryId: string; recurrenceType?: string; recurrenceInterval?: number; startDate?: string; endDate?: string }>) => Promise<void>;
   deleteBudget: (id: string) => Promise<void>;
@@ -464,7 +467,8 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
         name: cat.name,
         color: cat.color || '#2563eb',
         icon: cat.icon || 'category',
-        folder_id: cat.folder_id || null
+        folder_id: cat.folder_id || null,
+        order: cat.order || 0
       }));
       setCategories(mapped);
       localStorage.setItem(`fin_cache_categories_${bookId}`, JSON.stringify(mapped));
@@ -1099,8 +1103,7 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     if (updates.location !== undefined) payload.location_text = updates.location;
     if (updates.beneficiary !== undefined) payload.beneficiary = updates.beneficiary;
     if (updates.frequency !== undefined) payload.frequency = updates.frequency;
-    if (updates.end_date !== undefined) payload.end_date = updates.end_date;
-    if (updates.end_date !== undefined) payload.end_date = updates.end_date;
+
     // Relationship updates
     if (updates.category_id) payload.category_id = updates.category_id;
     if (updates.account_id) payload.account_id = updates.account_id;
@@ -1458,9 +1461,21 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   // Modal State
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
 
-  const openTransactionModal = () => setIsTransactionModalOpen(true);
-  const closeTransactionModal = () => setIsTransactionModalOpen(false);
+  const openTransactionModal = () => {
+    setTransactionToEdit(null); // Ensure clean state for "Add"
+    setIsTransactionModalOpen(true);
+  };
+  const closeTransactionModal = () => {
+    setIsTransactionModalOpen(false);
+    setTimeout(() => setTransactionToEdit(null), 300); // Wait for animation
+  };
+
+  const selectTransaction = (t: Transaction | null) => {
+    setTransactionToEdit(t);
+    setIsTransactionModalOpen(true);
+  };
 
   const totalBalance = useMemo(() => accounts.reduce((sum, acc) => sum + acc.balance, 0), [accounts]);
 
@@ -1695,8 +1710,11 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
     refreshBooks,
     formatAmount,
     isTransactionModalOpen,
+    transactionToEdit,
+    selectTransaction,
     openTransactionModal,
     closeTransactionModal,
+    updateCategories: setCategories,
     addBudget,
     updateBudget,
     deleteBudget,

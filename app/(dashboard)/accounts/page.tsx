@@ -209,7 +209,7 @@ export default function Accounts() {
                 <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-100 rounded-full blur-[120px]"></div>
             </div>
 
-            <div className="container mx-auto max-w-[1200px] p-6 lg:p-10 flex flex-col gap-8">
+            <div className="container mx-auto max-w-[1200px] p-4 md:p-8 flex flex-col gap-8">
                 {/* Page Header */}
                 <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-fade-in">
                     <div className="flex flex-col gap-1">
@@ -221,9 +221,9 @@ export default function Accounts() {
                     <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                         <button
                             onClick={openCreateModal}
-                            className="flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 h-12"
+                            className="flex items-center justify-center gap-2 bg-primary hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95 h-12 cursor-pointer group"
                         >
-                            <span className="material-symbols-outlined text-[20px]">add_circle</span>
+                            <span className="material-symbols-outlined text-[20px] group-hover:rotate-90 transition-transform duration-300">add</span>
                             <span className="text-sm">Nueva Cuenta</span>
                         </button>
                     </div>
@@ -328,8 +328,8 @@ export default function Accounts() {
                             </div>
                             Efectivo y Bancos
                         </h3>
-                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tabular-nums bg-slate-100 dark:bg-slate-800/50 px-3 py-1 rounded-full flex items-center">
-                            <MoneyDisplay amount={totalAssets} currency={currencySymbol} size="lg" color="text-slate-500 dark:text-slate-400" />
+                        <span className="text-xs font-bold text-slate-600 dark:text-slate-400 tabular-nums bg-white dark:bg-slate-800/50 px-3 py-1 rounded-full flex items-center shadow-sm">
+                            <MoneyDisplay amount={totalAssets} currency={currencySymbol} size="lg" color="text-slate-600 dark:text-slate-400" />
                         </span>
                     </div>
 
@@ -386,8 +386,8 @@ export default function Accounts() {
                             </div>
                             Tarjetas de Crédito
                         </h3>
-                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tabular-nums bg-slate-100 dark:bg-slate-800/50 px-3 py-1 rounded-full flex items-center">
-                            <MoneyDisplay amount={-Math.abs(totalLiabilities)} currency={currencySymbol} size="lg" color="text-slate-500 dark:text-slate-400" />
+                        <span className="text-xs font-bold text-slate-600 dark:text-slate-400 tabular-nums bg-white dark:bg-slate-800/50 px-3 py-1 rounded-full flex items-center shadow-sm">
+                            <MoneyDisplay amount={-Math.abs(totalLiabilities)} currency={currencySymbol} size="lg" color="text-slate-600 dark:text-slate-400" />
                         </span>
                     </div>
 

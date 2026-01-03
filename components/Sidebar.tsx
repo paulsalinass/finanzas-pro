@@ -59,8 +59,8 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({ to, icon: Icon, label, exact 
   return (
     <Link
       href={to}
-      className={`relative flex items-center gap-3 rounded-xl transition-all group overflow-visible ${collapsed ? 'justify-center px-2 py-3' : 'px-4 py-3'
-        } ${isActive ? 'bg-gradient-primary text-white shadow-lg shadow-primary/25' : 'text-[#637288] dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800 hover:text-primary dark:hover:text-primary'
+      className={`relative flex items-center gap-3 rounded-2xl transition-all group overflow-visible ${collapsed ? 'justify-center px-2 py-3' : 'px-4 py-3'
+        } ${isActive ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-text-muted dark:text-dark-muted hover:bg-white/50 dark:hover:bg-white/5 hover:text-primary dark:hover:text-primary'
         }`}
       ref={linkRef}
       onMouseEnter={handleMouseEnter}
@@ -117,10 +117,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle })
   }, [collapsed]);
 
   return (
-    <aside className={`${collapsed ? 'w-[88px]' : 'w-[280px]'} relative bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border border-white/50 dark:border-slate-800 ml-4 my-4 rounded-3xl h-[calc(100vh-2rem)] shadow-xl flex flex-col z-50 hidden lg:flex shrink-0 transition-all duration-300 overflow-visible group`}>
+    <aside className={`${collapsed ? 'w-[88px]' : 'w-[280px]'} relative glass-nav ml-4 my-4 rounded-3xl h-[calc(100vh-2rem)] flex flex-col z-50 hidden lg:flex shrink-0 transition-all duration-300 overflow-visible group`}>
       <div className={`h-20 flex items-center relative shrink-0 ${collapsed ? 'justify-center' : 'px-6'}`}>
         <Link className={`flex items-center gap-3 group w-full ${collapsed ? 'justify-center' : ''}`} href="/">
-          <div className="size-9 bg-primary/10 rounded-xl flex items-center justify-center text-primary group-hover:bg-gradient-primary group-hover:text-white transition-colors duration-300 shadow-sm">
+          <div className="size-9 bg-primary/10 rounded-xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300 shadow-sm">
             <Wallet size={24} strokeWidth={1.5} />
           </div>
           {!collapsed && <h2 className="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-tight">Finanzas Claras</h2>}
@@ -163,7 +163,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle })
         <div className="h-6"></div>
       </nav>
 
-      <div className={`p-4 border-t border-white/50 dark:border-slate-800 bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm ${collapsed ? 'flex justify-center' : ''} relative`}>
+      <div className={`p-4 border-t border-white/50 dark:border-slate-800 bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm rounded-b-3xl ${collapsed ? 'flex justify-center' : ''} relative`}>
         {showLogoutMenu && (
           <div className={`absolute bottom-full mb-2 ${collapsed ? 'left-1/2 -translate-x-1/2' : 'left-4 w-[calc(100%-2rem)]'} bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 p-1.5 animate-in fade-in slide-in-from-bottom-2 z-[60]`}>
             <button

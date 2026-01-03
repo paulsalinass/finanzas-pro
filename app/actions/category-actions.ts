@@ -134,3 +134,32 @@ export async function updateFolder(formData: FormData) {
     revalidatePath('/categories')
     return { success: true }
 }
+
+export async function reorderCategories(items: { id: string; order: number }[]) {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Unauthorized' }
+
+    try {
+        // Execute sequentially to avoid overwhelming the connection or hitting rate limits
+        // causing "snap back" on larger lists.
+        for (const item of items) {
+            const { error } = await supabase.from('categories')
+                .update({ order: item.order })
+                .eq('id', item.id);
+
+            if (error) {
+                console.error(`Failed to update order for category ${item.id}:`, error);
+                // Choose to continue or throw? 
+                // If we throw, we stop. Partial updates might occur.
+                // Let's log and continue to try to save as much as possible.
+            }
+        }
+
+        revalidatePath('/categories');
+        return { success: true };
+    } catch (error: any) {
+        return { error: error.message };
+    }
+}
