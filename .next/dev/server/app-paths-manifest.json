@@ -10,5 +10,6 @@
   "/(dashboard)/ledgers/page": "app/(dashboard)/ledgers/page.js",
   "/(dashboard)/page": "app/(dashboard)/page.js",
   "/(dashboard)/profile/page": "app/(dashboard)/profile/page.js",
-  "/(dashboard)/transactions/page": "app/(dashboard)/transactions/page.js"
+  "/(dashboard)/transactions/page": "app/(dashboard)/transactions/page.js",
+  "/login/page": "app/login/page.js"
 }
