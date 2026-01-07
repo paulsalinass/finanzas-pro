@@ -6,6 +6,7 @@ import { createClient } from '../utils/supabase/client';
 import { Transaction, Account, Budget, Commitment, RecurringRule, Ledger, TransactionType, Category, CategoryFolder, UserProfile, Notification } from '../types';
 import { useRouter } from 'next/navigation';
 import { addMonths, addWeeks, addYears, isAfter, isBefore, startOfDay, addDays, isSameDay, endOfMonth, subMonths, format, subDays, endOfDay, parseISO, startOfMonth, isWithinInterval } from 'date-fns';
+import { debounce } from '../lib/performance-utils';
 
 
 // Database types mapping could be strictly done here, but for now we map manually
@@ -284,17 +285,13 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
   }, [commitments]);
 
   useEffect(() => {
-    // Ensure commitments are loaded or at least we have tried to fetch them.
-    // We can check if commitments array is populated or if we have a flag.
-    // Relying on accounts/transactions implies data is loaded.
-    // Adding `commitments` to deps ensures we re-run if they change (e.g. initial load finish).
-    // But we must guard against infinite loop if this function *modifies* commitments.
-    // checkCreditCardCommitments modifies commitments ONLY if needed.
+    // Only run when data is loaded
+    // The functions themselves have guards to prevent unnecessary work
     if (!isLoading && accounts.length > 0 && transactions.length > 0) {
       checkCreditCardCommitments();
       generateNotifications();
     }
-  }, [isLoading, accounts, transactions.length, commitments.length, budgets.length]); // Added dependencies
+  }, [isLoading, accounts.length, transactions.length]);
 
   // Notification Logic
   const generateNotifications = useCallback(() => {
@@ -428,18 +425,27 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
   // Effect to handle initial active book selection once ledgers are loaded
   useEffect(() => {
     if (!isLoading && ledgers.length > 0 && !activeBookId) {
-      // Try to recover from localStorage
+      // Priority 1: Use active_book_id from user profile (database)
+      const profileBookId = userProfile?.active_book_id;
+      const profileBook = ledgers.find(l => l.id === profileBookId);
+
+      if (profileBook) {
+        handleChangeActiveBook(profileBook.id);
+        return;
+      }
+
+      // Priority 2: Try to recover from localStorage (fallback)
       const savedBookId = localStorage.getItem('finance_active_book_id');
       const targetBook = ledgers.find(l => l.id === savedBookId);
 
       if (targetBook) {
         handleChangeActiveBook(targetBook.id);
       } else {
-        // Default to first if no saved book or saved book not found/deleted
+        // Priority 3: Default to first book
         handleChangeActiveBook(ledgers[0].id);
       }
     }
-  }, [isLoading, ledgers, activeBookId]);
+  }, [isLoading, ledgers, activeBookId, userProfile]);
 
   // Helper to format currency based on active book
   const formatAmount = useCallback((amount: number) => {
@@ -691,8 +697,22 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const handleChangeActiveBook = useCallback(async (bookId: string) => {
     setActiveBookId(bookId);
-    localStorage.setItem('finance_active_book_id', bookId); // Persist selection
+    localStorage.setItem('finance_active_book_id', bookId); // Keep localStorage as backup
     setLedgers(prev => prev.map(l => ({ ...l, isActive: l.id === bookId })));
+
+    // Save to database for cross-device persistence
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase
+          .from('profiles')
+          .update({ active_book_id: bookId })
+          .eq('id', user.id);
+      }
+    } catch (error) {
+      console.warn('Failed to save active book to database:', error);
+      // Continue anyway - localStorage will work as fallback
+    }
 
     // Load Caches Immediately
     try {
@@ -728,7 +748,7 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
       fetchBudgets(bookId),
       fetchRecurringRules(bookId)
     ]);
-  }, [fetchAccounts, fetchCategories, fetchCategoryFolders, fetchTransactions, fetchCommitments, fetchBudgets, fetchRecurringRules]);
+  }, [supabase, fetchAccounts, fetchCategories, fetchCategoryFolders, fetchTransactions, fetchCommitments, fetchBudgets, fetchRecurringRules]);
 
 
 

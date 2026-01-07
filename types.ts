@@ -165,6 +165,7 @@ export interface UserProfile {
   location_lng?: number;
   is_location_enabled?: boolean;
   email_confirmed_at?: string | null;
+  active_book_id?: string; // Persisted active book selection
 }
 
 export interface Notification {
