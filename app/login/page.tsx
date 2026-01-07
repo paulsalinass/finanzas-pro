@@ -35,7 +35,12 @@ export default function LoginPage() {
             });
 
             if (error) {
-                setMessage(error.message);
+                const errorMessages: Record<string, string> = {
+                    'Invalid login credentials': 'Credenciales inválidas',
+                    'Email not confirmed': 'Por favor confirma tu correo electrónico',
+                    'User not found': 'Usuario no encontrado'
+                };
+                setMessage(errorMessages[error.message] || error.message);
             } else {
                 router.push("/");
                 router.refresh();
@@ -53,9 +58,16 @@ export default function LoginPage() {
             });
 
             if (error) {
-                setMessage(error.message);
+                // Translate common Supabase errors to Spanish
+                const errorMessages: Record<string, string> = {
+                    'User already registered': 'Este correo ya está registrado',
+                    'Invalid login credentials': 'Credenciales inválidas',
+                    'Email not confirmed': 'Por favor confirma tu correo electrónico',
+                    'Password should be at least 6 characters': 'La contraseña debe tener al menos 6 caracteres'
+                };
+                setMessage(errorMessages[error.message] || error.message);
             } else {
-                setMessage("Account created! Please check your email to confirm.");
+                setMessage("¡Cuenta creada exitosamente! Puedes iniciar sesión ahora.");
             }
         }
         setLoading(false);
@@ -181,7 +193,7 @@ export default function LoginPage() {
                 </form>
 
                 {message && (
-                    <div className={`mt-6 p-4 rounded-xl text-sm text-center ${message.includes("created") ? "bg-green-50 text-green-600 border border-green-100" : "bg-red-50 text-red-600 border border-red-100"}`}>
+                    <div className={`mt-6 p-4 rounded-xl text-sm text-center ${message.includes("created") || message.includes("creada") ? "bg-green-50 text-green-600 border border-green-100 dark:bg-green-900/20 dark:text-green-400" : "bg-red-50 text-red-600 border border-red-100 dark:bg-red-900/20 dark:text-red-400"}`}>
                         {message}
                     </div>
                 )}

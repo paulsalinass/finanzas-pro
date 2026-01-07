@@ -1495,12 +1495,15 @@ export const FinanceProvider: React.FC<{ children: ReactNode }> = ({ children })
 
     if (error && error.code === 'PGRST116') {
       // Profile doesn't exist, create it
+      // Extract full_name from user metadata (set during signup)
+      const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario';
+
       const newProfile = {
         id: user.id,
-        full_name: 'Paul', // Default as requested
+        full_name: fullName,
         email: user.email || '',
         phone: '',
-        username: '@paul',
+        username: `@${fullName.toLowerCase().replace(/\s+/g, '')}`,
         language: 'es',
         currency: 'PEN',
         country: 'Peru',
